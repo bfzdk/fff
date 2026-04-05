@@ -129,34 +129,12 @@ function vRP.openSkinshop(source, parts)
 						end -- change of texture
 					end
 
-					if vRP.tryFullPayment(user_id, price) then
-						if price > 0 then
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								source,
-								{
-									text = { lang.money.paid({ price }) },
-									type = "success",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
-						end
-					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							source,
-							{
-								text = { lang.money.not_enough() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+				if vRP.tryFullPayment(user_id, price) then
+					if price > 0 then
+						vRP.notify(source, lang.money.paid({ price }))
+					end
+				else
+					vRP.notify(source, lang.money.not_enough())
 						-- revert changes
 						vRPclient.setCustomization(source, { old_custom })
 					end

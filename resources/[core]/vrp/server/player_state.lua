@@ -55,18 +55,7 @@ AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
 
 		-- notify last login
 		SetTimeout(35000, function()
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = { lang.common.welcome({ tmpdata.last_login }) },
-					type = "info",
-					queue = "global",
-					timeout = 10000,
-					layout = "bottomCenter",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(player, lang.common.welcome({ tmpdata.last_login }))
 		end)
 	else -- not first spawn (player died), don't load weapons, empty wallet, empty inventory
 		vRP.setHunger(user_id, 0)

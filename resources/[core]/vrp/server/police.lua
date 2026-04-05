@@ -104,33 +104,11 @@ local function ch_searchreg(player, choice)
 							end)
 						end)
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.common.not_found() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(player, lang.common.not_found())
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.not_found() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.not_found())
 			end
 		end)
 	end)
@@ -184,35 +162,11 @@ local function ch_searchphone(player, choice)
 							end)
 						end)
 					else
-						-- vRPclient.notify(player,{lang.common.not_found()})
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.common.not_found() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(player, lang.common.not_found())
 					end
 				end)
 			else
-				-- vRPclient.notify(player,{lang.common.not_found()})
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.not_found() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.not_found())
 			end
 		end)
 	end)
@@ -234,18 +188,7 @@ local function ch_show_police_records(player, choice)
 					)
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.not_found() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.not_found())
 			end
 		end)
 	end)
@@ -257,31 +200,9 @@ local function ch_delete_police_records(player, choice)
 		vRP.getUserByRegistration(reg, function(user_id)
 			if user_id ~= nil then
 				vRP.setUData(user_id, "vRP:police_records", "")
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.police.pc.records.delete.deleted() },
-						type = "info",
-						queue = "global",
-						timeout = 4000,
-						layout = "bottomCenter",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.police.pc.records.delete.deleted())
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.not_found() },
-						type = "info",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.not_found())
 			end
 		end)
 	end)
@@ -302,50 +223,17 @@ local function ch_closebusiness(player, choice)
 							function(player, ok)
 								if ok then
 									vRP.closeBusiness(nuser_id)
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = { lang.police.pc.closebusiness.closed() },
-											type = "info",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(player, lang.police.pc.closebusiness.closed())
 								end
 							end
 						)
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.common.no_player_near() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(player, lang.common.no_player_near())
 					end
 				end)
 			end)
 		else
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = { lang.common.no_player_near() },
-					type = "error",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(player, lang.common.no_player_near())
 		end
 	end)
 end
@@ -357,18 +245,7 @@ local function ch_trackveh(player, choice)
 			if user_id ~= nil then
 				vRP.prompt(player, lang.police.pc.trackveh.prompt_note(), "", function(player, note) -- ask note
 					-- begin veh tracking
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.police.pc.trackveh.tracking() },
-							type = "info",
-							queue = "global",
-							timeout = 10000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.police.pc.trackveh.tracking())
 					local seconds = math.random(cfg.trackveh.min_time, cfg.trackveh.max_time)
 					SetTimeout(seconds * 1000, function()
 						local tplayer = vRP.getUserSource(user_id)
@@ -377,49 +254,16 @@ local function ch_trackveh(player, choice)
 								if ok then -- track success
 									vRP.sendServiceAlert(nil, cfg.trackveh.service, x, y, z, lang.police.pc.trackveh.tracked({ reg, note }))
 								else
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = { lang.police.pc.trackveh.track_failed({ reg, note }) },
-											type = "error",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(player, lang.police.pc.trackveh.track_failed({ reg, note }))
 								end
 							end)
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.police.pc.trackveh.track_failed({ reg, note }) },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.police.pc.trackveh.track_failed({ reg, note }))
 						end
 					end)
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.not_found() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.not_found())
 			end
 		end)
 	end)
@@ -463,34 +307,12 @@ local choice_putinveh = {
 							TriggerClientEvent("dr:undrag", nplayer)
 							TriggerClientEvent("dr:undrag2", player)
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.police.not_handcuffed() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerLeft",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.police.not_handcuffed())
 						end
 					end)
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerLeft",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.no_player_near())
 			end
 		end)
 	end,
@@ -505,18 +327,7 @@ local choice_putinveh_ems = {
 				vRPclient.putInNearestVehicleAsPassenger(nplayer, { 3 })
 				TriggerClientEvent("dr:undrag", nplayer)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.no_player_near())
 			end
 		end)
 	end,

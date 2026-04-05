@@ -487,18 +487,7 @@ veh_actions[lang.vehicle.sellTP.title()] = {
 															local fornavnT = identityT.firstname
 															local efternavnT = identityT.name
 															if #pvehicle > 0 then
-																TriggerClientEvent(
-																	"pNotify:SendNotification",
-																	player,
-																	{
-																		text = { "Har allerede dette køretøj." },
-																		type = "error",
-																		queue = "global",
-																		timeout = 4000,
-																		layout = "centerRight",
-																		animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																	}
-																)
+																vRP.notify(player, "Har allerede dette køretøj.")
 															else
 																vRP.request(
 																	target,
@@ -532,47 +521,9 @@ veh_actions[lang.vehicle.sellTP.title()] = {
 																					)
 																				end)
 
-																				vRP.giveBankMoney(playerID, amount)
-																				TriggerClientEvent(
-																					"pNotify:SendNotification",
-																					player,
-																					{
-																						text = {
-																							"Du solgte dit køretøj til "
-																								.. fornavnT
-																								.. " "
-																								.. efternavnT
-																								.. " for <b style='color: #4E9350'>"
-																								.. amount
-																								.. " DKK</b>.",
-																						},
-																						type = "success",
-																						queue = "global",
-																						timeout = 4000,
-																						layout = "bottomCenter",
-																						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																					}
-																				)
-																				TriggerClientEvent(
-																					"pNotify:SendNotification",
-																					target,
-																					{
-																						text = {
-																							"<b>"
-																								.. fornavnP
-																								.. " "
-																								.. efternavnP
-																								.. "</b> har solgt dig sit køretøj for <b style='color: #DB4646'>"
-																								.. amount
-																								.. " DKK</b>.",
-																						},
-																						type = "success",
-																						queue = "global",
-																						timeout = 4000,
-																						layout = "bottomCenter",
-																						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																					}
-																				)
+																		vRP.giveBankMoney(playerID, amount)
+																		vRP.notify(player, "Du solgte dit køretøj til " .. fornavnT .. " " .. efternavnT .. " for " .. amount .. " DKK.")
+																		vRP.notify(target, fornavnP .. " " .. efternavnP .. " har solgt dig sit køretøj for " .. amount .. " DKK.")
 
 																				PerformHttpRequest(
 																					"DIT_WEBHOOK",
@@ -601,56 +552,12 @@ veh_actions[lang.vehicle.sellTP.title()] = {
 																					{ ["Content-Type"] = "application/json" }
 																				)
 																			else
-																				TriggerClientEvent(
-																					"pNotify:SendNotification",
-																					player,
-																					{
-																						text = { "<b>" .. fornavnT .. " " .. efternavnT .. "</b> har ikke råd." },
-																						type = "error",
-																						queue = "global",
-																						timeout = 4000,
-																						layout = "centerRight",
-																						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																					}
-																				)
-																				TriggerClientEvent(
-																					"pNotify:SendNotification",
-																					target,
-																					{
-																						text = { "Du har ikke nok penge på dig." },
-																						type = "error",
-																						queue = "global",
-																						timeout = 4000,
-																						layout = "centerRight",
-																						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																					}
-																				)
+																				vRP.notify(player, fornavnT .. " " .. efternavnT .. " har ikke råd.")
+																				vRP.notify(target, "Du har ikke nok penge på dig.")
 																			end
 																		else
-																			TriggerClientEvent(
-																				"pNotify:SendNotification",
-																				player,
-																				{
-																					text = { "<b>" .. fornavnT .. " " .. efternavnT .. "</b> afviste at købe dit køretøj." },
-																					type = "error",
-																					queue = "global",
-																					timeout = 4000,
-																					layout = "bottomCenter",
-																					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																				}
-																			)
-																			TriggerClientEvent(
-																				"pNotify:SendNotification",
-																				target,
-																				{
-																					text = { "Du afviste at købe køretøjet af <b>" .. fornavnP .. " " .. efternavnP .. "</b>." },
-																					type = "error",
-																					queue = "global",
-																					timeout = 4000,
-																					layout = "bottomCenter",
-																					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																				}
-																			)
+																			vRP.notify(player, fornavnT .. " " .. efternavnT .. " afviste at købe dit køretøj.")
+																				vRP.notify(target, "Du afviste at købe køretøjet af " .. fornavnP .. " " .. efternavnP .. ".")
 																		end
 																	end
 																)
@@ -661,76 +568,21 @@ veh_actions[lang.vehicle.sellTP.title()] = {
 												end
 											)
 										else
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												player,
-												{
-													text = { "Prisen skal være højere eller lig med 0 DKK." },
-													type = "error",
-													queue = "global",
-													timeout = 4000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-												}
-											)
+											vRP.notify(player, "Prisen skal være højere eller lig med 0 DKK.")
 										end
 									else
-										TriggerClientEvent(
-											"pNotify:SendNotification",
-											player,
-											{
-												text = { "Prisen skal være et tal." },
-												type = "error",
-												queue = "global",
-												timeout = 4000,
-												layout = "centerRight",
-												animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											}
-										)
+										vRP.notify(player, "Prisen skal være et tal.")
 									end
 								end)
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { "Dette ID ser ud til ikke at eksistere." },
-										type = "error",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, "Dette ID ser ud til ikke at eksistere.")
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { "Intet ID valgt." },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, "Intet ID valgt.")
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { "Ingen spiller i nærheden." },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, "Ingen spiller i nærheden.")
 				end
 			end)
 		end
@@ -761,18 +613,7 @@ local function ch_vehicle(player, choice)
 					vRP.openMenu(player, menu)
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.vehicle.no_owned_near() },
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.vehicle.no_owned_near())
 			end
 		end)
 	end
@@ -783,19 +624,8 @@ local function ch_asktrunk(player, choice)
 	vRPclient.getNearestPlayer(player, { 10 }, function(nplayer)
 		local user_id = vRP.getUserId(player)
 		local nuser_id = vRP.getUserId(nplayer)
-		if nuser_id ~= nil then
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = { lang.vehicle.asktrunk.asked() },
-					type = "info",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			if nuser_id ~= nil then
+			vRP.notify(player, lang.vehicle.asktrunk.asked())
 			vRP.request(nplayer, lang.vehicle.asktrunk.request(), 15, function(nplayer, ok)
 				if ok then -- request accepted, open trunk
 					vRPclient.getNearestOwnedVehicle(nplayer, { 7 }, function(ok, vtype, name)
@@ -806,33 +636,11 @@ local function ch_asktrunk(player, choice)
 
 							-- open chest
 							local cb_out = function(idname, amount)
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									nplayer,
-									{
-										text = { lang.inventory.give.given({ vRP.getItemName(idname), amount }) },
-										type = "info",
-										queue = "global",
-										timeout = 3000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(nplayer, lang.inventory.give.given({ vRP.getItemName(idname), amount }))
 							end
 
 							local cb_in = function(idname, amount)
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									nplayer,
-									{
-										text = { lang.inventory.give.received({ vRP.getItemName(idname), amount }) },
-										type = "info",
-										queue = "global",
-										timeout = 3000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(nplayer, lang.inventory.give.received({ vRP.getItemName(idname), amount }))
 							end
 
 							vRPclient.vc_openDoor(nplayer, { vtype, 5 })
@@ -840,60 +648,16 @@ local function ch_asktrunk(player, choice)
 								vRPclient.vc_closeDoor(nplayer, { vtype, 5 })
 							end, cb_in, cb_out)
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.vehicle.no_owned_near() },
-									type = "info",
-									queue = "global",
-									timeout = 3000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								nplayer,
-								{
-									text = { lang.vehicle.no_owned_near() },
-									type = "info",
-									queue = "global",
-									timeout = 3000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.vehicle.no_owned_near())
+							vRP.notify(nplayer, lang.vehicle.no_owned_near())
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.request_refused() },
-							type = "info",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.common.request_refused())
 				end
 			end)
 		else
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = { lang.common.no_player_near() },
-					type = "info",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(player, lang.common.no_player_near())
 		end
 	end)
 end

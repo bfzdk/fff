@@ -47,17 +47,7 @@ RegisterNetEvent("cuff")
 AddEventHandler("cuff", function()
 	if not vRP.isInComa() and not vRP.isHandcuffed() then
 		if IsPedInAnyVehicle(PlayerPedId(), true) then
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Du kan ikke give håndjern på fra et køretøj.",
-					type = "error",
-					timeout = 5000,
-					layout = "centerRight",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify("Du kan ikke give håndjern på fra et køretøj.")
 		else
 			TriggerServerEvent("handcuff:cuffHim")
 		end

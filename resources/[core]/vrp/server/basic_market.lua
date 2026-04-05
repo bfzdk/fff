@@ -32,64 +32,18 @@ local function build_market_menus()
 						local amount = parseInt(amount)
 						if amount > 0 then
 							-- weight check
-							local new_weight = vRP.getInventoryWeight(user_id) + item.weight * amount
 							if new_weight <= vRP.getInventoryMaxWeight(user_id) then
-								-- payment
 								if vRP.tryFullPayment(user_id, amount * price) then
 									vRP.giveInventoryItem(user_id, idname, amount, true)
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = { lang.money.paid({ amount * price }) },
-											type = "success",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(player, lang.money.paid({ amount * price }))
 								else
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = { lang.money.not_enough() },
-											type = "error",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(player, lang.money.not_enough())
 								end
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.inventory.full() },
-										type = "error",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, lang.inventory.full())
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.common.invalid_value() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.common.invalid_value())
 						end
 					end)
 				end

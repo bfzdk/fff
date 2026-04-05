@@ -1022,15 +1022,6 @@ end
 local function ch_noclip(player, choice)
 	local user_id = vRP.getUserId(player)
 	vRPclient.toggleNoclip(player, {})
-
-	local dmessage = "**Noclip** \n```\nAdmin ID: " .. tostring(user_id) .. "\n```"
-	PerformHttpRequest(
-		webhook.Noclip,
-		function(err, text, headers) end,
-		"POST",
-		json.encode({ username = "FlaxHosting - Logs", content = dmessage }),
-		{ ["Content-Type"] = "application/json" }
-	)
 end
 
 local function ch_warn(player, choice)
@@ -1059,31 +1050,6 @@ local function ch_warn(player, choice)
 											"UPDATE vrp_users SET warnings = @warnings WHERE id = @user_id",
 											{ user_id = tar_id, warnings = newwarn },
 											function(rows, affected)
-												PerformHttpRequest(
-													webhook.Warn,
-													function(o, p, q) end,
-													"POST",
-													json.encode({
-														username = "Advarsler",
-														embeds = {
-															{
-																title = "Advarsel",
-																description = " Afsender: "
-																	.. user_id
-																	.. "\n  Modtager: "
-																	.. tar_id
-																	.. "\n Antal advarsler: "
-																	.. warnings
-																	.. "\n Grunden: "
-																	.. grund
-																	.. "\n I alt: "
-																	.. newwarn,
-																color = 3447003,
-															},
-														},
-													}),
-													{ ["Content-Type"] = "application/json" }
-												)
 												if warnings > 1 then
 													-- vRPclient.notify(source,{"Du har fået ".. warnings.." advarsler! Du har I alt ".. newwarn.." advarsler!"})
 													-- vRPclient.notify(player,{"Du har givet ".. warnings.." advarsler til ID: ".. tar_id})
@@ -1346,23 +1312,6 @@ local function ch_clearwarn(player, choice)
 									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
 									killer = true,
 								})
-								PerformHttpRequest(
-									webhook.ClearWarn,
-									function(o, p, q) end,
-									"POST",
-									json.encode({
-										username = "Advarsler",
-										content = "@here",
-										embeds = {
-											{
-												title = "Fjernet Advarsel",
-												description = " Afsender: " .. user_id .. "\n Modtager: " .. tar_id .. "\n Grunden: " .. grund,
-												color = 3447003,
-											},
-										},
-									}),
-									{ ["Content-Type"] = "application/json" }
-								)
 							end
 						)
 					end
@@ -1417,19 +1366,6 @@ local function ch_spawnvehicle(player, choice)
 	vRP.prompt(player, "Bilen's modelnavn f.eks. police3:", "", function(player, veh)
 		if veh ~= "" then
 			TriggerClientEvent("hp:spawnvehicle", player, veh)
-
-			local dmessage = "**Spawn køretøj** \n```\nAdmin ID: "
-				.. tostring(user_id)
-				.. "\nKøretøj: "
-				.. tostring(veh)
-				.. "\n```"
-			PerformHttpRequest(
-				webhook.SpawnVehicle,
-				function(err, text, headers) end,
-				"POST",
-				json.encode({ username = "FlaxHosting - Logs", content = dmessage }),
-				{ ["Content-Type"] = "application/json" }
-			)
 		end
 	end)
 end

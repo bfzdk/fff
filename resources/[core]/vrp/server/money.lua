@@ -118,40 +118,12 @@ function vRP.payDebt(user_id)
 
 			if paid > 0 then
 				if tmp.debt == 0 then
-					TriggerClientEvent("pNotify:SendNotification", source, {
-						text = "Du har indbetalt <b style='color: #4E9350'>"
-							.. format_thousand(math.floor(paid))
-							.. " DKK</b> til din gæld<br>Tillykke du har ikke mere gæld!",
-						type = "success",
-						timeout = 4000,
-						layout = "bottomCenter",
-						queue = "global",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						killer = false,
-					})
+					vRP.notify(source, "Du har indbetalt " .. format_thousand(math.floor(paid)) .. " DKK til din gæld. Tillykke du har ikke mere gæld!")
 				else
-					TriggerClientEvent("pNotify:SendNotification", source, {
-						text = "Du har indbetalt <b style='color: #4E9350'>"
-							.. format_thousand(math.floor(paid))
-							.. " DKK</b> til din gæld",
-						type = "success",
-						timeout = 4000,
-						layout = "bottomCenter",
-						queue = "global",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						killer = false,
-					})
+					vRP.notify(source, "Du har indbetalt " .. format_thousand(math.floor(paid)) .. " DKK til din gæld")
 				end
 			else
-				TriggerClientEvent("pNotify:SendNotification", source, {
-					text = "Kunne ikke indbetale gæld!",
-					type = "error",
-					timeout = 4000,
-					layout = "bottomCenter",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = false,
-				})
+				vRP.notify(source, "Kunne ikke indbetale gæld!")
 			end
 		end
 	end
@@ -176,37 +148,9 @@ function vRP.setBankMoney(user_id, value)
 				tmp.bank = tmp.bank + hdiff
 			end
 			if tmp.debt > 0 then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					source,
-					{
-						text = "Du har betalt <b style='color: #4E9350'>"
-							.. format_thousands(payed)
-							.. " DKK</b> til din gæld<br>Restgæld: <b style='color: #DB4646'>"
-							.. format_thousands(tmp.debt)
-							.. " DKK</b>",
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(source, "Du har betalt " .. format_thousands(payed) .. " DKK til din gæld. Restgæld: " .. format_thousands(tmp.debt) .. " DKK")
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					source,
-					{
-						text = "Du har betalt <b style='color: #4E9350'>"
-							.. format_thousands(payed)
-							.. " DKK</b> til din gæld<br>Tillykke du har ikke mere gæld!",
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(source, "Du har betalt " .. format_thousands(payed) .. " DKK til din gæld. Tillykke du har ikke mere gæld!")
 			end
 		else
 			tmp.bank = value
@@ -362,30 +306,8 @@ local function ch_give(player, choice)
 							vRP.giveMoney(nuser_id, amount)
 							vRPclient.playAnim(player, { true, { { "mp_common", "givetake1_a", 1 } }, false })
 							vRPclient.playAnim(nplayer, { true, { { "mp_common", "givetake2_a", 1 } }, false })
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.money.given({ amount }) },
-									type = "success",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								nplayer,
-								{
-									text = { lang.money.received({ amount }) },
-									type = "success",
-									queue = "global",
-									timeout = 3000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.money.given({ amount }))
+							vRP.notify(nplayer, lang.money.received({ amount }))
 
 							local dmessage = "```ID "
 								.. tostring(user_id)
@@ -402,47 +324,14 @@ local function ch_give(player, choice)
 								{ ["Content-Type"] = "application/json" }
 							)
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.money.not_enough() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "bottomCenter",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.money.not_enough())
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.no_player_near() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "bottomCenter",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.common.no_player_near())
 				end
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "bottomCenter",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.common.no_player_near())
 			end
 		end)
 	end

@@ -87,68 +87,21 @@ function vRP.varyExp(user_id, group, aptitude, amount)
 		uaptitudes[group][aptitude] = exp
 
 		-- info notify
-		local player = vRP.getUserSource(user_id)
 		if player ~= nil then
 			local group_title = vRP.getAptitudeGroupTitle(group)
 			local aptitude_title = def[1]
 
-			--- exp
 			if amount < 0 then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.aptitude.lose_exp({ group_title, aptitude_title, -1 * amount }) },
-						type = "info",
-						queue = "global",
-						timeout = 2000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.aptitude.lose_exp({ group_title, aptitude_title, -1 * amount }))
 			elseif amount > 0 then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.aptitude.earn_exp({ group_title, aptitude_title, amount }) },
-						type = "info",
-						queue = "global",
-						timeout = 2000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.aptitude.earn_exp({ group_title, aptitude_title, amount }))
 			end
-			--- level up/down
 			local new_level = math.floor(vRP.expToLevel(exp))
 			local diff = new_level - level
 			if diff < 0 then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.aptitude.level_down({ group_title, aptitude_title, new_level }) },
-						type = "info",
-						queue = "global",
-						timeout = 2000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.aptitude.level_down({ group_title, aptitude_title, new_level }))
 			elseif diff > 0 then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.aptitude.level_up({ group_title, aptitude_title, new_level }) },
-						type = "info",
-						queue = "global",
-						timeout = 2000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, lang.aptitude.level_up({ group_title, aptitude_title, new_level }))
 			end
 		end
 	end

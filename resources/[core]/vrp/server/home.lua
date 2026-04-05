@@ -318,84 +318,28 @@ local function build_entry_menu(user_id, home_name)
 						if huser_id == user_id then
 							vRP.accessHome(user_id, home_name, number, function(ok)
 								if not ok then
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = { lang.home.intercom.not_available() },
-											type = "info",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(player, lang.home.intercom.not_available())
 								end
 							end)
 						else
 							local hplayer = vRP.getUserSource(huser_id)
 							if hplayer ~= nil then
 								vRP.prompt(player, lang.home.intercom.prompt_who(), "", function(player, who)
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = { lang.home.intercom.asked() },
-											type = "info",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											killer = true,
-										}
-									)
+									vRP.notify(player, lang.home.intercom.asked())
 									vRP.request(hplayer, lang.home.intercom.request({ who }), 30, function(hplayer, ok)
 										if ok then
 											vRP.accessHome(user_id, home_name, number)
 										else
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												player,
-												{
-													text = { lang.home.intercom.refused() },
-													type = "info",
-													queue = "global",
-													timeout = 4000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-												}
-											)
+											vRP.notify(player, lang.home.intercom.refused())
 										end
 									end)
 								end)
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.home.intercom.refused() },
-										type = "info",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, lang.home.intercom.refused())
 							end
 						end
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.common.not_found() },
-								type = "info",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(player, lang.common.not_found())
 					end
 				end)
 			end)
@@ -413,60 +357,16 @@ local function build_entry_menu(user_id, home_name)
 								-- bought, set address
 								vRP.setUserAddress(user_id, home_name, number)
 
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.home.buy.bought() },
-										type = "info",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, lang.home.buy.bought())
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.money.not_enough() },
-										type = "info",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, lang.money.not_enough())
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.home.buy.full() },
-									type = "info",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.home.buy.full())
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.home.buy.have_home() },
-							type = "info",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.home.buy.have_home())
 				end
 			end)
 		end,
@@ -480,31 +380,9 @@ local function build_entry_menu(user_id, home_name)
 					-- sold, give sell price, remove address
 					vRP.giveMoney(user_id, home.sell_price)
 					vRP.removeUserAddress(user_id)
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.home.sell.sold() },
-							type = "info",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.home.sell.sold())
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.home.sell.no_home() },
-							type = "info",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.home.sell.no_home())
 				end
 			end)
 		end,

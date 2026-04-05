@@ -78,18 +78,7 @@ function vRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type (
 		elseif vtype == "citybike" then
 			cartype = "cykel"
 		end
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Du kan kun have én <b style='color:#DB4646'>" .. cartype .. "</b> ude",
-				type = "warning",
-				timeout = 2000,
-				layout = "bottomCenter",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		vRP.notify("Du kan kun have én " .. cartype .. " ude")
 	end
 end
 
@@ -106,31 +95,9 @@ function vRP.despawnGarageVehicle(vtype, max_range)
 			SetVehicleAsNoLongerNeeded(Citizen.PointerValueIntInitialized(vehicle[3]))
 			Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(vehicle[3]))
 			vehicles[vtype] = nil
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Køretøj <b style='color:#4E9350'>parkeret.</b>",
-					type = "success",
-					timeout = 3000,
-					layout = "bottomCenter",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Køretøj parkeret.")
 		else
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Du er for langt fra <b style='color:#DB4646'>køretøjet.</b>",
-					type = "error",
-					timeout = 3000,
-					layout = "bottomCenter",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Du er for langt fra køretøjet.")
 		end
 	end
 end
@@ -204,45 +171,12 @@ function vRP.fixeNearestVehicleAdmin(radius)
 	if IsEntityAVehicle(veh) then
 		if not IsPedSittingInAnyVehicle(ped) then
 			SetVehicleFixed(veh)
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Nærmeste køretøj repareret.",
-					type = "success",
-					timeout = 3000,
-					layout = "centerRight",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Nærmeste køretøj repareret.")
 		else
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Du må ikke sidde i køretøjet, mens du reparerer det.",
-					type = "error",
-					timeout = 3000,
-					layout = "centerRight",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Du må ikke sidde i køretøjet, mens du reparerer det.")
 		end
 	else
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Køretøj blev ikke fundet.",
-				type = "error",
-				timeout = 3000,
-				layout = "centerRight",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		vRP.notify("Køretøj blev ikke fundet.")
 	end
 end
 
@@ -267,18 +201,7 @@ function vRP.changeNummerPlate(radius)
 
 		SetVehicleNumberPlateText(veh, "P " .. number)
 	else
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Køretøj blev ikke fundet.",
-				type = "error",
-				timeout = 3000,
-				layout = "centerRight",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		vRP.notify("Køretøj blev ikke fundet.")
 	end
 end
 
@@ -288,45 +211,12 @@ function vRP.fixeNearestVehicleMidlertidigt(radius)
 	if IsEntityAVehicle(veh) then
 		if not IsPedSittingInAnyVehicle(ped) then
 			SetVehicleEngineHealth(veh, 300.0)
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Nærmeste køretøj er midlertidigt repareret.",
-					type = "success",
-					timeout = 3000,
-					layout = "centerRight",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Nærmeste køretøj er midlertidigt repareret.")
 		else
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Du må ikke sidde i køretøjet, mens du reparerer det.",
-					type = "error",
-					timeout = 3000,
-					layout = "centerRight",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Du må ikke sidde i køretøjet, mens du reparerer det.")
 		end
 	else
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Køretøj blev ikke fundet.",
-				type = "error",
-				timeout = 3000,
-				layout = "centerRight",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		vRP.notify("Køretøj blev ikke fundet.")
 	end
 end
 
@@ -338,29 +228,9 @@ function vRP.vehicleUnlockMekaniker()
 	SetVehicleDoorsLockedForAllPlayers(veh, false)
 	SetVehicleDoorsLocked(veh, 1)
 	SetVehicleDoorsLockedForPlayer(veh, ped, false)
-	TriggerEvent(
-		"pNotify:SendNotification",
-		{
-			text = "Vent seks sekunder før køretøjet er låst op!",
-			type = "error",
-			timeout = 3000,
-			layout = "centerRight",
-			queue = "global",
-			animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-		}
-	)
+	vRP.notify("Vent seks sekunder før køretøjet er låst op!")
 	Citizen.Wait(6000)
-	TriggerEvent(
-		"pNotify:SendNotification",
-		{
-			text = "Nærmeste køretøj låst op.",
-			type = "error",
-			timeout = 3000,
-			layout = "centerRight",
-			queue = "global",
-			animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-		}
-	)
+	vRP.notify("Nærmeste køretøj låst op.")
 end
 
 function vRP.fixCurrentVehicle()
@@ -369,18 +239,7 @@ function vRP.fixCurrentVehicle()
 	if IsEntityAVehicle(veh) then
 		SetVehicleFixed(veh)
 	else
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Køretøj blev ikke fundet.",
-				type = "error",
-				timeout = 3000,
-				layout = "centerRight",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		vRP.notify("Køretøj blev ikke fundet.")
 	end
 end
 
@@ -394,18 +253,7 @@ function vRP.replaceNearestVehicle(radius)
 			SetEntityRotation(veh, 0, 0, 0, 0, 0)
 			SetVehicleOnGroundProperly(veh)
 			SetEntityHeading(veh, heading)
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "Køretøjet blev vendt om.",
-					type = "error",
-					timeout = 3000,
-					layout = "centerRight",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Køretøjet blev vendt om.")
 		end
 	end
 end
@@ -582,33 +430,11 @@ function vRP.vc_toggleLock(vtype)
 			SetVehicleDoorsLockedForAllPlayers(veh, false)
 			SetVehicleDoorsLocked(veh, 1)
 			SetVehicleDoorsLockedForPlayer(veh, ped, false)
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "✅ Køretøj <b style='color:#4E9350'>låst op</b>",
-					type = "success",
-					timeout = 3000,
-					layout = "bottomCenter",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Køretøj laast op")
 		else -- lock
 			SetVehicleDoorsLocked(veh, 2)
 			SetVehicleDoorsLockedForAllPlayers(veh, true)
-			TriggerEvent(
-				"pNotify:SendNotification",
-				{
-					text = "⛔️ Køretøj <b style='color:#DB4646'>låst</b>",
-					type = "success",
-					timeout = 3000,
-					layout = "bottomCenter",
-					queue = "global",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					killer = true,
-				}
-			)
+			vRP.notify("Køretøj laast")
 		end
 		if not DoesEntityExist(lveh) or lveh ~= veh then
 			TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 0.5, "lock", 0.3)

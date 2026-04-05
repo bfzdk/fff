@@ -39,18 +39,7 @@ local function wardrobe_create(owner_id, stype, sid, cid, config, x, y, z, playe
 			-- notify player if wearing a uniform
 			local data = vRP.getUserDataTable(user_id)
 			if data.cloakroom_idle ~= nil then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = "Du har uniform på!",
-						type = "error",
-						queue = "global",
-						timeout = 3000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(player, "Du har uniform på!")
 			end
 
 			-- build menu
@@ -79,18 +68,7 @@ local function wardrobe_create(owner_id, stype, sid, cid, config, x, y, z, playe
 									wardrobe_enter(player, area)
 								end)
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = "Ugyldig værdi",
-										type = "error",
-										queue = "global",
-										timeout = 3000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, "Ugyldig værdi")
 							end
 						end)
 					end,
@@ -147,18 +125,7 @@ local function gametable_create(owner_id, stype, sid, cid, config, x, y, z, play
 						amount = parseInt(amount)
 						if amount > 0 then
 							if vRP.tryFullPayment(user_id, amount) then
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = "Spil startet",
-										type = "success",
-										queue = "global",
-										timeout = 3000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, "Spil startet")
 								-- init bet total and players (add by default the bet launcher)
 								local bet_total = amount
 								local bet_players = {}
@@ -171,20 +138,9 @@ local function gametable_create(owner_id, stype, sid, cid, config, x, y, z, play
 										-- select winner
 										local wplayer = bet_players[math.random(1, #bet_players)]
 										local wuser_id = vRP.getUserId(wplayer)
-										if wuser_id ~= nil then
+											if wuser_id ~= nil then
 											vRP.giveMoney(wuser_id, bet_total)
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												wplayer,
-												{
-													text = lang.money.received({ bet_total }),
-													type = "info",
-													queue = "global",
-													timeout = 3000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_open", close = "gta_effects_close" },
-												}
-											)
+											vRP.notify(wplayer, lang.money.received({ bet_total }))
 											vRPclient.playAnim(wplayer, { true, { { "mp_player_introck", "mp_player_int_rock", 1 } }, false })
 										end
 									end
@@ -203,31 +159,9 @@ local function gametable_create(owner_id, stype, sid, cid, config, x, y, z, play
 													if vRP.tryPayment(nuser_id, amount) then -- register player bet
 														bet_total = bet_total + amount
 														table.insert(bet_players, nplayer)
-														TriggerClientEvent(
-															"pNotify:SendNotification",
-															player,
-															{
-																text = "Betalte" .. amount,
-																type = "info",
-																queue = "global",
-																timeout = 3000,
-																layout = "centerRight",
-																animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-															}
-														)
+														vRP.notify(player, "Betalte " .. amount)
 													else
-														TriggerClientEvent(
-															"pNotify:SendNotification",
-															player,
-															{
-																text = "Ikke nok penge",
-																type = "error",
-																queue = "global",
-																timeout = 3000,
-																layout = "centerRight",
-																animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-															}
-														)
+														vRP.notify(player, "Ikke nok penge")
 													end
 												end
 
@@ -243,32 +177,10 @@ local function gametable_create(owner_id, stype, sid, cid, config, x, y, z, play
 									SetTimeout(32000, close_bet)
 								end)
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = "Ikke nok penge",
-										type = "error",
-										queue = "global",
-										timeout = 3000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, "Ikke nok penge")
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = "Ugyldig værdi",
-									type = "error",
-									queue = "global",
-									timeout = 3000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, "Ugyldig værdi")
 						end
 					end)
 				end,

@@ -34,65 +34,19 @@ for gtype, weapons in pairs(gunshop_types) do
 
 		if weapon then
 			local user_id = vRP.getUserId(player)
-			if weapon == "ARMOR" then -- get player weapons to not rebuy the body
-				-- payment
+			if weapon == "ARMOR" then
 				if user_id ~= nil and vRP.tryFullPayment(user_id, price) then
 					vRPclient.setArmour(player, { 100, true })
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.money.paid({ price }) },
-							type = "success",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.money.paid({ price }))
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.money.not_enough() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.money.not_enough())
 				end
-			elseif weapon == "ARMOR1" then -- get player weapons to not rebuy the body
-				-- payment
+			elseif weapon == "ARMOR1" then
 				if user_id ~= nil and vRP.tryFullPayment(user_id, price) then
 					vRPclient.setArmour(player, { 25, true })
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.money.paid({ price }) },
-							type = "success",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.money.paid({ price }))
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.money.not_enough() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, lang.money.not_enough())
 				end
 			else
 				-- get player weapons to not rebuy the body
@@ -114,51 +68,16 @@ for gtype, weapons in pairs(gunshop_types) do
 								amount = 250
 							end
 
-							-- payment
 							if user_id ~= nil and vRP.tryFullPayment(user_id, total) then
 								vRPclient.giveWeapons(player, { {
 									[weapon] = { ammo = amount },
 								} })
-
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.money.paid({ price }) },
-										type = "success",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, lang.money.paid({ price }))
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.money.not_enough() },
-										type = "error",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(player, lang.money.not_enough())
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.common.invalid_value() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, lang.common.invalid_value())
 						end
 					end)
 				end)
