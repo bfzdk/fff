@@ -1,16 +1,14 @@
-fx_version("cerulean")
-games({ "gta5" })
+fx_version "cerulean"
+game "gta5"
 
-description("ELS FiveM") -- Resource Descrption
-
-client_script({
+client_scripts {
 	"client/patterns.lua",
 	"client/client.lua",
 	"config.lua",
-})
+}
 
-server_script({
+server_scripts {
 	"server/server.lua",
 	"server/xml.lua",
 	"config.lua",
-})
+}

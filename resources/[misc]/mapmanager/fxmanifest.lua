@@ -1,16 +1,17 @@
-fx_version("cerulean")
-games({ "gta5" })
+fx_version "cerulean"
+game "gta5"
 
-client_scripts({
+client_scripts {
 	"mapmanager_shared.lua",
 	"mapmanager_client.lua",
-})
+}
 
-server_scripts({
+server_scripts {
 	"mapmanager_shared.lua",
 	"mapmanager_server.lua",
-})
+}
 
+-- remove ts
 server_export("getCurrentGameType")
 server_export("getCurrentMap")
 server_export("changeGameType")

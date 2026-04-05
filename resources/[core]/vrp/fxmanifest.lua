@@ -1,11 +1,9 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-dependency("oxmysql")
+ui_page "gui/index.html"
 
-ui_page("gui/index.html")
-
-files({
+files {
 	"cfg/client.lua",
 	"gui/index.html",
 	"gui/design.css",
@@ -18,7 +16,12 @@ files({
 	"gui/AnnounceManager.js",
 	"gui/Div.js",
 	"gui/dynamic_classes.js",
-})
+}
+
+shared_scripts {
+	'lib/Proxy.lua',
+	'lib/Tunnel.lua'
+}
 
 server_scripts {
 	"@oxmysql/lib/MySQL.lua",
@@ -53,7 +56,6 @@ server_scripts {
 
 client_scripts {
 	"lib/utils.lua",
-	"client/Tunnel.lua",
 	"client/Proxy.lua",
 	"client/base.lua",
 	"client/iplloader.lua",

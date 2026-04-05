@@ -7,7 +7,7 @@ ui_page {
 
 client_script "client/main.lua"
 
-server_script "@mysql-async/lib/MySQL.lua"
+server_script "@oxmysql/lib/MySQL.lua"
 server_script "server/main.lua"
 
 files {

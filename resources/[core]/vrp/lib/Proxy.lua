@@ -35,6 +35,7 @@ function Proxy.getInterface(name)
 end
 
 function Proxy.createInterface(name)
+	name = name or GetCurrentResourceName()
 	local itable = {}
 
 	AddEventHandler(name .. ":proxy", function(member, args, callback)

@@ -141,14 +141,19 @@ function Tunnel.getInterface(name, identifier)
 		}
 	)
 
-	(isServer and RegisterServerEvent or RegisterNetEvent)(name .. ":" .. identifier .. ":tunnel_res")
+	if isServer then
+		RegisterServerEvent(name .. ":" .. identifier .. ":tunnel_res")
+	else
+		RegisterNetEvent(name .. ":" .. identifier .. ":tunnel_res")
+	end
+
 	AddEventHandler(name .. ":" .. identifier .. ":tunnel_res", function(rid, args)
-		local callback = callbacks[rid]
-		if callback then
-			ids:free(rid)
-			callbacks[rid] = nil
-			callback(table.unpack(args))
-		end
+	local callback = callbacks[rid]
+	if callback then
+		ids:free(rid)
+		callbacks[rid] = nil
+		callback(table.unpack(args))
+	end
 	end)
 
 	return r

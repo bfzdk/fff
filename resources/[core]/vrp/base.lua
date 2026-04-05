@@ -1,5 +1,3 @@
-local Proxy = module("lib/Proxy")
-local Tunnel = module("lib/Tunnel")
 local Lang = module("lib/Lang")
 Debug = module("lib/Debug")
 local config = module("cfg/base")

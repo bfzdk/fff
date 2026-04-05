@@ -12,7 +12,6 @@ client_scripts {
 	"client/DriveByLimit.lua",
 	"client/nowanted.lua",
 	"client/handsup.lua",
-	"client/nowanted.lua",
 	"client/pointfinger.lua",
 	"client/scope.lua",
 	"client/vinduerul.lua",
@@ -54,8 +53,8 @@ server_scripts {
 	"server/carwash.lua",
 }
 
-data_file("INTERIOR_PROXY_ORDER_FILE")("interiorproxies.meta")
+data_file "INTERIOR_PROXY_ORDER_FILE" "interiorproxies.meta"
 
-files({
+files {
 	"meta/interiorproxies.meta",
-})
+}
