@@ -197,77 +197,22 @@ local function ch_identity(player, choice)
 											)
 
 											-- update client registration
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												player,
-												{
-													text = { lang.money.paid({ cfg.new_identity_cost }) },
-													type = "success",
-													queue = "global",
-													timeout = 4000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-												}
-											)
+											vRP.notify(user_id, lang.money.paid({ cfg.new_identity_cost }))
 										end)
 									end)
 								else
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = { lang.money.not_enough() },
-											type = "error",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(user_id, lang.money.not_enough())
 								end
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.common.invalid_value() },
-										type = "error",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, lang.common.invalid_value())
 							end
 						end)
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.common.invalid_value() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, lang.common.invalid_value())
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.invalid_value() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(user_id, lang.common.invalid_value())
 			end
 		end)
 	end

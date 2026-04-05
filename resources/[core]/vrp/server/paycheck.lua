@@ -64,23 +64,7 @@ Citizen.CreateThread(function()
 				Citizen.Wait(50)
 				if vRP.hasPermission(user_id, v.perm) then
 					vRP.giveBankMoney(user_id, tonumber(v.salary))
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						source,
-						{
-							text = "Lønudbetaling: <b style='color: #4E9350'>"
-								.. format_thousands(math.floor(tonumber(v.salary)))
-								.. " DKK</b>.<br/>Erhverv: <b style='color: #72AEE5'>"
-								.. k
-								.. "</b>.",
-							type = "info",
-							queue = "global",
-							timeout = 4000,
-							layout = "bottomCenter",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							sounds = { sources = { "cash.ogg" }, volume = 0.6, conditions = { "docVisible" } },
-						}
-					)
+					vRP.notify(user_id, "Lønudbetaling: " .. format_thousands(math.floor(tonumber(v.salary))) .. " DKK. Erhverv: " .. k .. ".")
 					break
 				end
 			end

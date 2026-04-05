@@ -53,16 +53,7 @@ items["money_binder"] = {
 							vRP.closeMenu(player)
 						end
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = "<span color='red'>Du har ikke nok penge.</span>",
-								type = "error",
-								timeout = 3000,
-								layout = "centerRight",
-							}
-						)
+						vRP.notify(user_id, "Du har ikke nok penge.")
 					end
 				end
 			end,

@@ -124,11 +124,14 @@ end
 
 function Tunnel.createInterface(name)
 	local interface = {}
-	Tunnel.addInterface(name, interface)
+	Tunnel.addInterface(name or GetCurrentResourceName(), interface)
 	return interface
 end
 
 function Tunnel.getInterface(name, identifier)
+	name = name or GetCurrentResourceName()
+	identifier = identifier or name
+
 	local ids       = Tools.newIDGenerator()
 	local callbacks = {}
 

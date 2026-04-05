@@ -343,35 +343,11 @@ local choice_dragplayer = {
 					if handcuffed then
 						TriggerClientEvent("dr:drag", nplayer, player)
 					else
-						-- vRPclient.notify(player,{lang.police.not_handcuffed()})
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.police.not_handcuffed() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRPclient.notify(player, { lang.police.not_handcuffed() })
 					end
 				end)
 			else
-				-- vRPclient.notify(player,{lang.common.no_player_near()})
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRPclient.notify(player, { lang.common.no_player_near() })
 			end
 		end)
 	end,
@@ -385,19 +361,7 @@ local choice_dragplayer_ems = {
 			if nuser_id ~= nil then
 				TriggerClientEvent("dr:drag", nplayer, player)
 			else
-				-- vRPclient.notify(player,{lang.common.no_player_near()})
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRPclient.notify(player, { lang.common.no_player_near() })
 			end
 		end)
 	end,
@@ -413,33 +377,11 @@ local choice_getoutveh = {
 					if handcuffed then
 						vRPclient.ejectVehicle(nplayer, {})
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.police.not_handcuffed() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRPclient.notify(player, { lang.police.not_handcuffed() })
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRPclient.notify(player, { lang.common.no_player_near() })
 			end
 		end)
 	end,
@@ -453,18 +395,7 @@ local choice_getoutveh_ems = {
 			if nuser_id ~= nil then
 				vRPclient.ejectVehicle(nplayer, {})
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRPclient.notify(player, { lang.common.no_player_near() })
 			end
 		end)
 	end,
@@ -544,18 +475,7 @@ local choice_user_check = {
 		vRPclient.getNearestPlayer(player, { 10 }, function(nplayer)
 			local nuser_id = vRP.getUserId(nplayer)
 			if nuser_id ~= nil then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.police.menu.check.asked() },
-						type = "info",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+						vRPclient.notify(player, { lang.police.not_handcuffed() })
 				vRP.request(nplayer, lang.police.menu.check.request(), 15, function(nplayer, ok)
 					if ok then
 						vRPclient.getWeapons(nplayer, {}, function(weapons)
@@ -591,33 +511,11 @@ local choice_user_check = {
 							end)
 						end)
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { lang.common.request_refused() },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(vRP.getUserId(player), lang.common.request_refused())
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(vRP.getUserId(player), lang.common.no_player_near())
 			end
 		end)
 	end,
@@ -630,18 +528,60 @@ local choice_check = {
 		vRPclient.getNearestPlayer(player, { 5 }, function(nplayer)
 			local nuser_id = vRP.getUserId(nplayer)
 			if nuser_id ~= nil then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					nplayer,
-					{
-						text = { lang.police.menu.check.checked() },
-						type = "info",
-						queue = "global",
-						timeout = 5000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRPclient.notify(player, { lang.police.menu.check.asked() })
+				vRP.request(nplayer, lang.police.menu.check.request(), 15, function(nplayer, ok)
+					if ok then
+						vRPclient.getWeapons(nplayer, {}, function(weapons)
+							-- prepare display data (money, items, weapons)
+							local money = vRP.getMoney(nuser_id)
+							local items = ""
+							local data = vRP.getUserDataTable(nuser_id)
+							if data and data.inventory then
+								for k, v in pairs(data.inventory) do
+									local item = vRP.items[k]
+									if item then
+										items = items .. "<br />" .. item.name .. " (" .. v.amount .. ")"
+									end
+								end
+							end
+
+							local weapons_info = ""
+							for k, v in pairs(weapons) do
+								weapons_info = weapons_info .. "<br />" .. k .. " (" .. v.ammo .. ")"
+							end
+
+							vRPclient.setDiv(
+								player,
+								{
+									"police_check",
+									".div_police_check{ background-color: rgba(0,0,0,0.75); color: white; width: 500px; padding: 10px; margin: auto; margin-top: 150px; }",
+									lang.police.menu.check.info({ money, items, weapons_info }),
+								}
+							)
+							-- request to hide div
+							vRP.request(player, lang.police.menu.check.request_hide(), 1000, function(player, ok)
+								vRPclient.removeDiv(player, { "police_check" })
+							end)
+						end)
+					else
+						vRPclient.notify(player, { lang.common.request_refused() })
+					end
+				end)
+			else
+				vRPclient.notify(player, { lang.common.no_player_near() })
+			end
+		end)
+	end,
+	lang.police.menu.check.description(),
+}
+
+---- police check
+local choice_check = {
+	function(player, choice)
+		vRPclient.getNearestPlayer(player, { 5 }, function(nplayer)
+			local nuser_id = vRP.getUserId(nplayer)
+			if nuser_id ~= nil then
+				vRPclient.notify(nplayer, { lang.police.menu.check.checked() })
 				vRPclient.getWeapons(nplayer, {}, function(weapons)
 					-- prepare display data (money, items, weapons)
 					local money = vRP.getMoney(nuser_id)
@@ -675,18 +615,7 @@ local choice_check = {
 					end)
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRPclient.notify(player, { lang.common.no_player_near() })
 			end
 		end)
 	end,
@@ -730,32 +659,10 @@ local choice_seize_weapons = {
 										vRPclient.replaceWeapons(nplayer, {}, function(weapons)
 											for k, v in pairs(weapons) do -- display seized weapons
 												table.insert(seized_guns, "- 1x " .. vRP.getItemName("wbody|" .. k) .. "\n")
-												TriggerClientEvent(
-													"pNotify:SendNotification",
-													player,
-													{
-														text = { lang.police.menu.seize.seized({ vRP.getItemName("wbody|" .. k), 1 }) },
-														type = "info",
-														queue = "global",
-														timeout = 4000,
-														layout = "bottomCenter",
-														animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-													}
-												)
+												vRP.notify(user_id, lang.police.menu.seize.seized({ vRP.getItemName("wbody|" .. k), 1 }))
 												if v.ammo > 0 then
 													table.insert(seized_guns, "- " .. v.ammo .. "x " .. vRP.getItemName("wammo|" .. k) .. "\n")
-													TriggerClientEvent(
-														"pNotify:SendNotification",
-														player,
-														{
-															text = { lang.police.menu.seize.seized({ vRP.getItemName("wammo|" .. k), v.ammo }) },
-															type = "info",
-															queue = "global",
-															timeout = 4000,
-															layout = "bottomCenter",
-															animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-														}
-													)
+													vRP.notify(user_id, lang.police.menu.seize.seized({ vRP.getItemName("wammo|" .. k), v.ammo }))
 												end
 												if k == "WEAPON_FLASHLIGHT" then
 													vRP.giveInventoryItem(user_id, "wbody|" .. k, 1, true)
@@ -772,50 +679,17 @@ local choice_seize_weapons = {
 												}),
 												{ ["Content-Type"] = "application/json" }
 											)
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												nplayer,
-												{
-													text = { lang.police.menu.seize.weapons.seized() },
-													type = "warning",
-													queue = "global",
-													timeout = 4000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-												}
-											)
+											vRP.notify(nuser_id, lang.police.menu.seize.weapons.seized())
 										end)
 									else
-										TriggerClientEvent(
-											"pNotify:SendNotification",
-											player,
-											{
-												text = { lang.police.not_handcuffed() },
-												type = "error",
-												queue = "global",
-												timeout = 4000,
-												layout = "centerRight",
-												animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											}
-										)
+										vRP.notify(user_id, lang.police.not_handcuffed())
 									end
 								end
 							end)
 						end)
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.no_player_near() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(user_id, lang.common.no_player_near())
 				end
 			end)
 		end
@@ -864,18 +738,7 @@ local choice_seize_items = {
 												if item then -- do transfer
 													if vRP.tryGetInventoryItem(nuser_id, v, amount, true) then
 														table.insert(seized_items, "- " .. amount .. "x " .. vRP.getItemName(v) .. "\n")
-														TriggerClientEvent(
-															"pNotify:SendNotification",
-															player,
-															{
-																text = { lang.police.menu.seize.seized({ item.name, amount }) },
-																type = "info",
-																queue = "global",
-																timeout = 4000,
-																layout = "bottomCenter",
-																animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-															}
-														)
+														vRP.notify(user_id, lang.police.menu.seize.seized({ item.name, amount }))
 
 														if v == "oneplus" or v == "samsung" or v == "iphone" then
 															vRP.giveInventoryItem(user_id, v, amount, false)
@@ -894,49 +757,16 @@ local choice_seize_items = {
 											}),
 											{ ["Content-Type"] = "application/json" }
 										)
-										TriggerClientEvent(
-											"pNotify:SendNotification",
-											nplayer,
-											{
-												text = { lang.police.menu.seize.items.seized() },
-												type = "info",
-												queue = "global",
-												timeout = 4000,
-												layout = "centerRight",
-												animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											}
-										)
+										vRP.notify(nuser_id, lang.police.menu.seize.items.seized())
 									else
-										TriggerClientEvent(
-											"pNotify:SendNotification",
-											player,
-											{
-												text = { lang.police.not_handcuffed() },
-												type = "error",
-												queue = "global",
-												timeout = 4000,
-												layout = "centerRight",
-												animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											}
-										)
+										vRP.notify(user_id, lang.police.not_handcuffed())
 									end
 								end
 							end)
 						end)
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.no_player_near() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(user_id, lang.common.no_player_near())
 				end
 			end)
 		end
@@ -965,62 +795,18 @@ local ch_free_vehicle = {
 							function(rows, affected)
 								if #rows > 0 then
 									vRP.updateVehicleConfi(vehicle, plate, 0)
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = "Køretøj frigivet",
-											type = "success",
-											queue = "global",
-											timeout = 4000,
-											layout = "bottomCenter",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(vRP.getUserId(player), "Køretøj frigivet")
 								else
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = "Det indtastede køretøj eksistere ikke.",
-											type = "error",
-											queue = "global",
-											timeout = 4000,
-											layout = "bottomCenter",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-										}
-									)
+									vRP.notify(vRP.getUserId(player), "Det indtastede køretøj eksistere ikke.")
 								end
 							end
 						)
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = "Frigivelsen er blevet annulleret da du ikke skrev nogen model",
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "bottomCenter",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(vRP.getUserId(player), "Frigivelsen er blevet annulleret da du ikke skrev nogen model")
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = "Frigivelsen er blevet annulleret da du ikke skrev nogen nummerplade",
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "bottomCenter",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(vRP.getUserId(player), "Frigivelsen er blevet annulleret da du ikke skrev nogen nummerplade")
 			end
 		end)
 	end,
@@ -1044,44 +830,11 @@ local choice_fine = {
 						if amount ~= nil then
 							if vRP.tryFullPayment(nuser_id, amount) then
 								vRP.insertPoliceRecord(nuser_id, lang.police.menu.fine.record({ choice, amount }))
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.police.menu.fine.fined({ choice, amount }) },
-										type = "info",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									nplayer,
-									{
-										text = { lang.police.menu.fine.notify_fined({ choice, amount }) },
-										type = "info",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, lang.police.menu.fine.fined({ choice, amount }))
+								vRP.notify(nuser_id, lang.police.menu.fine.notify_fined({ choice, amount }))
 								vRP.closeMenu(player)
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.money.not_enough() },
-										type = "error",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, lang.money.not_enough())
 							end
 						end
 					end
@@ -1095,18 +848,7 @@ local choice_fine = {
 					-- open menu
 					vRP.openMenu(player, menu)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.no_player_near() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(user_id, lang.common.no_player_near())
 				end
 			end)
 		end
@@ -1132,72 +874,17 @@ local choice_license = {
 							local target = vRP.getUserSource(tonumber(user_id))
 							if target ~= nil then
 								vRP.license(user_id)
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = user_id .. " fik frakendt sit kørekort.",
-										type = "success",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									target,
-									{
-										text = "Dit kørekort blev frataget",
-										type = "success",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(vRP.getUserId(player), user_id .. " fik frakendt sit kørekort.")
+								vRP.notify(tonumber(user_id), "Dit kørekort blev frataget")
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { "Dette ID ser ud til ikke at eksistere" },
-										type = "warning",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(vRP.getUserId(player), "Dette ID ser ud til ikke at eksistere")
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { "Intet ID valgt" },
-									type = "warning",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(vRP.getUserId(player), "Intet ID valgt")
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { "Ingen spiller i nærheden" },
-							type = "warning",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(vRP.getUserId(player), "Ingen spiller i nærheden")
 				end
 			end)
 		end
@@ -1257,33 +944,11 @@ local choice_carsearch = {
 								end)
 							end)
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.common.not_found() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(vRP.getUserId(player), lang.common.not_found())
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.not_found() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(vRP.getUserId(player), lang.common.not_found())
 				end
 			end)
 		end)
@@ -1311,18 +976,7 @@ local choice_cprsearch = {
 						end)
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.not_found() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "bottomCenter",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(vRP.getUserId(player), lang.common.not_found())
 				end
 			end)
 		end)
@@ -1392,62 +1046,16 @@ local choice_revive = {
 								vRPclient.playAnim(player, { false, revive_seq, false }) -- anim
 								SetTimeout(15000, function()
 									vRPclient.varyHealth(nplayer, { 50 }) -- heal 50
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										nplayer,
-										{
-											text = "Du er blevet genoplivet af en læge.",
-											type = "success",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											killer = true,
-										}
-									)
-									TriggerClientEvent(
-										"pNotify:SendNotification",
-										player,
-										{
-											text = "Personen blev genoplivet.",
-											type = "success",
-											queue = "global",
-											timeout = 4000,
-											layout = "centerRight",
-											animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											killer = true,
-										}
-									)
+									vRP.notify(nuser_id, "Du er blevet genoplivet af en læge.")
+									vRP.notify(user_id, "Personen blev genoplivet.")
 								end)
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.emergency.menu.revive.not_in_coma() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(user_id, lang.emergency.menu.revive.not_in_coma())
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.no_player_near() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(user_id, lang.common.no_player_near())
 				end
 			end)
 		end
@@ -1476,78 +1084,20 @@ local choice_heal = {
 									vRPclient.isInComa(nplayer, {}, function(in_coma2)
 										if not in_coma2 then
 											vRPclient.varyHealth(nplayer, { 100 }) -- heal 100
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												nplayer,
-												{
-													text = "Du er blevet helbredt af en læge.",
-													type = "success",
-													queue = "global",
-													timeout = 4000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-													killer = true,
-												}
-											)
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												player,
-												{
-													text = "Personen blev helbredt.",
-													type = "success",
-													queue = "global",
-													timeout = 4000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-													killer = true,
-												}
-											)
+											vRP.notify(nuser_id, "Du er blevet helbredt af en læge.")
+											vRP.notify(user_id, "Personen blev helbredt.")
 										else
-											TriggerClientEvent(
-												"pNotify:SendNotification",
-												player,
-												{
-													text = "Personen døde under helbredelsen.",
-													type = "success",
-													queue = "global",
-													timeout = 4000,
-													layout = "centerRight",
-													animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-													killer = true,
-												}
-											)
+											vRP.notify(user_id, "Personen døde under helbredelsen.")
 										end
 									end)
 								end)
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.emergency.menu.heal.in_coma() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(user_id, lang.emergency.menu.heal.in_coma())
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { lang.common.no_player_near() },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(user_id, lang.common.no_player_near())
 				end
 			end)
 		end
@@ -1779,46 +1329,13 @@ RegisterServerEvent("handcuff:cuffHim", function()
 				vRPclient.toggleHandcuff(cplayer, {})
 				vRPclient.isHandcuffed(cplayer, {}, function(handcuffed)
 					if handcuffed then
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							source,
-							{
-								text = { "Personen blev sat i håndjern." },
-								type = "info",
-								queue = "global",
-								timeout = 3000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, "Personen blev sat i håndjern.")
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							source,
-							{
-								text = { "Personen fik løsnet sine håndjern." },
-								type = "info",
-								queue = "global",
-								timeout = 3000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, "Personen fik løsnet sine håndjern.")
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					source,
-					{
-						text = { lang.common.no_player_near() },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(user_id, lang.common.no_player_near())
 			end
 		end)
 	else
@@ -1846,31 +1363,9 @@ RegisterCommand("håndjern", function(source)
 				vRPclient.toggleHandcuff(cplayer, {})
 				vRPclient.isHandcuffed(cplayer, {}, function(handcuffed)
 					if handcuffed then
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							source,
-							{
-								text = { "Personen blev sat i håndjern." },
-								type = "info",
-								queue = "global",
-								timeout = 3000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, "Personen blev sat i håndjern.")
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							source,
-							{
-								text = { "Personen fik løsnet sine håndjern." },
-								type = "info",
-								queue = "global",
-								timeout = 3000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, "Personen fik løsnet sine håndjern.")
 					end
 				end)
 			end

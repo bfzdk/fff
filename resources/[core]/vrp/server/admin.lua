@@ -115,18 +115,7 @@ local function ch_whitelist(player, choice)
 				{ ["Content-Type"] = "application/json" }
 			)
 
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = "ID " .. id .. " blev whitelisted",
-					type = "success",
-					queue = "global",
-					timeout = 3000,
-					layout = "bottomCenter",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(user_id, "ID " .. id .. " blev whitelisted")
 		end)
 	end
 end
@@ -146,18 +135,7 @@ local function ch_unwhitelist(player, choice)
 				{ ["Content-Type"] = "application/json" }
 			)
 
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = "ID " .. id .. " blev unwhitelisted",
-					type = "success",
-					queue = "global",
-					timeout = 3000,
-					layout = "bottomCenter",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(user_id, "ID " .. id .. " blev unwhitelisted")
 		end)
 	end
 end
@@ -170,19 +148,8 @@ local function ch_addgroup_staff(player, choice)
 			local checkid = vRP.getUserSource(tonumber(id))
 			if checkid ~= nil then
 				vRP.prompt(player, "Job: ", "", function(player, group)
-					if group == " " or group == "" or group == null or group == 0 or group == nil then
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = "Du angav ikke et job/rang.",
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+					if group == " " or group == "" or group == nil or group == 0 or group == nil then
+						vRP.notify(user_id, "Du angav ikke et job/rang.")
 					else
 						vRP.addUserGroup(id, group)
 
@@ -200,33 +167,11 @@ local function ch_addgroup_staff(player, choice)
 							json.encode({ username = "FlaxHosting - Logs", content = dmessage }),
 							{ ["Content-Type"] = "application/json" }
 						)
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = id .. " blev ansat som " .. group,
-								type = "success",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, id .. " blev ansat som " .. group)
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = "ID " .. id .. " er ugyldigt eller ikke online.",
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(user_id, "ID " .. id .. " er ugyldigt eller ikke online.")
 			end
 		end)
 	end
@@ -240,63 +185,15 @@ local function ch_removegroup_staff(player, choice)
 			local checkid = vRP.getUserSource(tonumber(id))
 			if checkid ~= nil then
 				vRP.prompt(player, "Job: ", "", function(player, group)
-					if group == " " or group == "" or group == null or group == 0 or group == nil then
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = "Du angav ikke et job/rang.",
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+					if group == " " or group == "" or group == nil or group == 0 or group == nil then
+						vRP.notify(user_id, "Du angav ikke et job/rang.")
 					else
 						vRP.removeUserGroup(id, group)
-
-						local dmessage = "```"
-							.. tostring(user_id)
-							.. " fjernet gruppe ["
-							.. tostring(group)
-							.. "] fra "
-							.. tostring(id)
-							.. "```"
-						PerformHttpRequest(
-							webhook.RemoveGroup,
-							function(err, text, headers) end,
-							"POST",
-							json.encode({ username = dname, content = dmessage }),
-							{ ["Content-Type"] = "application/json" }
-						)
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = id .. " blev fyret som " .. group,
-								type = "success",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, id .. " blev fyret som " .. group)
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = "ID " .. id .. " er ugyldigt eller ikke online.",
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(user_id, "ID " .. id .. " er ugyldigt eller ikke online.")
 			end
 		end)
 	end
@@ -307,42 +204,11 @@ local function ch_kick(player, choice)
 	if user_id ~= nil and vRP.hasPermission(user_id, "player.kick") then
 		vRP.prompt(player, "Spiller ID: ", "", function(player, id)
 			id = parseInt(id)
-			special_perm_table[id] = special_perm_table[id] or false
-			if special_perm_table[id] then
-				vRP.kick(player, "Du kan ik kick mig taber", true)
-			end
-			vRP.prompt(player, "Årsag: ", "", function(player, reason)
+			vRP.prompt(player, "Årsag: ", "", function(_, reason)
 				local source = vRP.getUserSource(id)
 				if source ~= nil then
 					vRP.kick(source, reason)
-
-					local dmessage = "```"
-						.. tostring(user_id)
-						.. " kickede "
-						.. tostring(id)
-						.. " - Begrundelse: "
-						.. tostring(reason)
-						.. "```"
-					PerformHttpRequest(
-						webhook.Kick,
-						function(err, text, headers) end,
-						"POST",
-						json.encode({ username = "FlaxHosting - Logs", content = dmessage }),
-						{ ["Content-Type"] = "application/json" }
-					)
-
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = "Du kickede " .. id,
-							type = "success",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(user_id, "Du kickede " .. id)
 				end
 			end)
 		end)
@@ -354,39 +220,9 @@ local function ch_ban(player, choice)
 	if user_id ~= nil and vRP.hasPermission(user_id, "player.ban") then
 		vRP.prompt(player, "Spiller ID: ", "", function(player, id)
 			id = parseInt(id)
-			special_perm_table[id] = special_perm_table[id] or false
-			if special_perm_table[id] then
-				vRP.kick(player, "Du kan ik banne mig taber", true)
-			end
 			vRP.prompt(player, "Årsag: ", "", function(player, reason)
-				local dmessage = "```"
-					.. tostring(user_id)
-					.. " bannede "
-					.. tostring(id)
-					.. " - Begrundelse: "
-					.. tostring(reason)
-					.. "```"
-				PerformHttpRequest(
-					webhook.Ban,
-					function(err, text, headers) end,
-					"POST",
-					json.encode({ username = dname, content = dmessage }),
-					{ ["Content-Type"] = "application/json" }
-				)
-				local source = vRP.getUserSource(id)
-				vRP.ban(id, reason, true)
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = "Du bannede " .. id,
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.ban(id, reason)
+				vRP.notify(user_id, "Du bannede " .. id)
 			end)
 		end)
 	end
@@ -398,7 +234,7 @@ local function ch_unban(player, choice)
 		vRP.prompt(player, "User id to unban: ", "", function(player, id)
 			id = parseInt(id)
 			vRP.setBanned(id, false)
-			vRPclient.notify(player, { "un-banned user " .. id })
+			vRP.notify(user_id, "un-banned user " .. id)
 			local dmessage = "```ID " .. tostring(user_id) .. " unbannede ID " .. tostring(id) .. "```"
 			PerformHttpRequest(
 				webhook.Unban,
@@ -416,31 +252,9 @@ local function ch_revivePlayer(player, choice)
 	vRP.prompt(player, "Spiller ID:", "", function(player, user_id)
 		local deadplayer = vRP.getUserSource(tonumber(user_id))
 		if deadplayer == nil then
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = "Ugyldigt eller manglende ID",
-					type = "error",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(nuser_id, "Ugyldigt eller manglende ID")
 		else
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = "Du genoplivede spilleren med ID " .. user_id,
-					type = "success",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(nuser_id, "Du genoplivede spilleren med ID " .. user_id)
 			vRPclient.varyHealth(deadplayer, { 100 })
 			vRP.setHunger(tonumber(user_id), 0)
 			vRP.setThirst(tonumber(user_id), 0)
@@ -553,18 +367,7 @@ local function ch_tptocoords(player, choice)
 		end
 
 		if x == 0 and y == 0 and z == 0 then
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = "Ugyldige koordinater.",
-					type = "error",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(user_id, "Ugyldige koordinater.")
 		else
 			vRPclient.teleport(player, { x, y, z })
 		end
@@ -585,50 +388,17 @@ local function ch_givemoney(player, choice)
 				vRP.prompt(player, "Beløb:", "", function(player, amount)
 					vRP.prompt(player, "Formål ved spawn af penge:", "", function(player, reason)
 						if string.len(reason) > 100 then
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = "Tror du selv du skal skrive så meget?",
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(user_id, "Tror du selv du skal skrive så meget?")
 						else
 							if reason == " " or reason == "" or reason == null or reason == 0 or reason == nil then
 								reason = "Ingen kommentar..."
 							end
 							amount = parseInt(amount)
 							if amount == " " or amount == "" or amount == null or amount == 0 or amount == nil then
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = "Ugyldigt pengebeløb.",
-										type = "error",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, "Ugyldigt pengebeløb.")
 							else
 								vRP.giveMoney(user_id, amount)
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = "Du spawnede " .. amount .. "DKK",
-										type = "success",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, "Du spawnede " .. amount .. "DKK")
 
 								PerformHttpRequest(
 									webhook.SpawnMoney,
@@ -668,33 +438,11 @@ local function ch_giveitem(player, choice)
 				vRP.prompt(player, "Tingens ID:", "", function(player, idname)
 					idname = idname
 					if idname == " " or idname == "" or idname == null or idname == nil then
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = "Ugyldigt ID.",
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, "Ugyldigt ID.")
 					else
 						vRP.prompt(player, "Antal:", "", function(player, amount)
 							if amount == " " or amount == "" or amount == null or amount == nil then
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = "Ugyldigt antal.",
-										type = "error",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, "Ugyldigt antal.")
 							else
 								amount = parseInt(amount)
 								vRP.giveInventoryItem(user_id, idname, amount, true)
@@ -757,13 +505,13 @@ local function ch_calladmin(player, choice)
 									}),
 									{ ["Content-Type"] = "application/json" }
 								) -- answer the call
-								vRPclient.notify(player, { "En staff har taget din case!" })
+								vRP.notify(user_id, "En staff har taget din case!")
 								vRPclient.getPosition(player, {}, function(x, y, z)
 									vRPclient.teleport(v, { x, y, z })
 								end)
 								answered = true
 							else
-								vRPclient.notify(v, { "Allerede taget!" })
+								vRP.notify(v, "Allerede taget!")
 							end
 						end
 					end)
@@ -819,29 +567,16 @@ local function choice_bilforhandler(player, choice)
 																			}
 																		)
 
-																		TriggerClientEvent(
-																			"pNotify:SendNotification",
-																			player,
-																			{
-																				text = {
-																					identity.firstname
-																						.. " "
-																						.. identity.name
-																						.. " har modtaget "
-																						.. spawn
-																						.. " for "
-																						.. format_thousands(tonumber(price))
-																						.. " DKK<br>Du modtog <b style='color: #4E9350'>"
-																						.. format_thousands(tonumber(pp))
-																						.. "</b> for handlen!",
-																				},
-																				type = "success",
-																				queue = "global",
-																				timeout = 4000,
-																				layout = "centerRight",
-																				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																			}
-																		)
+																		vRP.notify(user_id, identity.firstname
+																			.. " "
+																			.. identity.name
+																			.. " har modtaget "
+																			.. spawn
+																			.. " for "
+																			.. format_thousands(tonumber(price))
+																			.. " DKK. Du modtog "
+																			.. format_thousands(tonumber(pp))
+																			.. " for handlen!")
 																	end)
 																	local message = "**"
 																		.. user_id
@@ -863,122 +598,34 @@ local function choice_bilforhandler(player, choice)
 																		{ ["Content-Type"] = "application/json" }
 																	)
 
-																	TriggerClientEvent(
-																		"pNotify:SendNotification",
-																		target,
-																		{
-																			text = { "Tillykke med din <b style='color: #4E9350'>" .. spawn .. "</b>!" },
-																			type = "warning",
-																			queue = "global",
-																			timeout = 4000,
-																			layout = "centerRight",
-																			animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																		}
-																	)
+																	vRP.notify(nuser_id, "Tillykke med din " .. spawn .. "!")
 																else
-																	TriggerClientEvent(
-																		"pNotify:SendNotification",
-																		player,
-																		{
-																			text = { "Personen har ikke nok penge" },
-																			type = "warning",
-																			queue = "global",
-																			timeout = 4000,
-																			layout = "centerRight",
-																			animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																		}
-																	)
+																	vRP.notify(user_id, "Personen har ikke nok penge")
 																end
 															else
-																TriggerClientEvent(
-																	"pNotify:SendNotification",
-																	player,
-																	{
-																		text = { "Du har annulleret" },
-																		type = "warning",
-																		queue = "global",
-																		timeout = 4000,
-																		layout = "centerRight",
-																		animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-																	}
-																)
+																vRP.notify(user_id, "Du har annulleret")
 															end
 														end
 													)
 												else
-													TriggerClientEvent(
-														"pNotify:SendNotification",
-														player,
-														{
-															text = { "Beløbet skal være over 0!" },
-															type = "warning",
-															queue = "global",
-															timeout = 4000,
-															layout = "centerRight",
-															animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-														}
-													)
+														vRP.notify(user_id, "Beløbet skal være over 0!")
 												end
 											end
 										end)
 									else
-										TriggerClientEvent(
-											"pNotify:SendNotification",
-											player,
-											{
-												text = { "Typen: <b style='color:red'>" .. veh_type .. "</b> findes ikke" },
-												type = "warning",
-												queue = "global",
-												timeout = 4000,
-												layout = "centerRight",
-												animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											}
-										)
+										vRP.notify(user_id, "Typen: " .. veh_type .. " findes ikke")
 									end
 								end)
 							end)
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { "Dette ID ser ud til ikke at eksistere" },
-									type = "warning",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(user_id, "Dette ID ser ud til ikke at eksistere")
 						end
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { "Intet ID valgt" },
-								type = "warning",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(user_id, "Intet ID valgt")
 					end
 				end)
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { "Ingen spiller i nærheden" },
-						type = "warning",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
+				vRP.notify(user_id, "Ingen spiller i nærheden")
 			end
 		end)
 	end
@@ -1051,109 +698,12 @@ local function ch_warn(player, choice)
 											{ user_id = tar_id, warnings = newwarn },
 											function(rows, affected)
 												if warnings > 1 then
-													-- vRPclient.notify(source,{"Du har fået ".. warnings.." advarsler! Du har I alt ".. newwarn.." advarsler!"})
-													-- vRPclient.notify(player,{"Du har givet ".. warnings.." advarsler til ID: ".. tar_id})
-													--[[TriggerClientEvent(
-                                                                    "pNotify:SendNotification",
-                                                                    source,
-                                                                    {
-                                                                        text = "Du har fået <b style='color: #DB4646'>" ..
-                                                                            warnings ..
-                                                                                "<b style='color: #fff'> advarsler! Du har I alt <b style='color: #DB4646'>" ..
-                                                                                    newwarn ..
-                                                                                        "<b style='color: #fff'> advarsler!",
-                                                                        type = "success",
-                                                                        queue = "global",
-                                                                        timeout = 4000,
-                                                                        layout = "bottomCenter",
-                                                                        animation = {
-                                                                            open = "gta_effects_fade_in",
-                                                                            close = "gta_effects_fade_out"
-                                                                        }
-                                                                    }
-                                                                )]]
-													TriggerClientEvent("pNotify:SendNotification", source, {
-														text = "<b style = 'color:white'><center><h2> Du har fået <b style='color: #DB4646'>"
-															.. warnings
-															.. "<b style='color: #fff'> advarsler! med grund: "
-															.. grund
-															.. " Du har I alt <b style='color: #DB4646'>"
-															.. newwarn
-															.. "<b style='color: #fff'> advarsler! </h2><br>Sendt af id: "
-															.. user_id
-															.. "</b>",
-														type = "error",
-														--theme = "alarm",
-														queue = "lmao",
-														timeout = 15000,
-														layout = "topCenter",
-													})
-													TriggerClientEvent("pNotify:SendNotification", player, {
-														text = "Du har givet <b style='color: #5DB6E5'>"
-															.. warnings
-															.. "<b style='color: #fff'> advarsler til ID: <b style='color: #5DB6E5'>"
-															.. tar_id,
-														type = "success",
-														queue = "global",
-														timeout = 4000,
-														layout = "bottomCenter",
-														animation = {
-															open = "gta_effects_fade_in",
-															close = "gta_effects_fade_out",
-														},
-													})
+
+													vRP.notify(nuser_id, "Du har fået " .. warnings .. " advarsler! med grund: " .. grund .. " Du har I alt " .. newwarn .. " advarsler! Sendt af id: " .. user_id)
+													vRP.notify(user_id, "Du har givet " .. warnings .. " advarsler til ID: " .. tar_id)
 												else
-													-- vRPclient.notify(source,{"Du har fået ".. warnings.." advarsel! Du har I alt ".. newwarn.." advarsler!"})
-													-- vRPclient.notify(player,{"Du har givet ".. warnings.." advarsel til ID: ".. tar_id})
-													--[[TriggerClientEvent(
-                                                                    "pNotify:SendNotification",
-                                                                    source,
-                                                                    {
-                                                                        text = "Du har fået <b style='color: #DB4646'>" ..
-                                                                            warnings ..
-                                                                                "<b style='color: #fff'> advarsl! Du har I alt <b style='color: #DB4646'>" ..
-                                                                                    newwarn ..
-                                                                                        "<b style='color: #fff'> advarsl!",
-                                                                        type = "success",
-                                                                        queue = "global",
-                                                                        timeout = 4000,
-                                                                        layout = "bottomCenter",
-                                                                        animation = {
-                                                                            open = "gta_effects_fade_in",
-                                                                            close = "gta_effects_fade_out"
-                                                                        }
-                                                                    }
-                                                                )]]
-													TriggerClientEvent("pNotify:SendNotification", source, {
-														text = "<b style = 'color:white'><center><h2> Du har fået <b style='color: #DB4646'>"
-															.. warnings
-															.. "<b style='color: #fff'> advarsler! med grund: "
-															.. grund
-															.. " Du har I alt <b style='color: #DB4646'>"
-															.. newwarn
-															.. "<b style='color: #fff'> advarsler! </h2><br>Sendt af id: "
-															.. user_id
-															.. "</b>",
-														type = "error",
-														--theme = "alarm",
-														queue = "lmao",
-														timeout = 15000,
-														layout = "topCenter",
-													})
-													TriggerClientEvent("pNotify:SendNotification", player, {
-														text = "Du har givet <b style='color: #5DB6E5'>"
-															.. warnings
-															.. "<b style='color: #fff'> advarsl til ID: <b style='color: #5DB6E5'>"
-															.. tar_id,
-														type = "success",
-														queue = "global",
-														timeout = 4000,
-														layout = "bottomCenter",
-														animation = {
-															open = "gta_effects_fade_in",
-															close = "gta_effects_fade_out",
-														},
-													})
+													vRP.notify(nuser_id, "Du har fået " .. warnings .. " advarsler! med grund: " .. grund .. " Du har I alt " .. newwarn .. " advarsler! Sendt af id: " .. user_id)
+													vRP.notify(user_id, "Du har givet " .. warnings .. " advarsl til ID: " .. tar_id)
 												end
 
 												if newwarn >= 3 then
@@ -1171,14 +721,7 @@ local function ch_warn(player, choice)
 						end)
 					end)
 				else
-					TriggerClientEvent("pNotify:SendNotification", player, {
-						text = "Spilleren er ikke på!",
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "bottomCenter",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					})
+					vRP.notify(user_id, "Spilleren er ikke på!")
 				end
 			end
 		end)
@@ -1196,39 +739,9 @@ local function ch_getwarn(player, choice)
 						curwarnings = 0
 					end
 					if curwarnings == 0 then
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = "ID: <b style='color: #5DB6E5'>"
-									.. tar_id
-									.. "<b style='color: #fff'> har <b style='color: #5DB6E5'> ingen <b style='color: #fff'>advarsler!",
-								type = "success",
-								queue = "global",
-								timeout = 4000,
-								layout = "bottomCenter",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								killer = true,
-							}
-						)
+						vRP.notify(user_id, "ID: " .. tar_id .. " har ingen advarsler!")
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = "ID: <b style='color: #5DB6E5'>"
-									.. tar_id
-									.. "<b style='color: #fff'> har <b style='color: #5DB6E5'>"
-									.. curwarnings
-									.. " <b style='color: #fff'>advarsler!",
-								type = "success",
-								queue = "global",
-								timeout = 4000,
-								layout = "bottomCenter",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								killer = true,
-							}
-						)
+						vRP.notify(user_id, "ID: " .. tar_id .. " har " .. curwarnings .. " advarsler!")
 						--  vRPclient.notify(player,{"ID: ".. tar_id.. " har ".. curwarnings.. " advarsler!"})
 					end
 				end)
@@ -1240,51 +753,15 @@ end
 local function ch_checkwarn(player)
 	local user_id = vRP.getUserId(player)
 	if user_id ~= nil then
-		TriggerClientEvent(
-			"pNotify:SendNotification",
-			player,
-			{
-				text = "Tjekker <b style='color: #fff'>advarsler!",
-				type = "success",
-				queue = "global",
-				timeout = 4000,
-				layout = "bottomCenter",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		vRP.notify(user_id, "Tjekker advarsler!")
 		vRP.getWarnings(user_id, function(curwarnings)
 			if curwarnings == nil then
 				curwarnings = 0
 			end
 			if curwarnings == 0 then
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = "Du har <b style='color: #5DB6E5'> ingen <b style='color: #fff'>advarsler!",
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "bottomCenter",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						killer = true,
-					}
-				)
+				vRP.notify(user_id, "Du har ingen advarsler!")
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = "Du har <b style='color: #5DB6E5'>" .. curwarnings .. " <b style='color: #fff'>advarsler!",
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "bottomCenter",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						killer = true,
-					}
-				)
+				vRP.notify(user_id, "Du har " .. curwarnings .. " advarsler!")
 				--  vRPclient.notify(player,{"ID: ".. tar_id.. " har ".. curwarnings.. " advarsler!"})
 			end
 		end)
@@ -1303,15 +780,7 @@ local function ch_clearwarn(player, choice)
 							"UPDATE vrp_users SET warnings = @warnings WHERE id = @user_id",
 							{ user_id = tar_id, warnings = newwarn },
 							function(rows, affected)
-								TriggerClientEvent("pNotify:SendNotification", player, {
-									text = "Du fjernede Id: <b style='color: #5DB6E5'>" .. tar_id .. "'s <b style='color: #fff'>advarelser",
-									type = "success",
-									queue = "global",
-									timeout = 4000,
-									layout = "bottomCenter",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									killer = true,
-								})
+								vRP.notify(user_id, "Du fjernede Id: " .. tar_id .. "'s advarelser")
 							end
 						)
 					end
@@ -1331,31 +800,9 @@ local function ch_freezeplayer(player, choice)
 		end
 		local frozenplayer = vRP.getUserSource(tonumber(user_id))
 		if frozenplayer == nil then
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = "Ugyldigt eller manglende ID",
-					type = "error",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(user_id, "Ugyldigt eller manglende ID")
 		else
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = "Du frøs/optøede spilleren med ID " .. user_id,
-					type = "success",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(user_id, "Du frøs/optøede spilleren med ID " .. user_id)
 			vRPclient.toggleFreeze(frozenplayer, {})
 		end
 	end)
@@ -1393,88 +840,6 @@ local function ch_spectate(player, choice)
 	end)
 end
 
-function removejob(player, group)
-	local user_id = vRP.getUserId(player)
-	vRP.prompt(player, "Skriv id du vil fyre:", "", function(player, nuser_id)
-		nuser_id = tonumber(nuser_id)
-		local target = vRP.getUserSource(nuser_id)
-		if target ~= nil then
-			local rank = vRP.getUserGroupByType(nuser_id, group)
-			if rank ~= "" then
-				vRP.removeUserGroup(nuser_id, rank)
-				vRP.addUserGroup(nuser_id, "Arbejdsløs")
-				local dato = os.date("**%d-%m-%Y** kl. **%X**")
-				local dmessage = "**"
-					.. user_id
-					.. "** har lige fyret **"
-					.. nuser_id
-					.. "** fra **"
-					.. rank
-					.. "** ("
-					.. dato
-					.. ")"
-				PerformHttpRequest(
-					"https://discord.com/api/webhooks/1035921579974082630/cI8IRzGqWrTQcD84UVXw0u_GcyYCAIJWNdiv5MYFwCeZ3Dh8MWAvm1QnBNPAEH-o2HoA",
-					function(err, text, headers) end,
-					"POST",
-					json.encode({ username = "Server " .. GetConvar("servernumber", "0") .. " - Fyret", content = dmessage }),
-					{ ["Content-Type"] = "application/json" }
-				)
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { nuser_id .. " er blevet fyret som <b style='color: #DB4646'>" .. rank .. "</b>!" },
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					target,
-					{
-						text = { "Du er blevet fyret som <b style='color: #DB4646'>" .. rank .. "</b>!" },
-						type = "success",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
-			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					player,
-					{
-						text = { nuser_id .. " har ikke noget <b style='color: #DB4646'>" .. group:gsub("-", " ") .. "</b>!" },
-						type = "error",
-						queue = "global",
-						timeout = 4000,
-						layout = "centerRight",
-						animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-					}
-				)
-			end
-		else
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = { "Dette ID ser ud til ikke at eksistere" },
-					type = "warning",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
-		end
-	end)
-end
-
 vRP.registerMenuBuilder("main", function(add, data)
 	local user_id = vRP.getUserId(data.player)
 	if user_id ~= nil then
@@ -1491,12 +856,13 @@ vRP.registerMenuBuilder("main", function(add, data)
 				if vRP.hasPermission(user_id, "player.list") then
 					menu[">Brugerliste"] = { ch_list, "Vis/Gem" }
 				end
-				if vRP.hasPermission(user_id, "player.group.add") then
-					menu["Tilføj job"] = { ch_addgroup }
-				end
-				if vRP.hasPermission(user_id, "player.group.remove") then
-					menu["Fjern job"] = { ch_removegroup }
-				end
+				-- åbenbart blevet slettet?
+				--if vRP.hasPermission(user_id, "player.group.add") then
+				--	menu["Tilføj job"] = { ch_addgroup }
+				--end
+				--if vRP.hasPermission(user_id, "player.group.remove") then
+				--	menu["Fjern job"] = { ch_removegroup }
+				--end
 				if vRP.hasPermission(user_id, "player.group.add.staff") then
 					menu["Tilføj Rank"] = { ch_addgroup_staff }
 				end
@@ -1612,6 +978,6 @@ AddEventHandler("vRPAdmin:SpectatePlr", function(id)
 			TriggerClientEvent("vRPAdmin:Spectate", source, SelectedPlrSource)
 		end
 	else
-		vRPclient.notify(source, { "~r~This player may have left the game." })
+		vRP.notify(source, "This player may have left the game.")
 	end
 end)

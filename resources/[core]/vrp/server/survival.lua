@@ -182,33 +182,11 @@ local choice_revive = {
 								end)
 							end
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = "Ikke i koma!",
-									type = "error",
-									queue = "global",
-									timeout = 3000,
-									layout = "centerLeft",
-									animation = { open = "gta_effects_open", close = "gta_effects_close" },
-								}
-							)
+							vRP.notify(user_id, "Ikke i koma!")
 						end
 					end)
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = "Ingen spiller nær dig!",
-							type = "error",
-							queue = "global",
-							timeout = 3000,
-							layout = "centerLeft",
-							animation = { open = "gta_effects_open", close = "gta_effects_close" },
-						}
-					)
+					vRP.notify(user_id, "Ingen spiller nær dig!")
 				end
 			end)
 		end

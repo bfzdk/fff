@@ -73,22 +73,6 @@ function ch_give(idname, player, choice)
 
 									vRPclient.playAnim(player, { true, { { "mp_common", "givetake1_a", 1 } }, false })
 									vRPclient.playAnim(nplayer, { true, { { "mp_common", "givetake2_a", 1 } }, false })
-
-									local dmessage = "ID:"
-										.. tostring(user_id)
-										.. " gav ID:"
-										.. tostring(nuser_id)
-										.. " "
-										.. tostring(amount)
-										.. " "
-										.. tostring(idname)
-									PerformHttpRequest(
-										webhook.GiveItem,
-										function(err, text, headers) end,
-										"POST",
-										json.encode({ username = "FlaxHosting - Logs", content = dmessage }),
-										{ ["Content-Type"] = "application/json" }
-									)
 								else
 									vRPclient.notify(player, { lang.common.invalid_value() })
 								end
@@ -119,17 +103,7 @@ function ch_trash(idname, player, choice)
 			function(player, amount)
 				local amount = parseInt(amount)
 				if vRP.tryGetInventoryItem(user_id, idname, amount, false) then
-					local dmessage = "ID:" .. tostring(user_id) .. " ødelagde " .. tostring(amount) .. " " .. tostring(idname)
-					PerformHttpRequest(
-						webhook.DestroyItem,
-						function(err, text, headers) end,
-						"POST",
-						json.encode({ username = "FlaxHosting - Logs", content = dmessage }),
-						{ ["Content-Type"] = "application/json" }
-					)
-
 					vRPclient.notify(player, { lang.inventory.trash.done({ vRP.getItemName(idname), amount }) })
-					TriggerClientEvent("DropSystem:drop", player, idname, amount)
 					vRPclient.playAnim(player, { true, { { "pickup_object", "pickup_low", 1 } }, false })
 				else
 					vRPclient.notify(player, { lang.common.invalid_value() })

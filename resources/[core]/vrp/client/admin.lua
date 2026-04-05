@@ -30,18 +30,7 @@ function vRP.toggleFreeze()
 	else
 		frozen = true
 		unfreeze = false
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Du blev frosset af en admin.",
-				type = "info",
-				timeout = 3000,
-				layout = "centerRight",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		vRP.notify("Du blev frosset af en admin.")
 	end
 end
 
@@ -173,17 +162,7 @@ local function teleportToWaypoint()
 	end
 
 	SetEntityCoordsNoOffset(targetPed, x, y, z, 0, 0, 1)
-	TriggerEvent(
-		"pNotify:SendNotification",
-		{
-			text = "Teleporteret til waypoint",
-			type = "success",
-			timeout = 3000,
-			layout = "centerRight",
-			queue = "global",
-			animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-		}
-	)
+	vRP.notify("Teleporteret til waypoint")
 end
 RegisterNetEvent("TpToWaypoint")
 AddEventHandler("TpToWaypoint", teleportToWaypoint)

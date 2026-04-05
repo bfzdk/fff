@@ -1,14 +1,15 @@
-local Tunnel = module("vrp", "lib/Tunnel")
-local Proxy = module("vrp", "lib/Proxy")
+local tvRP = vRP.tunnel.createInterface()
 
-vRPclient = Tunnel.getInterface("vRP", "vrp_hackatms")
-vRP = Proxy.getInterface("vRP")
+function tvRP.completeTask()
+	local user_id = vRP.getUserId(source)
+	print(user_id)
+end
 
 RegisterServerEvent("kokain")
 AddEventHandler("kokain", function()
 	local user_id = vRP.getUserId({ source })
 
-	vRP.giveInventoryItem({ user_id, "kokainblade", 1, true })
+	
 end)
 
 RegisterServerEvent("kokain2")

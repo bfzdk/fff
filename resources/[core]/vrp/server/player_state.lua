@@ -3,7 +3,6 @@ local lang = vRP.lang
 
 -- client -> server events
 AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
-	Debug.pbegin("playerSpawned_player_state")
 	local player = source
 	local data = vRP.getUserDataTable(user_id)
 	local tmpdata = vRP.getUserTmpTable(user_id)
@@ -60,8 +59,7 @@ AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
 	else -- not first spawn (player died), don't load weapons, empty wallet, empty inventory
 		vRP.setHunger(user_id, 0)
 		vRP.setThirst(user_id, 0)
-		--vRP.setPromille(user_id,0)
-		vRP.clearInventory(user_id, true)
+		vRP.clearInventory(user_id)
 
 		if cfg.lose_aptitudes_on_death then
 			data.gaptitudes.physical = {}
@@ -85,7 +83,6 @@ AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
 			vRPclient.setCustomization(source, { data.customization })
 		end
 	end
-	Debug.pend()
 end)
 
 -- death, clear position and weapons
