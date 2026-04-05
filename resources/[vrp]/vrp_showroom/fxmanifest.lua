@@ -1,0 +1,15 @@
+fx_version 'cerulean'
+game 'gta5'
+
+dependency 'vrp'
+
+server_scripts {
+    '@vrp/lib/utils.lua',
+    '@oxmysql/lib/MySQL.lua',
+    'server.lua',
+}
+
+client_scripts {
+    'lib/Proxy.lua',
+    'client.lua',
+}
