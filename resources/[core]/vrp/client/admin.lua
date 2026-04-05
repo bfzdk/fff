@@ -26,18 +26,7 @@ function tvRP.toggleFreeze()
 	if frozen then
 		frozen = false
 		unfreeze = true
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Du blev optøet af en admin.",
-				type = "info",
-				timeout = 3000,
-				layout = "centerRight",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				killer = true,
-			}
-		)
+		tvRP.notify("~g~Du blev unfrosset.")
 	else
 		frozen = true
 		unfreeze = false
@@ -102,17 +91,7 @@ function tvRP.vehicleUnlockAdmin()
 	SetVehicleDoorsLocked(veh, 1)
 	SetVehicleDoorsLockedForPlayer(veh, ped, false)
 
-	TriggerEvent(
-		"pNotify:SendNotification",
-		{
-			text = "Nærmeste køretøj låst op.",
-			type = "error",
-			timeout = 3000,
-			layout = "centerRight",
-			queue = "global",
-			animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-		}
-	)
+	tvRP.notify("~g~Du låste op for køretøjet med nummerpladen: ~b~" .. plate)
 end
 
 -- noclip/invisibility
@@ -158,22 +137,12 @@ end)
 local function teleportToWaypoint()
 	local targetPed = GetPlayerPed(-1)
 	local targetVeh = GetVehiclePedIsUsing(targetPed)
-	if IsPedInAnyVehicle(targetPed) then
+	if IsPedInAnyVehicle(targetPed, true) then
 		targetPed = targetVeh
 	end
 
 	if not IsWaypointActive() then
-		TriggerEvent(
-			"pNotify:SendNotification",
-			{
-				text = "Du mangler at sætte et waypoint",
-				type = "warning",
-				timeout = 3000,
-				layout = "centerRight",
-				queue = "global",
-				animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-			}
-		)
+		tvRP.notify("~r~Du skal sætte et waypoint først.")
 		return
 	end
 

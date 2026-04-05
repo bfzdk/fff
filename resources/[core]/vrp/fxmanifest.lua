@@ -20,11 +20,7 @@ files({
 	"gui/dynamic_classes.js",
 })
 
-shared_scripts({
-	"cfg/webhooks.lua",
-})
-
-server_scripts({
+server_scripts {
 	"@oxmysql/lib/MySQL.lua",
 	"lib/utils.lua",
 	"base.lua",
@@ -53,10 +49,9 @@ server_scripts({
 	"modules/basic_skinshop.lua",
 	"modules/basic_gunshop.lua",
 	"modules/cloakroom.lua",
-	"modules/anticheat.lua",
-})
+}
 
-client_scripts({
+client_scripts {
 	"lib/utils.lua",
 	"client/Tunnel.lua",
 	"client/Proxy.lua",
@@ -73,5 +68,4 @@ client_scripts({
 	"client/drag.lua",
 	"client/adminvehicle.lua",
 	"client/admin.lua",
-	"client/anticheat.lua",
-})
+}

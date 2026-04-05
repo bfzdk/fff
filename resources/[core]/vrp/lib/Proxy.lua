@@ -1,8 +1,11 @@
--- Proxy interface system, used to add/call functions between resources
-
-local Debug = module("lib/Debug")
+-- Proxy system
+-- Når du laver et interface, laver den et event for dit project, det event kan så kaldes og dine funktioner kan blive kaldt via events
+-- Get interface giver blot personen en "fake" version af dit project, men hvis gang du kalder en funktion i det, så kalder den dit events og resultatet sendes tilbage
 
 local Proxy = {}
+
+local isServer = IsDuplicityVersion()
+
 
 local proxy_rdata = {}
 local function proxy_callback(rvalues) -- save returned values, TriggerEvent is synchronous
@@ -26,31 +29,29 @@ local function proxy_resolve(itable, key)
 	return fcall
 end
 
---- Add event handler to call interface functions (can be called multiple times for the same interface name with different tables)
-function Proxy.addInterface(name, itable)
+function Proxy.getInterface(name)
+	local r = setmetatable({}, { __index = proxy_resolve, name = name })
+	return r
+end
+
+function Proxy.createInterface(name)
+	local itable = {}
+
 	AddEventHandler(name .. ":proxy", function(member, args, callback)
-		if Debug.active then
-			Debug.pbegin("proxy_" .. name .. ":" .. member .. " " .. json.encode(Debug.safeTableCopy(args)))
+		if source > 0 and isServer then -- prevent client -> server calls
+			return print("error: proxy call from client to server without tunnel " .. name .. ":" .. member)
 		end
 
 		local f = itable[member]
 
-		if type(f) == "function" then
-			callback({ f(table.unpack(args)) }) -- call function with and return values through callback
-			-- CancelEvent() -- cancel event doesn't seem to cancel the event for the other handlers, but if it does, uncomment this
+		if type(f) == "function" then -- hvis den kan finde vrp funktion ved navn
+			callback({ f(table.unpack(args)) }) -- kalder vrp funktionen og retuner resultatet
 		else
 			print("error: proxy call " .. name .. ":" .. member .. " not found")
 		end
-
-		if Debug.active then
-			Debug.pend()
-		end
 	end)
-end
 
-function Proxy.getInterface(name)
-	local r = setmetatable({}, { __index = proxy_resolve, name = name })
-	return r
+	return itable
 end
 
 return Proxy

@@ -131,19 +131,10 @@ function tvRP.notify(msg)
 		text = msg,
 		type = "info",
 		timeout = 3000,
-		layout = "bottomRight",
+		layout = "centerRight",
 		theme = "gta",
 	})
 end
-
-function tvRP.notifyPicture(icon, type, sender, title, text)
-	SetNotificationTextEntry("STRING")
-	AddTextComponentString(text)
-	SetNotificationMessage(icon, icon, true, type, sender, title, text)
-	DrawNotification(false, true)
-end
-
--- SCREEN
 
 -- play a screen effect
 -- name, see https://wiki.fivem.net/wiki/Screen_Effects

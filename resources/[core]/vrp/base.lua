@@ -3,16 +3,12 @@ local Tunnel = module("lib/Tunnel")
 local Lang = module("lib/Lang")
 Debug = module("lib/Debug")
 local config = module("cfg/base")
-local webhook = module("cfg/webhooks")
 
 Debug.active = config.debug
 MySQL.debug = config.debug
 
-vRP = {}
-Proxy.addInterface("vRP", vRP)
-
-tvRP = {}
-Tunnel.bindInterface("vRP", tvRP) -- listening for client tunnel
+vRP = Proxy.createInterface()
+tvRP = Tunnel.createInterface()
 
 -- load language
 vRP.lang = Lang.new(module("cfg/lang/da"))
@@ -282,11 +278,7 @@ end
 function vRP.ban(user_id, reason)
 	if user_id ~= nil then
 		local player = vRP.getUserSource(user_id)
-		local data = GetPlayerIdentifiers(player)
-		if data == ipron then
-		else
-			vRP.setBanned(user_id, reason)
-		end
+		vRP.setBanned(user_id, reason)
 		if player ~= nil then
 			vRP.kick(player, "[Udelukket] " .. reason)
 		end

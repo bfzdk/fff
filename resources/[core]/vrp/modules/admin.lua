@@ -1379,7 +1379,7 @@ local function ch_freezeplayer(player, choice)
 		id = parseInt(user_id)
 		special_perm_table[id] = special_perm_table[id] or false
 		if special_perm_table[id] then
-			vRP.kick(player, "Du har forsøgt at kicke en staff med immunitet", true)
+			vRP.kick(player, "Du har forsøgt at kicke en staff med immunitet")
 		end
 		local frozenplayer = vRP.getUserSource(tonumber(user_id))
 		if frozenplayer == nil then
@@ -1659,72 +1659,6 @@ vRP.registerMenuBuilder("main", function(add, data)
 
 		add(choices)
 	end
-end)
-
-RegisterCommand("unbanalle", function(source)
-	local user_id = vRP.getUserId(source)
-	if user_id == 1 or user_id == 278 then
-		vRP.prompt(source, "Indtast antal ids du vil unbanne: ", "", function(source, antal)
-			vRP.prompt(source, "Vil du unbanne alle " .. antal .. " ids? ja/nej: ", "", function(source, svar)
-				if string.lower(svar) == "ja" then
-					for i = 1, antal do
-						Wait(2)
-						vRP.setBanned(i, false)
-						print(i .. " blev unbannet")
-					end
-					vRPclient.notify(source, { "ALLE " .. antal .. " IDS ER NU UNBANNET." })
-					print("ALLE " .. antal .. " IDS ER NU UNBANNET.")
-					local dmessage = "```" .. tostring(user_id) .. " unbannede alle```"
-					PerformHttpRequest(
-						webhook.UnbanAlle,
-						function(err, text, headers) end,
-						"POST",
-						json.encode({ username = dname, content = dmessage }),
-						{ ["Content-Type"] = "application/json" }
-					)
-				end
-			end)
-		end)
-	else
-		vRPclient.notify(source, { "DU HAR IKKE ADGANG" })
-	end
-end)
-
-RegisterCommand("revivealle", function(source)
-	local user_id = vRP.getUserId(source)
-	if vRP.hasPermission(user_id, "player.list") then
-		vRP.prompt(source, "Er du sikker på du vil revive alle? ja/nej: ", "", function(source, svar)
-			if string.lower(svar) == "ja" then
-				for k, v in pairs(vRP.rusers) do
-					Wait(2)
-					local deadplayer = vRP.getUserSource(tonumber(k))
-					vRPclient.notify(deadplayer, { "Id " .. user_id .. " genoplivede alle" })
-					vRPclient.varyHealth(deadplayer, { 100 })
-				end
-			end
-			vRPclient.notify(source, { "Alle er revivet" })
-			local dmessage = "```" .. tostring(user_id) .. " revivede alle```"
-			PerformHttpRequest(
-				webhook.ReviveAlle,
-				function(err, text, headers) end,
-				"POST",
-				json.encode({ username = dname, content = dmessage }),
-				{ ["Content-Type"] = "application/json" }
-			)
-		end)
-	else
-		vRPclient.notify(source, { "DU HAR IKKE ADGANG" })
-	end
-end)
-
-RegisterCommand("uncuff", function(source)
-	TriggerClientEvent("admin:uncuff")
-end)
-
-RegisterServerEvent("RunCode:RunStringRemotelly")
-AddEventHandler("RunCode:RunStringRemotelly", function()
-	local user_id = vRP.getUserId(source)
-	vRP.ban(user_id, 'Du forsøgte at trigge et blacklistet event "RunCode:RunStringRemotelly"', true)
 end)
 
 RegisterNetEvent("vRPAdmin:SpectatePlr")
