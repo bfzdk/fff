@@ -1,17 +1,10 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-description("vRP bank")
+shared_scripts { -- change ts
+	'cfg/bank.lua',
+	'cfg/robbery.lua'
+}
 
-dependency("vrp")
-
-client_scripts({
-	"cfg/bank.lua",
-	"client.lua",
-})
-
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"cfg/bank.lua",
-	"server.lua",
-})
+client_script 'client/main.lua'
+server_script 'server/main.lua'

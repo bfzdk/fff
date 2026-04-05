@@ -9,5 +9,5 @@ repository("https://github.com/citizenfx/cfx-server-data")
 dependency("yarn")
 server_script("webpack_builder.js")
 
-fx_version("adamant")
+fx_version("cerulean")
 game("common")

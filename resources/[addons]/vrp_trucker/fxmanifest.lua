@@ -1,17 +1,5 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-description("vrp_tattoos")
-
-dependency("vrp")
-
-client_scripts({
-	"lib/Proxy.lua",
-	"lib/Tunnel.lua",
-	"client.lua",
-})
-
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"server.lua",
-})
+client_script "client/main.lua"
+server_script "server/main.lua"

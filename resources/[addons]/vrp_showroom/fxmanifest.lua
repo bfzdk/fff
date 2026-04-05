@@ -1,15 +1,6 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-dependency("vrp")
-
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"@oxmysql/lib/MySQL.lua",
-	"server.lua",
-})
-
-client_scripts({
-	"lib/Proxy.lua",
-	"client.lua",
-})
+shared_script 'config.lua'
+client_script 'client/main.lua'
+server_script 'server/main.lua'

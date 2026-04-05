@@ -1,22 +1,22 @@
-fx_version("adamant")
-games({ "gta5" })
+fx_version "cerulean"
+game "gta5"
 
-client_scripts({
+ui_page {
+	"html/alerts.html",
+}
+
+client_scripts {
 	"client.lua",
-})
+}
 
-server_scripts({
-	"@vrp/lib/utils.lua",
+server_scripts {
 	"server.lua",
 	"@mysql-async/lib/MySQL.lua",
-})
+}
 
-ui_page({
-	"html/alerts.html",
-})
 
-files({
+files {
 	"html/alerts.html",
 	"html/main.js",
 	"html/style.css",
-})
+}

@@ -1,7 +1,5 @@
-fx_version("cerulean")
-game("gta5")
-
-dependency("vrp")
+fx_version "cerulean"
+game "gta5"
 
 shared_script("config.lua")
 

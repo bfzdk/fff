@@ -1,10 +1,11 @@
-fx_version("adamant")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-client_scripts({
-	"gui.lua",
-	"client.lua",
-	"config.lua",
-})
+shared_script 'config.lua'
 
-server_script("server.lua")
+client_scripts {
+	"client/gui.lua",
+	"client/main.lua"
+}
+
+server_script "server.lua"

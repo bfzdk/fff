@@ -1,10 +1,3 @@
---
--- Created by IntelliJ IDEA.
--- User: Sling
--- Date: 09-03-2019
--- Time: 01:46
--- Made for CiviliansNetwork
---
 local beds = {}
 
 AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)

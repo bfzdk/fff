@@ -1,5 +1,4 @@
 vRP = Proxy.getInterface("vRP")
-vRPex = Proxy.getInterface("vrp_extended")
 
 local Keys = {
 	["ESC"] = 322,

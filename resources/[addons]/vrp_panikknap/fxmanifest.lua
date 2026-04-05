@@ -1,14 +1,6 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-client_scripts({
-	"lib/Proxy.lua",
-	"config.lua",
-	"client.lua",
-})
-
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"config.lua",
-	"server.lua",
-})
+shared_script 'config.lua'
+client_script 'client/main.lua'
+server_script 'server/main.lua'

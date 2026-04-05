@@ -1,14 +1,9 @@
-fx_version("adamant")
-game("gta5")
-lua54("yes")
+fx_version "cerulean"
+game "gta5"
 
-shared_script("@ox_lib/init.lua")
+shared_script "@ox_lib/init.lua"
 
-author("Kian Frostholm")
-
-dependency("vrp")
-
-client_scripts({
+client_scripts {
 	"lib/enum.lua",
 	"client/radar.lua",
 	"client/window.lua",
@@ -46,10 +41,9 @@ client_scripts({
 	"client/loadfreeze.lua",
 	"client/carwash.lua",
 	"client/simplehudremover.lua",
-})
+}
 
-server_scripts({
-	"@vrp/lib/utils.lua",
+server_scripts {
 	"server/dive.lua",
 	"server/discord_support.lua",
 	"server/revive.lua",
@@ -58,7 +52,7 @@ server_scripts({
 	"server/carry.lua",
 	"server/takehostage.lua",
 	"server/carwash.lua",
-})
+}
 
 data_file("INTERIOR_PROXY_ORDER_FILE")("interiorproxies.meta")
 

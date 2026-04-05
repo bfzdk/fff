@@ -1,16 +1,11 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-ui_page("notifs/index.html")
+client_scripts { -- fix ts
+	'client/main.lua',
+	'client/notifs.lua',
+	'client/GUI.lua',
+	'client/map.lua'
+}
 
-client_scripts({
-	"map.lua",
-	"client.lua",
-	"GUI.lua",
-	"models_c.lua",
-})
-
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"server.lua",
-})
+server_script 'server/main.lua'
