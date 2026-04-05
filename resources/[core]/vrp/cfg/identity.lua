@@ -1,10 +1,10 @@
 local cfg = {}
 
 -- city hall position
-cfg.city_hall = {476.59823608398,-106.4605255127,63.157897949219}
+cfg.city_hall = { 476.59823608398, -106.4605255127, 63.157897949219 }
 
 -- cityhall blip {blipid,blipcolor}
-cfg.blip = {181,4}
+cfg.blip = { 181, 4 }
 
 -- cost of a new identity
 cfg.new_identity_cost = 25000
@@ -12,7 +12,6 @@ cfg.new_identity_cost = 25000
 -- phone format (max: 20 chars, use D for a random digit)
 cfg.phone_format = "DDDDDDDD"
 -- cfg.phone_format = "06DDDDDDDD" -- another example for cellphone in France
-
 
 -- config the random name generation (first join identity)
 -- (I know, it's a lot of names for a little feature)
@@ -118,7 +117,7 @@ cfg.random_first_names = {
 	"Vigga",
 	"Viggo",
 	"Villads",
-	"William"
+	"William",
 }
 
 cfg.random_last_names = {
@@ -141,7 +140,7 @@ cfg.random_last_names = {
 	"Poulsen",
 	"Rasmussen",
 	"Sørensen",
-	"Thomsen"
+	"Thomsen",
 }
 
 return cfg

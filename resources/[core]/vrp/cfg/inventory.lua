@@ -7,7 +7,7 @@ cfg.default_vehicle_chest_weight = 50
 
 -- define vehicle chest weight by model in lower case
 cfg.vehicle_chest_weights = {
--- lastbiler
+	-- lastbiler
 	["tiptruck"] = 250,
 	["rumpo2"] = 100,
 	["minivan"] = 100,

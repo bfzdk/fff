@@ -16,13 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 
-
 local lang = {
 	tattoos = {
 		title = "Tattoos",
 		added = "~g~Tattoo added.",
 		removed = "~r~Tattoo removed.",
-		cleaned = "~r~All tattoos removed."
+		cleaned = "~r~All tattoos removed.",
 	},
 }
 

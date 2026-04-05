@@ -1,4 +1,3 @@
-
 local cfg = {}
 
 -- exp notes:
@@ -14,14 +13,14 @@ local cfg = {}
 cfg.gaptitudes = {
 	["physical"] = {
 		_title = "Fysik",
-		["strength"] = {"Styrke", 30, 105} -- required, level 3 to 6 (by default, can carry 10kg per level)
+		["strength"] = { "Styrke", 30, 105 }, -- required, level 3 to 6 (by default, can carry 10kg per level)
 	},
 	["science"] = {
 		_title = "Viden",
 		--["chemicals"] = {"Studere kemikalier", 0, -1}, -- example
 		--["mathematics"] = {"Studere matematik", 0, -1}, -- example
-		["mechanic"] = {"Reparation af køretøj", 0, 30} -- example
-	}
+		["mechanic"] = { "Reparation af køretøj", 0, 30 }, -- example
+	},
 }
 
 return cfg

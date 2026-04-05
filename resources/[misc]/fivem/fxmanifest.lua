@@ -1,6 +1,6 @@
-fx_version 'cerulean'
-games { 'gta5' }
+fx_version("cerulean")
+games({ "gta5" })
 
-resource_type 'gametype' { name = 'BurgerRP' }
+resource_type("gametype")({ name = "BurgerRP" })
 
-client_script 'fivem_client.lua'
+client_script("fivem_client.lua")

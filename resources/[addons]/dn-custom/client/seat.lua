@@ -1,5 +1,7 @@
---[[ SEAT SHUFFLE ]]--
---[[ BY JAF ]]--
+--[[ SEAT SHUFFLE ]]
+--
+--[[ BY JAF ]]
+--
 
 local disableShuffle = true
 function disableSeatShuffle(flag)
@@ -31,7 +33,7 @@ AddEventHandler("SeatShuffle", function()
 end)
 
 RegisterCommand("skift", function(source, args, raw) --change command here
-    TriggerEvent("SeatShuffle")
+	TriggerEvent("SeatShuffle")
 end, false)
 
 RegisterCommand("sæde", function(source, args, raw) --change command here

@@ -21,7 +21,7 @@
 ---@field txdObject number
 ---@field dictName string
 ---@field txtName string
-lib.dui = lib.class('Dui')
+lib.dui = lib.class("Dui")
 
 ---@type table<string, Dui>
 local duis = {}
@@ -33,8 +33,8 @@ function lib.dui:constructor(data)
 	local time = GetGameTimer()
 	local id = ("%s_%s_%s"):format(cache.resource, time, currentId)
 	currentId = currentId + 1
-	local dictName = ('ox_lib_dui_dict_%s'):format(id)
-	local txtName = ('ox_lib_dui_txt_%s'):format(id)
+	local dictName = ("ox_lib_dui_dict_%s"):format(id)
+	local txtName = ("ox_lib_dui_txt_%s"):format(id)
 	local duiObject = CreateDui(data.url, data.width, data.height)
 	local duiHandle = GetDuiHandle(duiObject)
 	local runtimeTxd = CreateRuntimeTxd(dictName)
@@ -51,17 +51,17 @@ function lib.dui:constructor(data)
 	duis[id] = self
 
 	if self.private.debug then
-		print(('Dui %s created'):format(id))
+		print(("Dui %s created"):format(id))
 	end
 end
 
 function lib.dui:remove()
-	SetDuiUrl(self.duiObject, 'about:blank')
+	SetDuiUrl(self.duiObject, "about:blank")
 	DestroyDui(self.duiObject)
 	duis[self.private.id] = nil
 
 	if self.private.debug then
-		print(('Dui %s removed'):format(self.private.id))
+		print(("Dui %s removed"):format(self.private.id))
 	end
 end
 
@@ -71,7 +71,7 @@ function lib.dui:setUrl(url)
 	SetDuiUrl(self.duiObject, url)
 
 	if self.private.debug then
-		print(('Dui %s url set to %s'):format(self.private.id, url))
+		print(("Dui %s url set to %s"):format(self.private.id, url))
 	end
 end
 
@@ -80,12 +80,14 @@ function lib.dui:sendMessage(message)
 	SendDuiMessage(self.duiObject, json.encode(message))
 
 	if self.private.debug then
-		print(('Dui %s message sent with data :'):format(self.private.id), json.encode(message, { indent = true }))
+		print(("Dui %s message sent with data :"):format(self.private.id), json.encode(message, { indent = true }))
 	end
 end
 
-AddEventHandler('onResourceStop', function(resourceName)
-	if cache.resource ~= resourceName then return end
+AddEventHandler("onResourceStop", function(resourceName)
+	if cache.resource ~= resourceName then
+		return
+	end
 
 	for _, dui in pairs(duis) do
 		dui:remove()

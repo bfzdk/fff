@@ -1,11 +1,11 @@
 Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(0)
+	while true do
+		Citizen.Wait(0)
 		HideHudComponentThisFrame(6)
 		HideHudComponentThisFrame(7)
 		HideHudComponentThisFrame(8)
-        HideHudComponentThisFrame(9)
-    end
+		HideHudComponentThisFrame(9)
+	end
 end)
 
 --[[

@@ -1,4 +1,3 @@
-
 local cfg = {}
 -- list of weapons for sale
 -- for the native name, see https://wiki.fivem.net/wiki/Weapons (not all of them will work, look at client/player_state.lua for the real weapon list)
@@ -10,16 +9,15 @@ local cfg = {}
 
 cfg.gunshop_types = {
 
-
 	["Golfklubben"] = {
-		_config = {blipid=109,blipcolor=49},
-		["WEAPON_GOLFCLUB"] = {"Golf kølle", 1500,0,""}
-	}
+		_config = { blipid = 109, blipcolor = 49 },
+		["WEAPON_GOLFCLUB"] = { "Golf kølle", 1500, 0, "" },
+	},
 }
 -- list of gunshops positions
 
 cfg.gunshops = {
-	{"Golfklubben", -1366.7252197266,56.652606964111,54.098461151123,true}
+	{ "Golfklubben", -1366.7252197266, 56.652606964111, 54.098461151123, true },
 }
 
 return cfg

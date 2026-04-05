@@ -10,7 +10,7 @@ cfg = {
 	promille_over_3_damage_factor = 10,
 	promille_drunk_effekt = 1.0,
 	pvp = true,
-	police = false
+	police = false,
 }
 
 return cfg

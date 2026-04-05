@@ -22,8 +22,8 @@ cfg.static_menu_types = {
 	["missions"] = { -- example of a mission menu that can be filled by other resources
 		title = "Missions",
 		blipid = 0,
-		blipcolor = 4
-	}
+		blipcolor = 4,
+	},
 }
 
 -- list of static menu points

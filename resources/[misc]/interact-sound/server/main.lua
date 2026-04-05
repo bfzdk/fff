@@ -1,4 +1,3 @@
-
 ------
 -- Interaction Sounds by Scott
 -- Version: v0.0.1
@@ -24,9 +23,9 @@
 --
 -- Starts playing a sound locally on a single client.
 ------
-RegisterNetEvent('InteractSound_SV:PlayOnOne')
-AddEventHandler('InteractSound_SV:PlayOnOne', function(clientNetId, soundFile, soundVolume)
-    TriggerClientEvent('InteractSound_CL:PlayOnOne', clientNetId, soundFile, soundVolume)
+RegisterNetEvent("InteractSound_SV:PlayOnOne")
+AddEventHandler("InteractSound_SV:PlayOnOne", function(clientNetId, soundFile, soundVolume)
+	TriggerClientEvent("InteractSound_CL:PlayOnOne", clientNetId, soundFile, soundVolume)
 end)
 
 ------
@@ -42,9 +41,9 @@ end)
 --
 -- Starts playing a sound locally on a single client, which is the source of the event.
 ------
-RegisterNetEvent('InteractSound_SV:PlayOnSource')
-AddEventHandler('InteractSound_SV:PlayOnSource', function(soundFile, soundVolume)
-    TriggerClientEvent('InteractSound_CL:PlayOnOne', source, soundFile, soundVolume)
+RegisterNetEvent("InteractSound_SV:PlayOnSource")
+AddEventHandler("InteractSound_SV:PlayOnSource", function(soundFile, soundVolume)
+	TriggerClientEvent("InteractSound_CL:PlayOnOne", source, soundFile, soundVolume)
 end)
 
 ------
@@ -59,9 +58,9 @@ end)
 --
 -- Starts playing a sound on all clients who are online in the server.
 ------
-RegisterNetEvent('InteractSound_SV:PlayOnAll')
-AddEventHandler('InteractSound_SV:PlayOnAll', function(soundFile, soundVolume)
-    TriggerClientEvent('InteractSound_CL:PlayOnAll', -1, soundFile, soundVolume)
+RegisterNetEvent("InteractSound_SV:PlayOnAll")
+AddEventHandler("InteractSound_SV:PlayOnAll", function(soundFile, soundVolume)
+	TriggerClientEvent("InteractSound_CL:PlayOnAll", -1, soundFile, soundVolume)
 end)
 
 ------
@@ -81,22 +80,41 @@ end)
 -- Starts playing a sound on a client if the client is within the specificed maxDistance from the playOnEntity.
 -- @TODO Change sound volume based on the distance the player is away from the playOnEntity.
 ------
-RegisterNetEvent('InteractSound_SV:PlayWithinDistance')
-AddEventHandler('InteractSound_SV:PlayWithinDistance', function(maxDistance, soundFile, soundVolume)
-  if GetConvar("onesync_enableInfinity", "false") == "true" then
-    TriggerClientEvent('InteractSound_CL:PlayWithinDistanceOS', -1, GetEntityCoords(GetPlayerPed(source)), maxDistance, soundFile, soundVolume)
-  else
-    TriggerClientEvent('InteractSound_CL:PlayWithinDistance', -1, source, maxDistance, soundFile, soundVolume)
-  end
+RegisterNetEvent("InteractSound_SV:PlayWithinDistance")
+AddEventHandler("InteractSound_SV:PlayWithinDistance", function(maxDistance, soundFile, soundVolume)
+	if GetConvar("onesync_enableInfinity", "false") == "true" then
+		TriggerClientEvent(
+			"InteractSound_CL:PlayWithinDistanceOS",
+			-1,
+			GetEntityCoords(GetPlayerPed(source)),
+			maxDistance,
+			soundFile,
+			soundVolume
+		)
+	else
+		TriggerClientEvent("InteractSound_CL:PlayWithinDistance", -1, source, maxDistance, soundFile, soundVolume)
+	end
 end)
 
-RegisterNetEvent('InteractSound_SV:PlayWithinDistance')
-AddEventHandler('InteractSound_SV:PlayWithinDistance', function(maxDistance, soundFile, soundVolume)
-    local src = source
-    local DistanceLimit = 300
-    if maxDistance < DistanceLimit then
-	TriggerClientEvent('InteractSound_CL:PlayWithinDistance', -1, GetEntityCoords(GetPlayerPed(src)), maxDistance, soundFile, soundVolume)
-    else
-        print(('[interact-sound] [^3WARNING^7] %s attempted to trigger InteractSound_SV:PlayWithinDistance over the distance limit ' .. DistanceLimit):format(GetPlayerName(src)))
-    end
+RegisterNetEvent("InteractSound_SV:PlayWithinDistance")
+AddEventHandler("InteractSound_SV:PlayWithinDistance", function(maxDistance, soundFile, soundVolume)
+	local src = source
+	local DistanceLimit = 300
+	if maxDistance < DistanceLimit then
+		TriggerClientEvent(
+			"InteractSound_CL:PlayWithinDistance",
+			-1,
+			GetEntityCoords(GetPlayerPed(src)),
+			maxDistance,
+			soundFile,
+			soundVolume
+		)
+	else
+		print(
+			(
+				"[interact-sound] [^3WARNING^7] %s attempted to trigger InteractSound_SV:PlayWithinDistance over the distance limit "
+				.. DistanceLimit
+			):format(GetPlayerName(src))
+		)
+	end
 end)

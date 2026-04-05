@@ -9,9 +9,8 @@ cfg = {}
 
 cfg.ckCommand = false
 cfg.pkCommand = false
-cfg.discordWebhook = "https://discordapp.com/api/webhooks/613051517595025418/cKH8sm7a1CElU1OeM_AsXgijwoPm0r3ix24PSb2YV2So2VARXZS-n50U3FtAIPKTTEcP"
+cfg.discordWebhook =
+	"https://discordapp.com/api/webhooks/613051517595025418/cKH8sm7a1CElU1OeM_AsXgijwoPm0r3ix24PSb2YV2So2VARXZS-n50U3FtAIPKTTEcP"
 cfg.notifyStaffPerm = "staff.chat"
 
 return cfg
-
-

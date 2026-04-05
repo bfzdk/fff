@@ -15,7 +15,7 @@ local parts = {
 	["Hatte"] = "p0",
 	["Briller"] = "p1",
 	["Øre"] = "p2",
-	["Ure"] = "p6"
+	["Ure"] = "p6",
 }
 
 -- changes prices (any change to the character parts add amount to the total price)
@@ -23,7 +23,6 @@ cfg.drawable_change_price = 50
 cfg.texture_change_price = 50
 
 -- skinshops list {parts,x,y,z,hidden}
-cfg.skinshops = {
-}
+cfg.skinshops = {}
 
 return cfg

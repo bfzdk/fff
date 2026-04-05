@@ -1,34 +1,34 @@
-game {'gta5'}
+game({ "gta5" })
 
-fx_version 'cerulean'
-author 'AvarianKnight'
-description 'VOIP built using FiveM\'s built in mumble.'
+fx_version("cerulean")
+author("AvarianKnight")
+description("VOIP built using FiveM's built in mumble.")
 
-lua54 'yes'
+lua54("yes")
 
-shared_script 'shared.lua'
+shared_script("shared.lua")
 
-client_scripts {
-    'client/**/*.lua',
-}
+client_scripts({
+	"client/**/*.lua",
+})
 
-server_scripts {
-    'server/**/*.lua'
-}
+server_scripts({
+	"server/**/*.lua",
+})
 
-files {
-    'ui/*.ogg',
-    'ui/css/*.css',
-    'ui/js/*.js',
-    'ui/index.html',
-}
+files({
+	"ui/*.ogg",
+	"ui/css/*.css",
+	"ui/js/*.js",
+	"ui/index.html",
+})
 
-ui_page 'ui/index.html'
+ui_page("ui/index.html")
 
-provides {
-	'pma-voice',
-    -- why does it use so many different names
-    'tokovoip',
-    'toko-voip',
-    'tokovoip_script'
-}
+provides({
+	"pma-voice",
+	-- why does it use so many different names
+	"tokovoip",
+	"toko-voip",
+	"tokovoip_script",
+})

@@ -1,17 +1,17 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version("cerulean")
+game("gta5")
 
-lua54 'yes'
+lua54("yes")
 
-description 'Simple Notification Script using https://notifyjs.com/'
+description("Simple Notification Script using https://notifyjs.com/")
 
-ui_page 'html/index.html'
+ui_page("html/index.html")
 
-files {
-    'html/index.html',
-}
+files({
+	"html/index.html",
+})
 
-client_script 'cl_notify.lua'
+client_script("cl_notify.lua")
 
-export 'SetQueueMax'
-export 'SendNotification'
+export("SetQueueMax")
+export("SendNotification")

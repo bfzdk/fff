@@ -1,18 +1,18 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version("cerulean")
+game("gta5")
 
-description 'vrp_id_display'
+description("vrp_id_display")
 
-dependency 'vrp'
+dependency("vrp")
 
-client_scripts {
-    'lib/Proxy.lua',
-    'lib/Tunnel.lua',
-    'cfg/display.lua',
-    'client.lua',
-}
+client_scripts({
+	"lib/Proxy.lua",
+	"lib/Tunnel.lua",
+	"cfg/display.lua",
+	"client.lua",
+})
 
-server_scripts {
-    '@vrp/lib/utils.lua',
-    'server.lua',
-}
+server_scripts({
+	"@vrp/lib/utils.lua",
+	"server.lua",
+})

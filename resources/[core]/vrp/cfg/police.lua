@@ -2,24 +2,24 @@ local cfg = {}
 
 -- PCs positions
 cfg.pcs = {
-	{1855.1077880859,3696.8918457031,34.286670684814},
-	{441.00912475586,-978.44665527344,30.689594268799},
-	{-449.14297485352,6012.7451171875,31.71639251709},
-	{459.73251342773,-989.140625,24.914873123169}
+	{ 1855.1077880859, 3696.8918457031, 34.286670684814 },
+	{ 441.00912475586, -978.44665527344, 30.689594268799 },
+	{ -449.14297485352, 6012.7451171875, 31.71639251709 },
+	{ 459.73251342773, -989.140625, 24.914873123169 },
 }
 
 -- vehicle tracking configuration
 cfg.trackveh = {
 	min_time = 300, -- min time in seconds
 	max_time = 600, -- max time in seconds
-	service = "police" -- service to alert when the tracking is successful
+	service = "police", -- service to alert when the tracking is successful
 }
 
 -- wanted display
 cfg.wanted = {
 	blipid = 458,
 	blipcolor = 38,
-	service = "police"
+	service = "police",
 }
 
 -- illegal items (seize)
@@ -96,14 +96,14 @@ cfg.seizable_items = {
 	"wbody|WEAPON_SWITCHBLADE",
 	"wbody|WEAPON_KNUCKLE",
 	"wbody|WEAPON_WRENCH",
-	"wbody|WEAPON_HAMMER"
+	"wbody|WEAPON_HAMMER",
 }
 
 -- jails {x,y,z,radius}
 cfg.jails = {
-	{459.485870361328,-1001.61560058594,24.914867401123,2.1},
-	{459.305603027344,-997.873718261719,24.914867401123,2.1},
-	{459.999938964844,-994.331298828125,24.9148578643799,1.6}
+	{ 459.485870361328, -1001.61560058594, 24.914867401123, 2.1 },
+	{ 459.305603027344, -997.873718261719, 24.914867401123, 2.1 },
+	{ 459.999938964844, -994.331298828125, 24.9148578643799, 1.6 },
 }
 -- fines
 -- map of name -> money
@@ -114,7 +114,7 @@ cfg.fines = {
 	["Hærværk"] = 5000,
 	["Besiddelse af våben uden tilladelse"] = 20000,
 	["Voldelig optræden/slagsmål."] = 1500,
-	["Gadeuorden"] = 1000
+	["Gadeuorden"] = 1000,
 }
 
 return cfg

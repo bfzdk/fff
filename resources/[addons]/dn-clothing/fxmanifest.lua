@@ -1,10 +1,10 @@
-fx_version 'adamant'
-game 'gta5'
+fx_version("adamant")
+game("gta5")
 
-client_scripts {
-	'gui.lua',
-	'client.lua',
-	'config.lua',
-}
+client_scripts({
+	"gui.lua",
+	"client.lua",
+	"config.lua",
+})
 
-server_script 'server.lua'
+server_script("server.lua")

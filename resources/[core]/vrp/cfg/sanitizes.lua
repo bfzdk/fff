@@ -6,8 +6,8 @@ local cfg = {}
 --
 -- /!\ NEVER ALLOW DOUBLE QUOTES, CAN CAUSE JSON HANG ISSUE
 
-cfg.text = {"\"",false}
-cfg.name = {"\"[]{}+=?!_()#@%0123456789/\\|",false}
-cfg.business_name = {"\"[]{}+=?!_#",false}
+cfg.text = { '"', false }
+cfg.name = { '"[]{}+=?!_()#@%0123456789/\\|', false }
+cfg.business_name = { '"[]{}+=?!_#', false }
 
 return cfg

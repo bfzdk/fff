@@ -3,13 +3,13 @@ drag = false
 playerStillDragged = false
 
 RegisterNetEvent("dr:drag")
-AddEventHandler('dr:drag', function(pl)
+AddEventHandler("dr:drag", function(pl)
 	other = pl
 	drag = not drag
 end)
 
 RegisterNetEvent("dr:undrag")
-AddEventHandler('dr:undrag', function(pl)
+AddEventHandler("dr:undrag", function(pl)
 	drag = false
 end)
 
@@ -21,7 +21,7 @@ Citizen.CreateThread(function()
 			AttachEntityToEntity(myped, ped, 4103, 11816, 0.54, 0.0, 0.0, 0.0, 0.0, 0.0, false, false, false, false, 2, true)
 			playerStillDragged = true
 		else
-			if(playerStillDragged) then
+			if playerStillDragged then
 				DetachEntity(GetPlayerPed(-1), true, false)
 				playerStillDragged = false
 			end

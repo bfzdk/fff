@@ -1,25 +1,25 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version("cerulean")
+game("gta5")
 
-dependencies {
-    'vrp',
-    'vrp_mysql',
-}
+dependencies({
+	"vrp",
+	"vrp_mysql",
+})
 
-ui_page 'html/ui.html'
+ui_page("html/ui.html")
 
-files {
-    'html/ui.html',
-    'html/taximeter.ttf',
-    'html/cursor.png',
-    'html/styles.css',
-    'html/scripts.js',
-    'html/debounce.min.js',
-}
+files({
+	"html/ui.html",
+	"html/taximeter.ttf",
+	"html/cursor.png",
+	"html/styles.css",
+	"html/scripts.js",
+	"html/debounce.min.js",
+})
 
-client_script 'client.lua'
+client_script("client.lua")
 
-server_scripts {
-    '@vrp/lib/utils.lua',
-    'server.lua',
-}
+server_scripts({
+	"@vrp/lib/utils.lua",
+	"server.lua",
+})

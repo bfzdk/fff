@@ -1,17 +1,17 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version("cerulean")
+game("gta5")
 
-description 'vRP barbershop'
+description("vRP barbershop")
 
-dependency 'vrp'
+dependency("vrp")
 
-client_scripts {
-    'lib/Tunnel.lua',
-    'lib/Proxy.lua',
-    'client.lua',
-}
+client_scripts({
+	"lib/Tunnel.lua",
+	"lib/Proxy.lua",
+	"client.lua",
+})
 
-server_scripts {
-    '@vrp/lib/utils.lua',
-    'server.lua',
-}
+server_scripts({
+	"@vrp/lib/utils.lua",
+	"server.lua",
+})

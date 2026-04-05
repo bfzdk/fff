@@ -12,16 +12,24 @@ lib.string = string
 local string_char = string.char
 local math_random = math.random
 
-local function getLetter() return string_char(math_random(65, 90)) end
-local function getLowerLetter() return string_char(math_random(97, 122)) end
-local function getInt() return math_random(0, 9) end
-local function getAlphanumeric() return math_random(0, 1) == 1 and getLetter() or getInt() end
+local function getLetter()
+	return string_char(math_random(65, 90))
+end
+local function getLowerLetter()
+	return string_char(math_random(97, 122))
+end
+local function getInt()
+	return math_random(0, 9)
+end
+local function getAlphanumeric()
+	return math_random(0, 1) == 1 and getLetter() or getInt()
+end
 
 local formatChar = {
-    ['1'] = getInt,
-    ['A'] = getLetter,
-    ['a'] = getLowerLetter,
-    ['.'] = getAlphanumeric,
+	["1"] = getInt,
+	["A"] = getLetter,
+	["a"] = getLowerLetter,
+	["."] = getAlphanumeric,
 }
 
 ---Creates a random string based on a given pattern.
@@ -35,32 +43,32 @@ local formatChar = {
 ---@param length? integer Sets the length of the returned string, either padding it or omitting characters.
 ---@return string
 function string.random(pattern, length)
-    local len = length or #pattern:gsub('%^', '')
-    local arr = table.create(len, 0)
-    local size = 0
-    local i = 0
+	local len = length or #pattern:gsub("%^", "")
+	local arr = table.create(len, 0)
+	local size = 0
+	local i = 0
 
-    while size < len do
-        i += 1
-        ---@type string | integer
-        local char = pattern:sub(i, i)
+	while size < len do
+		i += 1
+		---@type string | integer
+		local char = pattern:sub(i, i)
 
-        if char == '' then
-            arr[size + 1] = string.rep(' ', len - size)
-            break
-        elseif char == '^' then
-            i += 1
-            char = pattern:sub(i, i)
-        else
-            local fn = formatChar[char]
-            char = fn and fn() or char
-        end
+		if char == "" then
+			arr[size + 1] = string.rep(" ", len - size)
+			break
+		elseif char == "^" then
+			i += 1
+			char = pattern:sub(i, i)
+		else
+			local fn = formatChar[char]
+			char = fn and fn() or char
+		end
 
-        size += 1
-        arr[size] = char
-    end
+		size += 1
+		arr[size] = char
+	end
 
-    return table.concat(arr)
+	return table.concat(arr)
 end
 
 return lib.string

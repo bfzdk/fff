@@ -1,16 +1,16 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version("cerulean")
+game("gta5")
 
-description 'vRP ArrestAnims'
+description("vRP ArrestAnims")
 
-dependency 'vrp'
+dependency("vrp")
 
-client_scripts {
-    'cfg/commands.lua',
-    'client.lua',
-}
+client_scripts({
+	"cfg/commands.lua",
+	"client.lua",
+})
 
-server_scripts {
-    '@vrp/lib/utils.lua',
-    'server.lua',
-}
+server_scripts({
+	"@vrp/lib/utils.lua",
+	"server.lua",
+})

@@ -32,7 +32,7 @@ vcf_files = {
 	"mercedesems1.xml",
 	"paramedic.xml",
 	"tems1.xml",
-	"TESLAMBU.xml"
+	"TESLAMBU.xml",
 }
 
 pattern_files = {
@@ -45,7 +45,7 @@ pattern_files = {
 	"T_ADVIS_RIGHT_LEFT.xml",
 	"T_ADVIS_LEFT_RIGHT.xml",
 	"T_ADVIS_BACKFOURTH.xml",
-	"WIGWAG5.xml"
+	"WIGWAG5.xml",
 }
 
 modelsWithTrafficAdvisor = {
@@ -79,19 +79,17 @@ modelsWithTrafficAdvisor = {
 	"mercedesems1.xml",
 	"paramedic.xml",
 	"tems1.xml",
-	"TESLAMBU.xml"
+	"TESLAMBU.xml",
 }
 
-modelsWithFireSiren =
-{
-    "FIRETRUK",
+modelsWithFireSiren = {
+	"FIRETRUK",
 }
 
-modelsWithAmbWarnSiren =
-{   
-    "AMBULANCE",
-    "FIRETRUK",
-    "LGUARD",
+modelsWithAmbWarnSiren = {
+	"AMBULANCE",
+	"FIRETRUK",
+	"LGUARD",
 }
 
 stagethreewithsiren = false
@@ -127,9 +125,8 @@ vehicleStageThreeAdvisor = {
 	"mercedesems1.xml",
 	"paramedic.xml",
 	"tems1.xml",
-	"TESLAMBU.xml"
+	"TESLAMBU.xml",
 }
-
 
 vehicleSyncDistance = 150
 envirementLightBrightness = 1.0

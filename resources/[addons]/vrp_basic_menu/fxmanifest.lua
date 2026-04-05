@@ -1,22 +1,22 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version("cerulean")
+game("gta5")
 
-description 'vrp_basic_menu'
+description("vrp_basic_menu")
 
-dependency 'vrp'
+dependency("vrp")
 
-client_scripts {
-    'client/Tunnel.lua',
-    'client/Proxy.lua',
-    'client.lua',
-    'playerblips/client.lua',
-    'tptowaypoint/client.lua',
-    'drag/client.lua',
-    'spikes/client.lua',
-}
+client_scripts({
+	"client/Tunnel.lua",
+	"client/Proxy.lua",
+	"client.lua",
+	"playerblips/client.lua",
+	"tptowaypoint/client.lua",
+	"drag/client.lua",
+	"spikes/client.lua",
+})
 
-server_scripts {
-    '@vrp/lib/utils.lua',
-    'runcode/server.lua',
-    'server.lua',
-}
+server_scripts({
+	"@vrp/lib/utils.lua",
+	"runcode/server.lua",
+	"server.lua",
+})

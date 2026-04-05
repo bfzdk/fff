@@ -1,19 +1,19 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version("cerulean")
+game("gta5")
 
-description 'chat management stuff'
+description("chat management stuff")
 
-dependency 'vrp'
+dependency("vrp")
 
-ui_page 'html/index.html'
+ui_page("html/index.html")
 
-files {
-    'html/index.html',
-}
+files({
+	"html/index.html",
+})
 
-server_scripts {
-    '@vrp/lib/utils.lua',
-    'sv_chat.lua',
-}
+server_scripts({
+	"@vrp/lib/utils.lua",
+	"sv_chat.lua",
+})
 
-client_script 'cl_chat.lua'
+client_script("cl_chat.lua")

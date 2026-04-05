@@ -1,5 +1,4 @@
-
-exports('GetNorthYanktonObject', function()
+exports("GetNorthYanktonObject", function()
 	return NorthYankton
 end)
 
@@ -30,7 +29,9 @@ NorthYankton = {
 		"prologuerdb ",
 		"prologue_DistantLights",
 		"prologue_LODLights",
-		"prologue_m2_door"
+		"prologue_m2_door",
 	},
-	Enable = function(state) EnableIpl(NorthYankton.ipl, state) end
+	Enable = function(state)
+		EnableIpl(NorthYankton.ipl, state)
+	end,
 }

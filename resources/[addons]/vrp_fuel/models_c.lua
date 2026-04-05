@@ -5,9 +5,8 @@ blacklistedModels = { -- Vehicles which doesn't need fuel
 	"FIXTER",
 	"SCORCHER",
 	"TRIBIKE3",
-	"TRIBIKE"
+	"TRIBIKE",
 }
-
 
 electric_model = {
 	"VOLTIC",
@@ -17,9 +16,8 @@ electric_model = {
 	"CADDY",
 	"CADDY2",
 	"AIRTUG",
-	"MODELS"
+	"MODELS",
 }
-
 
 plane_model = {
 	"BESRA",
@@ -40,9 +38,8 @@ plane_model = {
 	"TITAN",
 	"VELUM",
 	"VELUM2",
-	"VESTRA"
+	"VESTRA",
 }
-
 
 heli_model = {
 	"ANNIHILATOR",
@@ -64,5 +61,5 @@ heli_model = {
 	"SWIFT2",
 	"VALKYRIE",
 	"VALKYRIE2",
-	"VOLATUS"
+	"VOLATUS",
 }

@@ -1,134 +1,133 @@
 webhook = {}
 
-
 --------------------
 -- Admin Webhooks --
 --------------------
 
 -- Whitelist
-webhook.Whitelist = ''
-webhook.Unwhitelist = ''
+webhook.Whitelist = ""
+webhook.Unwhitelist = ""
 
 -- Rank
-webhook.AddGroup = ''
-webhook.RemoveGroup = ''
+webhook.AddGroup = ""
+webhook.RemoveGroup = ""
 
 -- Basic
-webhook.Kick = ''
+webhook.Kick = ""
 
 -- Ban
-webhook.Ban = ''
-webhook.Unban = ''
-webhook.UnbanAlle = ''
+webhook.Ban = ""
+webhook.Unban = ""
+webhook.UnbanAlle = ""
 
 --Advarsel
-webhook.Warn = ''
-webhook.ClearWarn = ''
+webhook.Warn = ""
+webhook.ClearWarn = ""
 
 -- Revive andre spillere
-webhook.Revive = ''
-webhook.ReviveAlle = ''
+webhook.Revive = ""
+webhook.ReviveAlle = ""
 
 -- Reperation af køretøj
-webhook.Repair = ''
+webhook.Repair = ""
 
 -- Teleport
-webhook.TpToMe = ''
-webhook.TpTo = ''
+webhook.TpToMe = ""
+webhook.TpTo = ""
 
 -- Spawn ting
-webhook.SpawnMoney = ''
-webhook.SpawnItem = ''
+webhook.SpawnMoney = ""
+webhook.SpawnItem = ""
 
 -- Admin call
-webhook.AdminCall = ''
+webhook.AdminCall = ""
 
 -- Salg af køretøj
-webhook.SellCar = ''
+webhook.SellCar = ""
 
 -- Noclip
-webhook.Noclip = ''
+webhook.Noclip = ""
 
 -- Spawn køretøj
-webhook.SpawnVehicle = ''
+webhook.SpawnVehicle = ""
 
 -----------------------
 -- Bussines Webhooks --
 -----------------------
 
 -- Virksomhed oprettelse
-webhook.CreateBussines = ''
+webhook.CreateBussines = ""
 
 ------------------
 -- Item Webhook --
 ------------------
 
 -- Item logs
-webhook.GiveItem = ''
-webhook.DestroyItem = ''
+webhook.GiveItem = ""
+webhook.DestroyItem = ""
 
 --------------------
 -- Penge Webhooks --
 --------------------
 
 -- Money logs
-webhook.SetMoney = ''
-webhook.GiveMoney = ''
+webhook.SetMoney = ""
+webhook.GiveMoney = ""
 
 ---------------------
 -- System Webhooks --
 ---------------------
 
 -- Base logs
-webhook.Join = ''
-webhook.Leave = ''
+webhook.Join = ""
+webhook.Leave = ""
 
-webhook.Errorlog = ''
+webhook.Errorlog = ""
 -------------------
 -- Bilforhandler --
 -------------------
 
 -- Køb af køretøj
-webhook.BuyCar = ''
+webhook.BuyCar = ""
 
 ---------------------
 -- Røveri Webhooks --
 ---------------------
 
 -- Bankrøveri
-webhook.Robbery = ''
+webhook.Robbery = ""
 
 ---------------------
 -- Market Webhooks --
 ---------------------
 
 --Køb af våben
-webhook.BuyWeapon = ''
+webhook.BuyWeapon = ""
 
 ------------------------
 -- Anticheat Webhooks --
 ------------------------
 
-webhook.HoneyPot = ''
-webhook.Anticheat = ''
+webhook.HoneyPot = ""
+webhook.Anticheat = ""
 
 ------------------------
 -- Politi Webhooks --
 ------------------------
 
-webhook.Panik = ''
-webhook.Gps = ''
+webhook.Panik = ""
+webhook.Gps = ""
 
 -----------------------
 -- Kørekort Webhooks --
 -----------------------
 
-webhook.dmvsuccess = ''
+webhook.dmvsuccess = ""
 
 ---------------------
 -- Inbrud Webhooks --
 ---------------------
 
-webhook.Burglary = ''
+webhook.Burglary = ""
 
 return webhook

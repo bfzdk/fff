@@ -1,7 +1,6 @@
-
 -- Heist Carrier: 3082.3117 -4717.1191 15.2622
 
-exports('GetHeistCarrierObject', function()
+exports("GetHeistCarrierObject", function()
 	return HeistCarrier
 end)
 
@@ -21,7 +20,9 @@ HeistCarrier = {
 		"hei_carrier_int6",
 		"hei_carrier_int6_lod",
 		"hei_carrier_lod",
-		"hei_carrier_slod"
+		"hei_carrier_slod",
 	},
-	Enable = function(state) EnableIpl(HeistCarrier.ipl, state) end
+	Enable = function(state)
+		EnableIpl(HeistCarrier.ipl, state)
+	end,
 }

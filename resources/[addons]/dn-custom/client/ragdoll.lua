@@ -1,20 +1,20 @@
 local ragdoll = false
 function setRagdoll(flag)
-  ragdoll = flag
+	ragdoll = flag
 end
 Citizen.CreateThread(function()
-  while true do
-    Citizen.Wait(0)
-    if ragdoll then
-      SetPedToRagdoll(GetPlayerPed(-1), 1000, 1000, 0, 0, 0, 0)
-    end
-  end
+	while true do
+		Citizen.Wait(0)
+		if ragdoll then
+			SetPedToRagdoll(GetPlayerPed(-1), 1000, 1000, 0, 0, 0, 0)
+		end
+	end
 end)
 
 ragdol = true
 RegisterNetEvent("Ragdoll")
 AddEventHandler("Ragdoll", function()
-	if ( ragdol ) then
+	if ragdol then
 		setRagdoll(true)
 		ragdol = false
 	else
@@ -24,10 +24,10 @@ AddEventHandler("Ragdoll", function()
 end)
 
 Citizen.CreateThread(function()
- 	while true do
- 		Citizen.Wait(100)
- 		if ( IsControlPressed(2, 303) ) then
- 			TriggerEvent("Ragdoll", source)
- 		end
- 	end
- end)
+	while true do
+		Citizen.Wait(100)
+		if IsControlPressed(2, 303) then
+			TriggerEvent("Ragdoll", source)
+		end
+	end
+end)

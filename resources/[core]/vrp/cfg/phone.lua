@@ -1,4 +1,3 @@
-
 local cfg = {}
 
 -- Sørrelse af SMS Historik
@@ -24,7 +23,7 @@ cfg.services = {
 		alert_permission = "police.drag",
 		alert_notify = "📱^1^*Politi Besked:",
 		notify = "📱 Du ringede til politiet.",
-		answer_notify = "📱 Bare rolig, politiet er på vej."
+		answer_notify = "📱 Bare rolig, politiet er på vej.",
 	},
 	["Ambulance"] = {
 		blipid = 153,
@@ -33,7 +32,7 @@ cfg.services = {
 		alert_permission = "emergency.service",
 		alert_notify = "📱 112 Besked:",
 		notify = "📱 Du har ringet til 112.",
-		answer_notify = "📱 Bare rolig, ambulancen er på vej."
+		answer_notify = "📱 Bare rolig, ambulancen er på vej.",
 	},
 	["Advokat"] = {
 		blipid = 351,
@@ -42,7 +41,7 @@ cfg.services = {
 		alert_permission = "advokat.service",
 		alert_notify = "📱 Advokat besked:",
 		notify = "📱 Du har ringet efter en advokat.",
-		answer_notify = "📱 Vi har sendt en advokat ud til dig!"
+		answer_notify = "📱 Vi har sendt en advokat ud til dig!",
 	},
 	["Journalist"] = {
 		blipid = 135,
@@ -51,7 +50,7 @@ cfg.services = {
 		alert_permission = "journalist.phone",
 		alert_notify = "📱 Journalist besked:",
 		notify = "📱 Du har ringet efter en fra DR.",
-		answer_notify = "📱 Vi har sendt en fra Danmarks Radio ud!"
+		answer_notify = "📱 Vi har sendt en fra Danmarks Radio ud!",
 	},
 	["Uber"] = {
 		blipid = 198,
@@ -60,7 +59,7 @@ cfg.services = {
 		alert_permission = "uber.service",
 		alert_notify = "📱 Uber Besked:",
 		notify = "📱 Du har ringet til en Uber.",
-		answer_notify = "📱 En uber er på vej mod dig."
+		answer_notify = "📱 En uber er på vej mod dig.",
 	},
 	["Taxi Chauffør"] = {
 		blipid = 198,
@@ -69,7 +68,7 @@ cfg.services = {
 		alert_permission = "taxi.service",
 		alert_notify = "📱 Taxa Besked:",
 		notify = "📱 Du har ringet til en Taxa.",
-		answer_notify = "📱 En taxa er på vej mod dig."
+		answer_notify = "📱 En taxa er på vej mod dig.",
 	},
 	["Automekaniker"] = {
 		blipid = 446,
@@ -78,8 +77,8 @@ cfg.services = {
 		alert_permission = "repair.service",
 		alert_notify = "📱 Falck Besked:",
 		notify = "📱 Du har ringet efter Falck.",
-		answer_notify = "📱 Falck er på vej."
-	}
+		answer_notify = "📱 Falck er på vej.",
+	},
 }
 
 -- define phone announces
@@ -93,47 +92,46 @@ cfg.announces = {
 		image = "https://i.imgur.com/xjHvpMd.jpg",
 		price = 0,
 		description = "Kun for Admins",
-		permission = "admin.besked"
+		permission = "admin.besked",
 	},
 	["Politi"] = {
 		--image = "nui://vrp_mod/announce_police.png",
 		image = "https://i.imgur.com/xry5L1X.jpg",
 		price = 0,
 		description = "Kun for Politiet.",
-		permission = "police.besked"
+		permission = "police.besked",
 	},
 	["112"] = {
 		image = "https://i.imgur.com/5Ax6xPe.jpg",
 		price = 0,
 		description = "Kun for 112.",
-		permission = "emergency.besked"
+		permission = "emergency.besked",
 	},
 
 	["Reklame"] = {
 		--image = "nui://vrp_mod/announce_commercial.png",
 		image = "https://i.imgur.com/wEIYPAP.jpg",
 		description = "Bruges til salg, eller andet relateret.",
-		price = 10000
+		price = 10000,
 	},
 	["Fest"] = {
 		--image = "nui://vrp_mod/announce_party.png",
 		image = "https://i.imgur.com/e91JtGQ.jpg",
 		description = "Inviter folk til fest.",
-		price = 5000
+		price = 5000,
 	},
 	["Taxi"] = {
 		image = "https://i.imgur.com/iDWyOOk.jpg",
 		description = "Meld din ankomst til byen, som Taxachauffør.",
 		price = 50,
-		permission = "taxi.besked"
+		permission = "taxi.besked",
 	},
 	["Falck"] = {
 		image = "https://i.imgur.com/2MDzH3h.jpg",
 		description = "Meld din ankomst til byen, som Mekaniker.",
 		price = 50,
-		permission = "repair.besked"
-	}
-
+		permission = "repair.besked",
+	},
 }
 
 return cfg

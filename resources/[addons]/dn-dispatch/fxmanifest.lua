@@ -1,22 +1,22 @@
-fx_version 'adamant'
-games { 'gta5' }
+fx_version("adamant")
+games({ "gta5" })
 
-client_scripts {
-    'client.lua'
-}
+client_scripts({
+	"client.lua",
+})
 
-server_scripts {
-    '@vrp/lib/utils.lua',
-    'server.lua',
-    '@mysql-async/lib/MySQL.lua'
-}
+server_scripts({
+	"@vrp/lib/utils.lua",
+	"server.lua",
+	"@mysql-async/lib/MySQL.lua",
+})
 
-ui_page {
-    'html/alerts.html',
-}
+ui_page({
+	"html/alerts.html",
+})
 
-files {
-	'html/alerts.html',
-	'html/main.js', 
-	'html/style.css',
-}
+files({
+	"html/alerts.html",
+	"html/main.js",
+	"html/style.css",
+})

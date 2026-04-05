@@ -19,31 +19,35 @@ local currentText
 ---@param text string
 ---@param options? TextUIOptions
 function lib.showTextUI(text, options)
-    if currentText == text then return end
+	if currentText == text then
+		return
+	end
 
-    if not options then options = {} end
+	if not options then
+		options = {}
+	end
 
-    options.text = text
-    currentText = text
+	options.text = text
+	currentText = text
 
-    SendNUIMessage({
-        action = 'textUi',
-        data = options
-    })
+	SendNUIMessage({
+		action = "textUi",
+		data = options,
+	})
 
-    isOpen = true
+	isOpen = true
 end
 
 function lib.hideTextUI()
-    SendNUIMessage({
-        action = 'textUiHide'
-    })
+	SendNUIMessage({
+		action = "textUiHide",
+	})
 
-    isOpen = false
-    currentText = nil
+	isOpen = false
+	currentText = nil
 end
 
 ---@return boolean, string | nil
 function lib.isTextUIOpen()
-    return isOpen, currentText
+	return isOpen, currentText
 end

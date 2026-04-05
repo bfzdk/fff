@@ -11,15 +11,14 @@ settings["da"] = {
 	boatFuelStation = "Tankstation | Både",
 	avionFuelStation = "Tankstation | Fly",
 	heliFuelStation = "Tankstation | Helikopter",
-	price = "Pris"
+	price = "Pris",
 }
 
 showBar = false
 showText = true
 
-
 hud_form = 1 -- 1 : Vertical | 2 = Horizontal
-hud_x = 0.175 
+hud_x = 0.175
 hud_y = 0.885
 
 electricityPrice = 1 -- NOT RANOMED !!

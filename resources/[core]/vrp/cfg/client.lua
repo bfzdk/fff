@@ -9,31 +9,31 @@ cfg.voice_proximity_vehicle = 8.0
 cfg.voice_proximity_inside = 8.0
 
 cfg.gui = {
-  anchor_minimap_width = 0,
-  anchor_minimap_left = 0,
-  anchor_minimap_bottom = 0,
-  anchor_health_width = 0,
-  anchor_health_left = 0,
-  anchor_health_bottom = 0
+	anchor_minimap_width = 0,
+	anchor_minimap_left = 0,
+	anchor_minimap_bottom = 0,
+	anchor_health_width = 0,
+	anchor_health_left = 0,
+	anchor_health_bottom = 0,
 }
 
 -- gui controls (see https://wiki.fivem.net/wiki/Controls)
 -- recommended to keep the default values and ask players to change their keys
 cfg.controls = {
-  phone = {
-    -- PHONE CONTROLS
-    up = {3,172},
-    down = {3,173},
-    left = {3,174},
-    right = {3,175},
-    select = {3,176},
-    cancel = {3,177},
-    open = {3,56} -- INPUT_PHONE, open general menu F9
-  },
-  request = {
-    yes = {1,166}, -- Michael, F5
-    no = {1,167} -- Franklin, F6
-  }
+	phone = {
+		-- PHONE CONTROLS
+		up = { 3, 172 },
+		down = { 3, 173 },
+		left = { 3, 174 },
+		right = { 3, 175 },
+		select = { 3, 176 },
+		cancel = { 3, 177 },
+		open = { 3, 56 }, -- INPUT_PHONE, open general menu F9
+	},
+	request = {
+		yes = { 1, 166 }, -- Michael, F5
+		no = { 1, 167 }, -- Franklin, F6
+	},
 }
 
 -- disable menu if handcuffed
