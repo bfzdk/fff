@@ -1,15 +1,15 @@
-fx_version("cerulean")
-games({ "gta5" })
+fx_version "cerulean"
+game "gta5"
 
-dependency("vrp")
+dependency "vrp"
 
-client_scripts({
-	"lib/Tunnel.lua",
-	"lib/Proxy.lua",
-	"client.lua",
-})
+client_scripts {
+	"@vRP/lib/Tunnel.lua",
+	"@vRP/lib/Proxy.lua",
+	"client/main.lua",
+}
 
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"server.lua",
-})
+server_scripts {
+	"@vRP/lib/utils.lua",
+	"server/main.lua",
+}

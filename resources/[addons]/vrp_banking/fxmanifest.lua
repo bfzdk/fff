@@ -1,18 +1,12 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-dependency("vrp")
+ui_page "html/ui.html"
 
-ui_page("html/ui.html")
-
-files({
+files {
 	"html/ui.html",
 	"html/pricedown.ttf",
-})
+}
 
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"server.lua",
-})
-
-client_script("client.lua")
+server_script "server.lua"
+client_script "client/main.lua"

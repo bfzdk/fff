@@ -1,13 +1,13 @@
-fx_version("cerulean")
-games({ "gta5" })
+fx_version "cerulean"
+game "gta5"
 
-client_script("main.lua")
+client_script "client/main.lua"
 
-ui_page("html/ui.html")
+ui_page "html/ui.html"
 
-files({
+files {
 	"html/ui.html",
 	"html/app.js",
 	"html/style.css",
 	"img/seatbelt.png",
-})
+}

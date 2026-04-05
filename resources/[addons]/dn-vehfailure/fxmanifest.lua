@@ -1,7 +1,5 @@
-fx_version("cerulean")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-client_scripts({
-	"config.lua",
-	"client.lua",
-})
+shared_script 'config.lua'
+client_script 'client/main.lua'

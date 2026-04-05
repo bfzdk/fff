@@ -1,15 +1,13 @@
-fx_version("cerulean")
-games({ "gta5" })
+fx_version "cerulean"
+game 'gta5'
 
-files({
+files {
 	"index.html",
 	"css/bootstrap.min.css",
 	"css/ionicons.min.css",
 	"css/style.css",
 	"fonts/fontawesome-webfont.woff2",
 	"fonts/ionicons.ttf",
-	--'img/discord.png',
-	--'img/logo.png',
 	"img/cursor.png",
 	"img/overlay.svg",
 	"js/bootstrap.min.js",
@@ -24,6 +22,6 @@ files({
 	"js/photoswipe.js",
 	"js/velocity.min.js",
 	"js/velocity.ui.min.js",
-})
+}
 
-loadscreen("index.html")
+loadscreen "index.html"

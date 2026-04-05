@@ -1,15 +1,10 @@
-fx_version("bodacious")
-game("gta5")
+fx_version "cerulean"
+game "gta5"
 
-dependency("vrp")
+dependency "vrp"
 
-client_scripts({
-	"Client.lua",
-})
+client_script "client/main.lua"
 
-server_scripts({
-	"@vrp/lib/utils.lua",
-	"Config/Config.lua",
-	"Version",
-	"Server.lua",
-})
+server_script "@vRP/lib/utils.lua"
+server_script "config/config.lua"
+server_script "server/main.lua"

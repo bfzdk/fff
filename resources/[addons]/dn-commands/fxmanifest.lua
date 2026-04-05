@@ -2,13 +2,13 @@ fx_version "cerulean"
 game "gta5"
 
 client_scripts {
-	"revive/client.lua",
-	"fixveh/client.lua",
-	"dv/client.lua",
+	"client/dv.lua",
+	"client/fixveh.lua",
+	"client/revive.lua",
 }
 
 server_scripts{
-	"revive/server.lua",
-	"fixveh/server.lua",
-	"dv/server.lua",
+	"server/dv.lua",
+	"server/fixveh.lua",
+	"server/revive.lua",
 }

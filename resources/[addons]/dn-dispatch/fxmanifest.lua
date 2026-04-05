@@ -5,15 +5,10 @@ ui_page {
 	"html/alerts.html",
 }
 
-client_scripts {
-	"client.lua",
-}
+client_script "client/main.lua"
 
-server_scripts {
-	"server.lua",
-	"@mysql-async/lib/MySQL.lua",
-}
-
+server_script "@mysql-async/lib/MySQL.lua"
+server_script "server/main.lua"
 
 files {
 	"html/alerts.html",
