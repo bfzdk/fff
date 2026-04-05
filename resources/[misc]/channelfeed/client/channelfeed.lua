@@ -37,4 +37,6 @@ function removeChannel(id)
 		meta = "removeChannel",
 		data = id,
 	})
+
+	PollUI()
 end

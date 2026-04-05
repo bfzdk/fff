@@ -12,7 +12,6 @@ ui_page "client/html/index.html"
 
 client_script "client/channelfeed.lua"
 
--- remove ts
 export "printTo"
 export "addChannel"
 export "removeChannel"

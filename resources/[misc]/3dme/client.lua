@@ -1,5 +1,3 @@
-local color = { r = 74, g = 39, b = 216, alpha = 255 }
-local font = 0
 local time = 10000
 local nbrDisplaying = 1
 
@@ -8,7 +6,6 @@ RegisterCommand("me", function(source, args)
 	for i = 1, #args do
 		text = text .. " " .. args[i]
 	end
-	text = text .. ""
 	TriggerServerEvent("3dme:shareDisplay", text)
 end)
 
@@ -26,7 +23,6 @@ function Display(mePlayer, text, offset)
 	end)
 	Citizen.CreateThread(function()
 		nbrDisplaying = nbrDisplaying + 1
-		print(nbrDisplaying)
 		while displaying do
 			Wait(0)
 			local coordsMe = GetEntityCoords(GetPlayerPed(mePlayer), false)

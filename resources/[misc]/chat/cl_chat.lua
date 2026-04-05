@@ -7,13 +7,9 @@ RegisterNetEvent("chat:addMessage")
 RegisterNetEvent("chat:addSuggestion")
 RegisterNetEvent("chat:removeSuggestion")
 RegisterNetEvent("chat:clear")
-
--- internal events
 RegisterNetEvent("__cfx_internal:serverPrint")
-
 RegisterNetEvent("_chat:messageEntered")
 
---deprecated, use chat:addMessage
 AddEventHandler("chatMessage", function(author, color, text)
 	local args = { text }
 	if author ~= "" then
