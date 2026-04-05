@@ -1,12 +1,9 @@
-local Proxy = module("vrp/lib/Proxy")
 local Tunnel = module("vrp/lib/Tunnel")
 
 cfg = module("cfg/client")
 
 tvRP = Tunnel.createInterface("vRP")
 vRPserver = Tunnel.getInterface("vRP", "vRP")
-
-Proxy.addInterface("vRP", tvRP)
 
 local players = {} -- keep track of connected players (server id)
 

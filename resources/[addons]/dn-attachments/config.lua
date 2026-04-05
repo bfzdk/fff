@@ -1,29 +1,11 @@
---[[
-────────────────────────────────────────────────────────────────────────────────
-─██████──██████─████████───██████──────────██████─████████████───██████████████─
-─██░░██──██░░██─██░░░░██───██░░██████████──██░░██─██░░░░░░░░████─██░░░░░░░░░░██─
-─██░░██──██░░██─████░░██───██░░░░░░░░░░██──██░░██─██░░████░░░░██─██░░██████████─
-─██░░██──██░░██───██░░██───██░░██████░░██──██░░██─██░░██──██░░██─██░░██─────────
-─██░░██──██░░██───██░░██───██░░██──██░░██──██░░██─██░░██──██░░██─██░░██████████─
-─██░░██──██░░██───██░░██───██░░██──██░░██──██░░██─██░░██──██░░██─██░░░░░░░░░░██─
-─██░░██──██░░██───██░░██───██░░██──██░░██──██░░██─██░░██──██░░██─██████████░░██─
-─██░░░░██░░░░██───██░░██───██░░██──██░░██████░░██─██░░██──██░░██─────────██░░██─
-─████░░░░░░████─████░░████─██░░██──██░░░░░░░░░░██─██░░████░░░░██─██████████░░██─
-───████░░████───██░░░░░░██─██░░██──██████████░░██─██░░░░░░░░████─██░░░░░░░░░░██─
-─────██████─────██████████─██████──────────██████─████████████───██████████████─
-────────────────────────────────────────────────────────────────────────────────
-Discord: https://discord.gg/ECUxET82SD
-Youtube: https://www.youtube.com/channel/UCaBZGvYryg09IS-uaSHyfPw
-Github: https://github.com/V1NDs
-]]
---
-
 cfg = {}
 
---Liste med components: https://wiki.rage.mp/index.php?title=Weapons_Components.
+cfg.equip_text = "Du satte en %s på dit våben"
+cfg.remove_text = "Du fjernede en %s fra dit våben"
+
+-- Liste af components: https://wiki.rage.mp/index.php?title=Weapons_Components.
 cfg.attachments = {
-	[1] = {
-		item = "silencer",
+	["silencer"] = {
 		itemName = "Lyddæmper",
 		description = "Gør dit våben mere stille når du skyder",
 		weight = 0.5,
@@ -37,8 +19,7 @@ cfg.attachments = {
 		},
 	},
 
-	[2] = {
-		item = "flashlight",
+	["flashlight"] = {
 		itemName = "Våbenlygte",
 		description = "Lygte til dit våben, så du kan se i mørket",
 		weight = 0.35,
@@ -50,8 +31,7 @@ cfg.attachments = {
 		},
 	},
 
-	[3] = {
-		item = "extendedclip",
+	["extendedclip"] = {
 		itemName = "Udvidet magasin",
 		description = "Udvidet magasin til dit våben, kan holde en større mængde skud",
 		weight = 0.85,
@@ -96,8 +76,7 @@ cfg.attachments = {
 		},
 	},
 
-	[4] = {
-		item = "compensator",
+	["compensator"] = {
 		itemName = "Våben kompensator",
 		description = "Våben kompensator et brugt til at formindske recoil",
 		weight = 0.45,
@@ -108,8 +87,7 @@ cfg.attachments = {
 		},
 	},
 
-	[5] = {
-		item = "smallscope",
+	["smallscope"] = {
 		itemName = "Lille sigtekorn",
 		description = "Et sigtekorn er brugt for en forøget præcision",
 		weight = 0.25,
@@ -120,8 +98,7 @@ cfg.attachments = {
 		},
 	},
 
-	[6] = {
-		item = "meduimscope",
+	["mediumscope"] = {
 		itemName = "Mellem sigtekorn",
 		description = "Et sigtekorn er brugt for en forøget præcision",
 		weight = 0.35,
@@ -131,8 +108,7 @@ cfg.attachments = {
 		},
 	},
 
-	[7] = {
-		item = "scope",
+	["scope"] = {
 		itemName = "Normalt sigtekorn",
 		description = "Et sigtekorn er brugt for en forøget præcision",
 		weight = 0.45,
@@ -146,8 +122,7 @@ cfg.attachments = {
 		},
 	},
 
-	[8] = {
-		item = "largescope",
+	["largescope"] = {
 		itemName = "Stort sigtekorn",
 		description = "Et sigtekorn er brugt for en forøget præcision",
 		weight = 0.55,
@@ -156,8 +131,7 @@ cfg.attachments = {
 		},
 	},
 
-	[9] = {
-		item = "advancedScope",
+	["advancedScope"] = {
 		itemName = "Advanceret sigtekorn",
 		description = "Et sigtekorn er brugt for en forøget præcision",
 		weight = 0.65,
@@ -166,8 +140,7 @@ cfg.attachments = {
 		},
 	},
 
-	[10] = {
-		item = "grip",
+	["grip"] = {
 		itemName = "Våbengreb",
 		description = "Et våbengreb er brugt for en forøget præcision og stabalisering af våbnet",
 		weight = 0.75,

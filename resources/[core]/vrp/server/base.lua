@@ -1,4 +1,3 @@
-local Proxy = module("lib/Proxy")
 local Tunnel = module("lib/Tunnel")
 
 local Lang = module("lib/Lang")
@@ -7,8 +6,6 @@ local config = module("cfg/base")
 
 vRP = {}
 tvRP = Tunnel.createInterface("vRP")
-
-Proxy.addInterface("vRP", vRP)
 
 -- load language
 vRP.lang = Lang.new(module("cfg/lang/da"))

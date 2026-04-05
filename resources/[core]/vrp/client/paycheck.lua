@@ -1,5 +1,3 @@
-vRP = Proxy.getInterface("vRP")
-
 Citizen.CreateThread(function()
 	while true do
 		local user_id = vRP.getUserId(source)
