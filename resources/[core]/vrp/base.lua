@@ -150,36 +150,6 @@ function vRP.getBannedReason(user_id, cbr)
 	end)
 end
 
-AddEventHandler("playerConnecting", function()
-	local source = source
-	local data = GetPlayerIdentifiers(source)
-	local uid = vRP.getUserId({ source })
-	local name = GetPlayerName(source)
-
-	local steamid = false
-	local license = false
-	local discord = false
-	local xbl = false
-	local liveid = false
-	local ip = false
-
-	for k, v in pairs(data) do
-		if string.sub(v, 1, string.len("steam:")) == "steam:" then
-			steamid = v
-		elseif string.sub(v, 1, string.len("license:")) == "license:" then
-			license = v
-		elseif string.sub(v, 1, string.len("xbl:")) == "xbl:" then
-			xbl = v
-		elseif string.sub(v, 1, string.len("ip:")) == "ip:" then
-			ip = v
-		elseif string.sub(v, 1, string.len("discord:")) == "discord:" then
-			discord = v
-		elseif string.sub(v, 1, string.len("live:")) == "live:" then
-			liveid = v
-		end
-	end
-end)
-
 function vRP.setBanned(user_id, banned)
 	if banned ~= false then
 		MySQL.Async.execute(
