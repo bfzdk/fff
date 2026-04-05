@@ -6,8 +6,7 @@
 -- Github: https://github.com/Apisathan/FiveM-Scripts
 --
 
-local Proxy = module("vrp", "lib/Proxy")
-vRP = Proxy.getInterface("vRP")
+local vRP = exports["vrp"]:getvRP()
 
 AddEventHandler("chatMessage", function(source, author, msg)
 	local args = stringsplit(msg, " ")

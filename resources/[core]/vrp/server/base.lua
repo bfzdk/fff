@@ -1,12 +1,14 @@
+local Proxy = module("lib/Proxy")
+local Tunnel = module("lib/Tunnel")
+
 local Lang = module("lib/Lang")
-Debug = module("lib/Debug")
+
 local config = module("cfg/base")
 
-Debug.active = config.debug
-MySQL.debug = config.debug
+vRP = {}
+tvRP = Tunnel.createInterface("vRP")
 
-vRP = Proxy.createInterface()
-tvRP = Tunnel.createInterface()
+Proxy.addInterface("vRP", vRP)
 
 -- load language
 vRP.lang = Lang.new(module("cfg/lang/da"))
@@ -266,6 +268,7 @@ function vRP.getUsers()
 	for k, v in pairs(vRP.user_sources) do
 		users[k] = v
 	end
+	print("Hello")
 	return users
 end
 
@@ -292,13 +295,11 @@ end
 function task_save_datatables()
 	TriggerEvent("vRP:save")
 
-	Debug.pbegin("vRP save datatables")
 	for k, v in pairs(vRP.user_tables) do
 		vRP.setUData(k, "vRP:datatable", json.encode(v))
 		TriggerEvent("htn_logging:saveUser", k)
 	end
 
-	Debug.pend()
 	SetTimeout(config.save_interval * 1000, task_save_datatables)
 end
 task_save_datatables()
@@ -345,7 +346,6 @@ AddEventHandler("playerConnecting", function(name, setMessage, deferrals)
 	deferrals.defer()
 
 	local source = source
-	Debug.pbegin("playerConnecting")
 	if isStopped == false then
 		local ids = GetPlayerIdentifiers(source)
 		if antispam[ids[1]] == nil then
@@ -360,7 +360,6 @@ AddEventHandler("playerConnecting", function(name, setMessage, deferrals)
 							if not userdata.banned then
 								deferrals.update("[FlaxHosting] Indlæser karakter...")
 								if not config.whitelist or userdata.whitelisted then
-									Debug.pbegin("playerConnecting_delayed")
 									if vRP.rusers[user_id] == nil then -- not present on the server, init
 										vRP.users[ids[1]] = user_id
 										vRP.rusers[user_id] = ids[1]
@@ -387,7 +386,7 @@ AddEventHandler("playerConnecting", function(name, setMessage, deferrals)
 
 												MySQL.Async.execute(
 													"UPDATE vrp_users SET last_login = @last_login WHERE id = @user_id",
-													{ user_id = user_id, last_login = last_login_stampd }
+													{ user_id = user_id, last_login = last_login_stamp }
 												)
 
 												print("[" .. user_id .. "] Forbinder til serveren")
@@ -405,7 +404,6 @@ AddEventHandler("playerConnecting", function(name, setMessage, deferrals)
 										local tmpdata = vRP.getUserTmpTable(user_id)
 										tmpdata.spawns = 0
 									end
-									Debug.pend()
 								else
 									print("[" .. user_id .. "]: Forsøgte og joine men er ikke whitelistet")
 									deferrals.done("[FlaxHosting] Ikke whitelisted ansøg på Discord.gg/P7bj3ZXu [" .. user_id .. "].")
@@ -438,7 +436,6 @@ AddEventHandler("playerConnecting", function(name, setMessage, deferrals)
 		)
 		deferrals.done("Serveren er igang med at " .. isStopped)
 	end
-	Debug.pend()
 end)
 
 CreateThread(function()
@@ -456,8 +453,6 @@ end)
 
 AddEventHandler("playerDropped", function(reason)
 	local source = source
-	local suffix = "" .. os.date("%H:%M - %d/%m/%Y") .. ""
-	Debug.pbegin("playerDropped")
 
 	vRPclient.removePlayer(-1, { source })
 
@@ -476,12 +471,10 @@ AddEventHandler("playerDropped", function(reason)
 		vRP.user_tmp_tables[user_id] = nil
 		vRP.user_sources[user_id] = nil
 	end
-	Debug.pend()
 end)
 
 RegisterServerEvent("vRPcli:playerSpawned")
 AddEventHandler("vRPcli:playerSpawned", function()
-	Debug.pbegin("playerSpawned")
 	local user_id = vRP.getUserId(source)
 	local player = source
 
@@ -512,7 +505,6 @@ AddEventHandler("vRPcli:playerSpawned", function()
 			end)
 		end)
 	end
-	Debug.pend()
 end)
 
 RegisterServerEvent("vRP:playerDied")

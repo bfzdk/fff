@@ -1,22 +1,19 @@
+local Proxy = module("vrp/lib/Proxy")
+local Tunnel = module("vrp/lib/Tunnel")
+
 cfg = module("cfg/client")
 
-tvRP = {}
-local players = {} -- keep track of connected players (server id)
-
--- bind client tunnel interface
-Tunnel.bindInterface("vRP", tvRP)
-
--- get server interface
+tvRP = Tunnel.createInterface("vRP")
 vRPserver = Tunnel.getInterface("vRP", "vRP")
 
--- add client proxy interface (same as tunnel interface)
 Proxy.addInterface("vRP", tvRP)
 
--- functions
+local players = {} -- keep track of connected players (server id)
 
+-- functions
 function tvRP.teleport(x, y, z)
 	tvRP.unjail() -- force unjail before a teleportation
-	SetEntityCoords(GetPlayerPed(-1), x + 0.0001, y + 0.0001, z + 0.0001, 1, 0, 0, 1)
+	SetEntityCoords(GetPlayerPed(-1), x + 0.0001, y + 0.0001, z + 0.0001, true, false, false, true)
 	vRPserver.updatePos({ x, y, z })
 end
 
@@ -68,23 +65,8 @@ end
 function tvRP.getNearestPlayers(radius)
 	local r = {}
 
-	local ped = GetPlayerPed(i)
 	local pid = PlayerId()
 	local px, py, pz = tvRP.getPosition()
-
-	--[[
-  for i=0,GetNumberOfPlayers()-1 do
-    if i ~= pid then
-      local oped = GetPlayerPed(i)
-
-      local x,y,z = table.unpack(GetEntityCoords(oped,true))
-      local distance = GetDistanceBetweenCoords(x,y,z,px,py,pz,true)
-      if distance <= radius then
-        r[GetPlayerServerId(i)] = distance
-      end
-    end
-  end
-  --]]
 
 	for k, v in pairs(players) do
 		local player = GetPlayerFromServerId(k)
@@ -176,7 +158,7 @@ function tvRP.playAnim(upper, seq, looping)
 		local ped = GetPlayerPed(-1)
 		if seq.task == "PROP_HUMAN_SEAT_CHAIR_MP_PLAYER" then -- special case, sit in a chair
 			local x, y, z = tvRP.getPosition()
-			TaskStartScenarioAtPosition(ped, seq.task, x, y, z - 1, GetEntityHeading(ped), 0, 0, false)
+			TaskStartScenarioAtPosition(ped, seq.task, x, y, z - 1, GetEntityHeading(ped), 0, false, false)
 		else
 			TaskStartScenarioInPlace(ped, seq.task, 0, not seq.play_exit)
 		end
@@ -226,7 +208,7 @@ function tvRP.playAnim(upper, seq, looping)
 								outspeed = 2.0001
 							end
 
-							TaskPlayAnim(GetPlayerPed(-1), dict, name, inspeed, outspeed, -1, flags, 0, 0, 0, 0)
+							TaskPlayAnim(GetPlayerPed(-1), dict, name, inspeed, outspeed, -1, flags, 0, false, false, false)
 						end
 
 						Citizen.Wait(0)
@@ -259,24 +241,6 @@ function tvRP.stopAnim(upper)
 	end
 end
 
--- RAGDOLL
-local ragdoll = false
-
--- set player ragdoll flag (true or false)
-function tvRP.setRagdoll(flag)
-	ragdoll = flag
-end
-
--- ragdoll thread
-Citizen.CreateThread(function()
-	while true do
-		Citizen.Wait(10)
-		if ragdoll then
-			SetPedToRagdoll(GetPlayerPed(-1), 1000, 1000, 0, 0, 0, 0)
-		end
-	end
-end)
-
 -- SOUND
 -- some lists:
 -- pastebin.com/A8Ny8AHZ
@@ -284,24 +248,13 @@ end)
 
 -- play sound at a specific position
 function tvRP.playSpatializedSound(dict, name, x, y, z, range)
-	PlaySoundFromCoord(-1, name, x + 0.0001, y + 0.0001, z + 0.0001, dict, 0, range + 0.0001, 0)
+	PlaySoundFromCoord(-1, name, x + 0.0001, y + 0.0001, z + 0.0001, dict, false, range + 0.0001, false)
 end
 
 -- play sound
 function tvRP.playSound(dict, name)
-	PlaySound(-1, name, dict, 0, 0, 1)
+	PlaySound(-1, name, dict, false, false, true)
 end
-
---[[
--- not working
-function tvRP.setMovement(dict)
-  if dict then
-    SetPedMovementClipset(GetPlayerPed(-1),dict,true)
-  else
-    ResetPedMovementClipset(GetPlayerPed(-1),true)
-  end
-end
---]]
 
 -- events
 

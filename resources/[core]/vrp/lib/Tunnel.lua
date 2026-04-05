@@ -67,10 +67,8 @@ local function tunnel_resolve(itable, key)
 	return fcall
 end
 
-function Tunnel.createInterface(name)
+function Tunnel.addInterface(name, interface)
 	name = name or GetCurrentResourceName()
-
-	local interface = {}
 
 	if isServer then
 		RegisterServerEvent(name .. ":tunnel_req")
@@ -122,7 +120,11 @@ function Tunnel.createInterface(name)
 			end
 		end)
 	end
+end
 
+function Tunnel.createInterface(name)
+	local interface = {}
+	Tunnel.addInterface(name, interface)
 	return interface
 end
 
@@ -148,12 +150,12 @@ function Tunnel.getInterface(name, identifier)
 	end
 
 	AddEventHandler(name .. ":" .. identifier .. ":tunnel_res", function(rid, args)
-	local callback = callbacks[rid]
-	if callback then
-		ids:free(rid)
-		callbacks[rid] = nil
-		callback(table.unpack(args))
-	end
+		local callback = callbacks[rid]
+		if callback then
+			ids:free(rid)
+			callbacks[rid] = nil
+			callback(table.unpack(args))
+		end
 	end)
 
 	return r

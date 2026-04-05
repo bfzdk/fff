@@ -17,7 +17,7 @@ Citizen.CreateThread(function()
 end)
 function tvRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type (one vehicle per type allowed at the same time)
 	local vehicle = vehicles[vtype]
-	if vehicle and not IsVehicleDriveable(vehicle[3]) then -- precheck if vehicle is undriveable
+	if vehicle and not IsVehicleDriveable(vehicle[3], false) then -- precheck if vehicle is undriveable
 		-- despawn vehicle
 		SetVehicleHasBeenOwnedByPlayer(vehicle[3], false)
 		Citizen.InvokeNative(0xAD738C3085FE7E11, vehicle[3], false, true) -- set not as mission entity

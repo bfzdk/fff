@@ -34,10 +34,7 @@ function Proxy.getInterface(name)
 	return r
 end
 
-function Proxy.createInterface(name)
-	name = name or GetCurrentResourceName()
-	local itable = {}
-
+function Proxy.addInterface(name, itable)
 	AddEventHandler(name .. ":proxy", function(member, args, callback)
 		if source > 0 and isServer then -- prevent client -> server calls
 			return print("error: proxy call from client to server without tunnel " .. name .. ":" .. member)
@@ -45,13 +42,19 @@ function Proxy.createInterface(name)
 
 		local f = itable[member]
 
-		if type(f) == "function" then -- hvis den kan finde vrp funktion ved navn
-			callback({ f(table.unpack(args)) }) -- kalder vrp funktionen og retuner resultatet
+		if type(f) == "function" then
+			callback({ f(table.unpack(args)) })
 		else
 			print("error: proxy call " .. name .. ":" .. member .. " not found")
 		end
 	end)
 
+	return itable
+end
+
+function Proxy.createInterface(name)
+	local itable = {}
+	Proxy.addInterface(name, itable)
 	return itable
 end
 
