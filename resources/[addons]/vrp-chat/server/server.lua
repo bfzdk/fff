@@ -8,7 +8,6 @@
 
 local Proxy = module("vrp", "lib/Proxy")
 vRP = Proxy.getInterface("vRP")
-local cfg = module("vrp-chat", "cfg/config")
 
 AddEventHandler('chatMessage', function(source, author, msg)
     local args = stringsplit(msg, ' ')

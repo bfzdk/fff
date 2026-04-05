@@ -3,11 +3,13 @@ game 'gta5'
 
 dependency 'vrp'
 
+shared_file 'config.lua'
+
 server_scripts {
     '@vrp/lib/utils.lua',
-    'server.lua',
+    'server/server.lua',
 }
 
 client_scripts {
-    'client.lua',
+    'client/client.lua',
 }
