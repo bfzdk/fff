@@ -19,9 +19,9 @@ Citizen.CreateThread(function()
 			local x, y, z = table.unpack(GetEntityCoords(GetPlayerPed(-1), true))
 			vRPserver.ping({})
 			vRPserver.updatePos({ x, y, z })
-			vRPserver.updateHealth({ tvRP.getHealth() })
-			vRPserver.updateWeapons({ tvRP.getWeapons() })
-			vRPserver.updateCustomization({ tvRP.getCustomization() })
+			vRPserver.updateHealth({ vRP.getHealth() })
+			vRPserver.updateWeapons({ vRP.getWeapons() })
+			vRPserver.updateCustomization({ vRP.getCustomization() })
 		end
 	end
 end)
@@ -119,11 +119,11 @@ local weapon_types = {
 	"WEAPON_WRENCH",
 }
 
-function tvRP.getWeaponTypes()
+function vRP.getWeaponTypes()
 	return weapon_types
 end
 
-function tvRP.getWeapons()
+function vRP.getWeapons()
 	local player = GetPlayerPed(-1)
 
 	local ammo_types = {} -- remember ammo type to not duplicate ammo amount
@@ -153,13 +153,13 @@ end
 
 -- replace weapons (combination of getWeapons and giveWeapons)
 -- return previous weapons
-function tvRP.replaceWeapons(weapons)
-	local old_weapons = tvRP.getWeapons()
-	tvRP.giveWeapons({ weapons }, true)
+function vRP.replaceWeapons(weapons)
+	local old_weapons = vRP.getWeapons()
+	vRP.giveWeapons({ weapons }, true)
 	return old_weapons
 end
 
-function tvRP.giveWeapons(weapons, clear_before)
+function vRP.giveWeapons(weapons, clear_before)
 	local player = GetPlayerPed(-1)
 
 	-- give weapons to player
@@ -176,7 +176,7 @@ function tvRP.giveWeapons(weapons, clear_before)
 	end
 end
 
-function tvRP.removeWeapons(weapons)
+function vRP.removeWeapons(weapons)
 	local player = GetPlayerPed(-1)
 
 	-- remove weapons from player
@@ -189,7 +189,7 @@ function tvRP.removeWeapons(weapons)
 end
 
 --[[
-function tvRP.dropWeapon()
+function vRP.dropWeapon()
   SetPedDropsWeapon(GetPlayerPed(-1))
 end
 --]]
@@ -206,7 +206,7 @@ local function parse_part(key)
 	end
 end
 
-function tvRP.getDrawables(part)
+function vRP.getDrawables(part)
 	local isprop, index = parse_part(part)
 	if isprop then
 		return GetNumberOfPedPropDrawableVariations(GetPlayerPed(-1), index)
@@ -215,7 +215,7 @@ function tvRP.getDrawables(part)
 	end
 end
 
-function tvRP.getDrawableTextures(part, drawable)
+function vRP.getDrawableTextures(part, drawable)
 	local isprop, index = parse_part(part)
 	if isprop then
 		return GetNumberOfPedPropTextureVariations(GetPlayerPed(-1), index, drawable)
@@ -224,7 +224,7 @@ function tvRP.getDrawableTextures(part, drawable)
 	end
 end
 
-function tvRP.getCustomization()
+function vRP.getCustomization()
 	local ped = GetPlayerPed(-1)
 
 	local custom = {}
@@ -245,7 +245,7 @@ function tvRP.getCustomization()
 end
 
 -- partial customization (only what is set is changed)
-function tvRP.setCustomization(custom) -- indexed [drawable,texture,palette] components or props (p0...) plus .modelhash or .model
+function vRP.setCustomization(custom) -- indexed [drawable,texture,palette] components or props (p0...) plus .modelhash or .model
 	local exit = TUNNEL_DELAYED() -- delay the return values
 
 	Citizen.CreateThread(function() -- new thread
@@ -269,9 +269,9 @@ function tvRP.setCustomization(custom) -- indexed [drawable,texture,palette] com
 
 				if HasModelLoaded(mhash) then
 					-- changing player model remove weapons, so save it
-					local weapons = tvRP.getWeapons()
+					local weapons = vRP.getWeapons()
 					SetPlayerModel(PlayerId(), mhash)
-					tvRP.giveWeapons(weapons, true)
+					vRP.giveWeapons(weapons, true)
 					SetModelAsNoLongerNeeded(mhash)
 				end
 			end

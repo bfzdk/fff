@@ -1,8 +1,8 @@
 local lang = vRP.lang
-local cfg = module("cfg/inventory")
-local webhook = module("cfg/webhooks")
+local cfg = vRP.module("cfg/inventory")
+local webhook = vRP.module("cfg/webhooks")
 
--- this module define the player inventory (lost after respawn, as wallet)
+-- this vRP.module define the player inventory (lost after respawn, as wallet)
 
 vRP.items = {}
 

@@ -3,8 +3,8 @@ local lang = vRP.lang
 local tmp = {}
 
 -- load config
-local cfg = module("cfg/money")
-local webhook = module("cfg/webhooks")
+local cfg = vRP.module("cfg/money")
+local webhook = vRP.module("cfg/webhooks")
 -- API
 
 -- get money

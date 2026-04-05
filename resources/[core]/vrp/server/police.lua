@@ -1,6 +1,6 @@
 local lang = vRP.lang
-local cfg = module("cfg/police")
-local webhook = module("cfg/webhooks")
+local cfg = vRP.module("cfg/police")
+local webhook = vRP.module("cfg/webhooks")
 
 -- police records
 

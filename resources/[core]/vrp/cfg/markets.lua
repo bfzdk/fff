@@ -82,7 +82,6 @@ cfg.market_types = {
 		["chromium"] = 500,
 		["nickel"] = 500,
 		["milk"] = 5,
-		["water"] = 20,
 		["coffee"] = 20,
 		["tea"] = 20,
 		["icetea"] = 15,

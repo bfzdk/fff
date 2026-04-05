@@ -1,4 +1,4 @@
--- define a module to build a language access with a dictionary
+-- define a vRP.module to build a language access with a dictionary
 
 local Lang = {}
 

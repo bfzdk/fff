@@ -1,5 +1,3 @@
-local vRP = exports["vrp"]:getvRP()
-
 RegisterNetEvent("V1N_attachments:equipComponent", function(item)
 	local components = cfg.attachments[item].components
 	for _, v in pairs(components) do

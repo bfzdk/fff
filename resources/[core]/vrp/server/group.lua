@@ -1,11 +1,11 @@
--- this module describe the group/permission system
+-- this vRP.module describe the group/permission system
 
 -- group functions are used on connected players only
 -- multiple groups can be set to the same player, but the gtype config option can be used to set some groups as unique
 
 -- api
 
-local cfg = module("cfg/groups")
+local cfg = vRP.module("cfg/groups")
 local groups = cfg.groups
 local users = cfg.users
 local selectors = cfg.selectors

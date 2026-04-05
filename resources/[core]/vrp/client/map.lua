@@ -5,7 +5,7 @@
 -- BLIP
 
 -- create new blip, return native id
-function tvRP.addBlip(x, y, z, idtype, idcolor, text)
+function vRP.addBlip(x, y, z, idtype, idcolor, text)
 	local blip = AddBlipForCoord(x + 0.001, y + 0.001, z + 0.001) -- solve strange gta5 madness with integer -> double
 	SetBlipSprite(blip, idtype)
 	SetBlipAsShortRange(blip, true)
@@ -22,7 +22,7 @@ function tvRP.addBlip(x, y, z, idtype, idcolor, text)
 end
 
 -- remove blip by native id
-function tvRP.removeBlip(id)
+function vRP.removeBlip(id)
 	RemoveBlip(id)
 end
 
@@ -30,17 +30,17 @@ local named_blips = {}
 
 -- set a named blip (same as addBlip but for a unique name, add or update)
 -- return native id
-function tvRP.setNamedBlip(name, x, y, z, idtype, idcolor, text)
-	tvRP.removeNamedBlip(name) -- remove old one
+function vRP.setNamedBlip(name, x, y, z, idtype, idcolor, text)
+	vRP.removeNamedBlip(name) -- remove old one
 
-	named_blips[name] = tvRP.addBlip(x, y, z, idtype, idcolor, text)
+	named_blips[name] = vRP.addBlip(x, y, z, idtype, idcolor, text)
 	return named_blips[name]
 end
 
 -- remove a named blip
-function tvRP.removeNamedBlip(name)
+function vRP.removeNamedBlip(name)
 	if named_blips[name] ~= nil then
-		tvRP.removeBlip(named_blips[name])
+		vRP.removeBlip(named_blips[name])
 		named_blips[name] = nil
 	end
 end
@@ -48,12 +48,12 @@ end
 -- GPS
 
 -- set the GPS destination marker coordinates
-function tvRP.setGPS(x, y)
+function vRP.setGPS(x, y)
 	SetNewWaypoint(x + 0.0001, y + 0.0001)
 end
 
 -- set route to native blip id
-function tvRP.setBlipRoute(id)
+function vRP.setBlipRoute(id)
 	SetBlipRoute(id, true)
 end
 
@@ -65,7 +65,7 @@ local named_markers = {}
 
 -- add a circular marker to the game map
 -- return marker id
-function tvRP.addMarker(x, y, z, sx, sy, sz, r, g, b, a, visible_distance)
+function vRP.addMarker(x, y, z, sx, sy, sz, r, g, b, a, visible_distance)
 	local marker =
 		{ x = x, y = y, z = z, sx = sx, sy = sy, sz = sz, r = r, g = g, b = b, a = a, visible_distance = visible_distance }
 
@@ -112,7 +112,7 @@ function tvRP.addMarker(x, y, z, sx, sy, sz, r, g, b, a, visible_distance)
 end
 
 -- remove marker
-function tvRP.removeMarker(id)
+function vRP.removeMarker(id)
 	if markers[id] ~= nil then
 		markers[id] = nil
 		marker_ids:free(id)
@@ -121,16 +121,16 @@ end
 
 -- set a named marker (same as addMarker but for a unique name, add or update)
 -- return id
-function tvRP.setNamedMarker(name, x, y, z, sx, sy, sz, r, g, b, a, visible_distance)
-	tvRP.removeNamedMarker(name) -- remove old marker
+function vRP.setNamedMarker(name, x, y, z, sx, sy, sz, r, g, b, a, visible_distance)
+	vRP.removeNamedMarker(name) -- remove old marker
 
-	named_markers[name] = tvRP.addMarker(x, y, z, sx, sy, sz, r, g, b, a, visible_distance)
+	named_markers[name] = vRP.addMarker(x, y, z, sx, sy, sz, r, g, b, a, visible_distance)
 	return named_markers[name]
 end
 
-function tvRP.removeNamedMarker(name)
+function vRP.removeNamedMarker(name)
 	if named_markers[name] ~= nil then
-		tvRP.removeMarker(named_markers[name])
+		vRP.removeMarker(named_markers[name])
 		named_markers[name] = nil
 	end
 end
@@ -140,7 +140,7 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
 
-		local px, py, pz = tvRP.getPosition()
+		local px, py, pz = vRP.getPosition()
 
 		for k, v in pairs(markers) do
 			-- check visibility
@@ -156,7 +156,7 @@ end)
 local areas = {}
 
 -- create/update a cylinder area
-function tvRP.setArea(name, x, y, z, radius, height)
+function vRP.setArea(name, x, y, z, radius, height)
 	local area = { x = x + 0.001, y = y + 0.001, z = z + 0.001, radius = radius, height = height }
 
 	-- default values
@@ -168,7 +168,7 @@ function tvRP.setArea(name, x, y, z, radius, height)
 end
 
 -- remove area
-function tvRP.removeArea(name)
+function vRP.removeArea(name)
 	if areas[name] ~= nil then
 		areas[name] = nil
 	end
@@ -179,7 +179,7 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(250)
 
-		local px, py, pz = tvRP.getPosition()
+		local px, py, pz = vRP.getPosition()
 
 		for k, v in pairs(areas) do
 			-- detect enter/leave
@@ -205,8 +205,8 @@ end)
 -- doordef: .model or .modelhash
 -- locked: boolean
 -- doorswing: -1 to 1
-function tvRP.setStateOfClosestDoor(doordef, locked, doorswing)
-	local x, y, z = tvRP.getPosition()
+function vRP.setStateOfClosestDoor(doordef, locked, doorswing)
+	local x, y, z = vRP.getPosition()
 	local hash = doordef.modelhash
 	if hash == nil then
 		hash = GetHashKey(doordef.model)
@@ -215,10 +215,10 @@ function tvRP.setStateOfClosestDoor(doordef, locked, doorswing)
 	SetStateOfClosestDoorOfType(hash, x, y, z, locked, doorswing + 0.0001)
 end
 
-function tvRP.openClosestDoor(doordef)
-	tvRP.setStateOfClosestDoor(doordef, false, 0)
+function vRP.openClosestDoor(doordef)
+	vRP.setStateOfClosestDoor(doordef, false, 0)
 end
 
-function tvRP.closeClosestDoor(doordef)
-	tvRP.setStateOfClosestDoor(doordef, true, 0)
+function vRP.closeClosestDoor(doordef)
+	vRP.setStateOfClosestDoor(doordef, true, 0)
 end

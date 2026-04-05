@@ -8,14 +8,14 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(1)
 		if IsControlJustReleased(0, 182) then
-			local bool, vtype, vehicle = tvRP.getNearestOwnedVehicle(20)
+			local bool, vtype, vehicle = vRP.getNearestOwnedVehicle(20)
 			if bool then
-				tvRP.vc_toggleLock(vtype)
+				vRP.vc_toggleLock(vtype)
 			end
 		end
 	end
 end)
-function tvRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type (one vehicle per type allowed at the same time)
+function vRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type (one vehicle per type allowed at the same time)
 	local vehicle = vehicles[vtype]
 	if vehicle and not IsVehicleDriveable(vehicle[3], false) then -- precheck if vehicle is undriveable
 		-- despawn vehicle
@@ -40,7 +40,7 @@ function tvRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type 
 
 		-- spawn car
 		if HasModelLoaded(mhash) then
-			local x, y, z = tvRP.getPosition()
+			local x, y, z = vRP.getPosition()
 			if pos then
 				x, y, z = table.unpack(pos)
 			end
@@ -49,7 +49,7 @@ function tvRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type 
 			SetVehicleOnGroundProperly(nveh)
 			SetEntityInvincible(nveh, false)
 			SetPedIntoVehicle(GetPlayerPed(-1), nveh, -1) -- put player inside
-			SetVehicleNumberPlateText(nveh, "P " .. tvRP.getRegistrationNumber())
+			SetVehicleNumberPlateText(nveh, "P " .. vRP.getRegistrationNumber())
 			if GetVehicleClass(nveh) == 18 then
 				SetVehicleDirtLevel(nveh, 0.0)
 				TriggerEvent(
@@ -93,11 +93,11 @@ function tvRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type 
 	end
 end
 
-function tvRP.despawnGarageVehicle(vtype, max_range)
+function vRP.despawnGarageVehicle(vtype, max_range)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		local x, y, z = table.unpack(GetEntityCoords(vehicle[3], true))
-		local px, py, pz = tvRP.getPosition()
+		local px, py, pz = vRP.getPosition()
 
 		if GetDistanceBetweenCoords(x, y, z, px, py, pz, true) < max_range then -- check distance with the vehicule
 			-- remove vehicle
@@ -135,7 +135,7 @@ function tvRP.despawnGarageVehicle(vtype, max_range)
 	end
 end
 
-function tvRP.despawnNetVehicle(veh)
+function vRP.despawnNetVehicle(veh)
 	if veh then
 		veh = NetToVeh(veh)
 		SetVehicleHasBeenOwnedByPlayer(veh, false)
@@ -147,8 +147,8 @@ end
 
 -- (experimental) this function return the nearest vehicle
 -- (don't work with all vehicles, but aim to)
-function tvRP.getNearestVehicle(radius)
-	local x, y, z = tvRP.getPosition()
+function vRP.getNearestVehicle(radius)
+	local x, y, z = vRP.getPosition()
 	local ped = GetPlayerPed(-1)
 	if IsPedSittingInAnyVehicle(ped) then
 		return GetVehiclePedIsIn(ped, true)
@@ -166,8 +166,8 @@ function tvRP.getNearestVehicle(radius)
 	end
 end
 
-function tvRP.getNearestVehicleHealth(radius)
-	local x, y, z = tvRP.getPosition()
+function vRP.getNearestVehicleHealth(radius)
+	local x, y, z = vRP.getPosition()
 	local ped = GetPlayerPed(-1)
 	if IsPedSittingInAnyVehicle(ped) then
 		return { veh = GetVehiclePedIsIn(ped, true), health = GetVehicleEngineHealth(GetVehiclePedIsIn(ped, true)) }
@@ -185,21 +185,21 @@ function tvRP.getNearestVehicleHealth(radius)
 	end
 end
 
-function tvRP.fixeNearestVehicle(radius)
-	local veh = tvRP.getNearestVehicle(radius)
+function vRP.fixeNearestVehicle(radius)
+	local veh = vRP.getNearestVehicle(radius)
 	if IsEntityAVehicle(veh) then
 		SetVehicleFixed(veh)
 	end
 end
 
-function tvRP.lowfixNearestVehicle(veh)
+function vRP.lowfixNearestVehicle(veh)
 	if IsEntityAVehicle(veh) then
 		SetVehicleEngineHealth(veh, 200.0)
 	end
 end
 
-function tvRP.fixeNearestVehicleAdmin(radius)
-	local veh = tvRP.getNearestVehicle(radius)
+function vRP.fixeNearestVehicleAdmin(radius)
+	local veh = vRP.getNearestVehicle(radius)
 	local ped = GetPlayerPed(-1)
 	if IsEntityAVehicle(veh) then
 		if not IsPedSittingInAnyVehicle(ped) then
@@ -246,8 +246,8 @@ function tvRP.fixeNearestVehicleAdmin(radius)
 	end
 end
 
-function tvRP.changeNummerPlate(radius)
-	local veh = tvRP.getNearestVehicle(radius)
+function vRP.changeNummerPlate(radius)
+	local veh = vRP.getNearestVehicle(radius)
 	if IsEntityAVehicle(veh) then
 		local abyte = string.byte("A")
 		local zbyte = string.byte("0")
@@ -282,8 +282,8 @@ function tvRP.changeNummerPlate(radius)
 	end
 end
 
-function tvRP.fixeNearestVehicleMidlertidigt(radius)
-	local veh = tvRP.getNearestVehicle(radius)
+function vRP.fixeNearestVehicleMidlertidigt(radius)
+	local veh = vRP.getNearestVehicle(radius)
 	local ped = GetPlayerPed(-1)
 	if IsEntityAVehicle(veh) then
 		if not IsPedSittingInAnyVehicle(ped) then
@@ -330,9 +330,9 @@ function tvRP.fixeNearestVehicleMidlertidigt(radius)
 	end
 end
 
-function tvRP.vehicleUnlockMekaniker()
+function vRP.vehicleUnlockMekaniker()
 	local ped = GetPlayerPed(-1)
-	local veh = tvRP.getNearestVehicle(4)
+	local veh = vRP.getNearestVehicle(4)
 	local plate = GetVehicleNumberPlateText(veh)
 
 	SetVehicleDoorsLockedForAllPlayers(veh, false)
@@ -363,7 +363,7 @@ function tvRP.vehicleUnlockMekaniker()
 	)
 end
 
-function tvRP.fixCurrentVehicle()
+function vRP.fixCurrentVehicle()
 	local ped = GetPlayerPed(-1)
 	local veh = GetVehiclePedIsIn(ped, false)
 	if IsEntityAVehicle(veh) then
@@ -384,8 +384,8 @@ function tvRP.fixCurrentVehicle()
 	end
 end
 
-function tvRP.replaceNearestVehicle(radius)
-	local veh = tvRP.getNearestVehicle(radius)
+function vRP.replaceNearestVehicle(radius)
+	local veh = vRP.getNearestVehicle(radius)
 	local ped = GetPlayerPed(-1)
 	local roll = GetEntityRoll(veh)
 	if not IsPedSittingInAnyVehicle(ped) then
@@ -411,7 +411,7 @@ function tvRP.replaceNearestVehicle(radius)
 end
 
 -- try to get a vehicle at a specific position (using raycast)
-function tvRP.getVehicleAtPosition(x, y, z)
+function vRP.getVehicleAtPosition(x, y, z)
 	x = x + 0.0001
 	y = y + 0.0001
 	z = z + 0.0001
@@ -422,8 +422,8 @@ function tvRP.getVehicleAtPosition(x, y, z)
 end
 
 -- return ok,vtype,name
-function tvRP.getNearestOwnedVehicle(radius)
-	local px, py, pz = tvRP.getPosition()
+function vRP.getNearestOwnedVehicle(radius)
+	local px, py, pz = vRP.getPosition()
 	for k, v in pairs(vehicles) do
 		local x, y, z = table.unpack(GetEntityCoords(v[3], true))
 		local dist = GetDistanceBetweenCoords(x, y, z, px, py, pz, true)
@@ -435,7 +435,7 @@ function tvRP.getNearestOwnedVehicle(radius)
 end
 
 -- return ok,x,y,z
-function tvRP.getAnyOwnedVehiclePosition()
+function vRP.getAnyOwnedVehiclePosition()
 	for k, v in pairs(vehicles) do
 		if IsEntityAVehicle(v[3]) then
 			local x, y, z = table.unpack(GetEntityCoords(v[3], true))
@@ -447,7 +447,7 @@ function tvRP.getAnyOwnedVehiclePosition()
 end
 
 -- return x,y,z
-function tvRP.getOwnedVehiclePosition(vtype)
+function vRP.getOwnedVehiclePosition(vtype)
 	local vehicle = vehicles[vtype]
 	local x, y, z = 0, 0, 0
 
@@ -459,7 +459,7 @@ function tvRP.getOwnedVehiclePosition(vtype)
 end
 
 -- return ok, vehicule network id
-function tvRP.getOwnedVehicleId(vtype)
+function vRP.getOwnedVehicleId(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		return true, NetworkGetNetworkIdFromEntity(vehicle[3])
@@ -469,7 +469,7 @@ function tvRP.getOwnedVehicleId(vtype)
 end
 
 -- eject the ped from the vehicle
-function tvRP.ejectVehicle()
+function vRP.ejectVehicle()
 	local ped = GetPlayerPed(-1)
 	if IsPedSittingInAnyVehicle(ped) then
 		local veh = GetVehiclePedIsIn(ped, false)
@@ -479,7 +479,7 @@ end
 
 -- vehicle commands
 local door
-function tvRP.vc_toggleDoor(vtype, door_index)
+function vRP.vc_toggleDoor(vtype, door_index)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		if door then
@@ -492,7 +492,7 @@ function tvRP.vc_toggleDoor(vtype, door_index)
 end
 
 local door
-function tvRP.vc_openDoor(vtype, door_index)
+function vRP.vc_openDoor(vtype, door_index)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		if door then
@@ -504,7 +504,7 @@ function tvRP.vc_openDoor(vtype, door_index)
 	end
 end
 
-function tvRP.vc_closeDoor(vtype, door_index)
+function vRP.vc_closeDoor(vtype, door_index)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		SetVehicleDoorShut(vehicle[3], door_index)
@@ -512,7 +512,7 @@ function tvRP.vc_closeDoor(vtype, door_index)
 end
 
 local neon
-function tvRP.vc_NeonToggle(vtype)
+function vRP.vc_NeonToggle(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		if neon then
@@ -530,14 +530,14 @@ function tvRP.vc_NeonToggle(vtype)
 	end
 end
 
-function tvRP.vc_detachTrailer(vtype)
+function vRP.vc_detachTrailer(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		DetachVehicleFromTrailer(vehicle[3])
 	end
 end
 
-function tvRP.vc_detachTowTruck(vtype)
+function vRP.vc_detachTowTruck(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		local ent = GetEntityAttachedToTowTruck(vehicle[3])
@@ -547,7 +547,7 @@ function tvRP.vc_detachTowTruck(vtype)
 	end
 end
 
-function tvRP.vc_detachCargobob(vtype)
+function vRP.vc_detachCargobob(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		local ent = GetVehicleAttachedToCargobob(vehicle[3])
@@ -557,7 +557,7 @@ function tvRP.vc_detachCargobob(vtype)
 	end
 end
 
-function tvRP.vc_toggleEngine(vtype)
+function vRP.vc_toggleEngine(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		local running = Citizen.InvokeNative(0xAE31E7DF9B5B132E, vehicle[3]) -- GetIsVehicleEngineRunning
@@ -570,7 +570,7 @@ function tvRP.vc_toggleEngine(vtype)
 	end
 end
 
-function tvRP.vc_toggleLock(vtype)
+function vRP.vc_toggleLock(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		local ped = GetPlayerPed(-1)

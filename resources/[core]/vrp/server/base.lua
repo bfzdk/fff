@@ -1,14 +1,12 @@
-local Tunnel = module("lib/Tunnel")
+local Tunnel = vRP.module("lib/Tunnel")
+local Lang = vRP.module("lib/Lang")
 
-local Lang = module("lib/Lang")
+local config = vRP.module("cfg/base")
 
-local config = module("cfg/base")
-
-vRP = {}
 tvRP = Tunnel.createInterface("vRP")
 
 -- load language
-vRP.lang = Lang.new(module("cfg/lang/da"))
+vRP.lang = Lang.new(vRP.module("cfg/lang/da"))
 
 -- init
 vRPclient = Tunnel.getInterface("vRP", "vRP") -- server -> client tunnel
@@ -271,6 +269,10 @@ end
 
 function vRP.getUserSource(user_id)
 	return vRP.user_sources[user_id]
+end
+
+function vRP.notify(user_id, msg)
+	vRPclient.notify(vRP.getUserSource(user_id), msg)
 end
 
 function vRP.ban(user_id, reason)

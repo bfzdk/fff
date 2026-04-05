@@ -20,13 +20,12 @@ files {
 
 shared_scripts {
 	'lib/utils.lua',
-	'exports.lua' -- export vRP
+	'main.lua' -- new main handler
 }
 
 server_scripts {
 	"@oxmysql/lib/MySQL.lua",
 	"server/base.lua",
-	"server/exports.lua",
 	"server/gui.lua",
 	"server/group.lua",
 	"server/admin.lua",

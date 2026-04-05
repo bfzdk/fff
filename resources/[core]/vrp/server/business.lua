@@ -1,10 +1,10 @@
--- module describing business system (company, money laundering)
+-- vRP.module describing business system (company, money laundering)
 
-local cfg = module("cfg/business")
-local htmlEntities = module("lib/htmlEntities")
+local cfg = vRP.module("cfg/business")
+local htmlEntities = vRP.module("lib/htmlEntities")
 local lang = vRP.lang
 
-local sanitizes = module("cfg/sanitizes")
+local sanitizes = vRP.module("cfg/sanitizes")
 
 -- sql
 
@@ -21,13 +21,13 @@ local sanitizes = module("cfg/sanitizes")
 --);
 --]])
 
--- module describing business system (company, money laundering)
+-- vRP.module describing business system (company, money laundering)
 
-local cfg = module("cfg/business")
-local htmlEntities = module("lib/htmlEntities")
+local cfg = vRP.module("cfg/business")
+local htmlEntities = vRP.module("lib/htmlEntities")
 local lang = vRP.lang
 
-local sanitizes = module("cfg/sanitizes")
+local sanitizes = vRP.module("cfg/sanitizes")
 
 -- api
 

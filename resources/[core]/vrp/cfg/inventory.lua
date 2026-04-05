@@ -1,13 +1,10 @@
 local cfg = {}
 
 cfg.inventory_weight_per_strength = 10 -- weight for an user inventory per strength level (no unit, but thinking in "kg" is a good norm)
-
--- default chest weight for vehicle trunks
-cfg.default_vehicle_chest_weight = 50
+cfg.default_vehicle_chest_weight = 50 -- default chest weight for vehicle trunks
 
 -- define vehicle chest weight by model in lower case
 cfg.vehicle_chest_weights = {
-	-- lastbiler
 	["tiptruck"] = 250,
 	["rumpo2"] = 100,
 	["minivan"] = 100,
@@ -59,7 +56,6 @@ cfg.vehicle_chest_weights = {
 	["r8ppi"] = 20,
 	["rs7"] = 45,
 	["s500w222"] = 55,
-	["sq72016"] = 65,
 	["srt8"] = 65,
 	["urus2018"] = 65,
 	["x6m"] = 60,

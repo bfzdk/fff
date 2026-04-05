@@ -1,4 +1,4 @@
-local cfg = module("cfg/player_state")
+local cfg = vRP.module("cfg/player_state")
 local lang = vRP.lang
 
 -- client -> server events

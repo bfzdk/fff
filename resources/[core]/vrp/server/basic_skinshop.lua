@@ -1,6 +1,6 @@
 -- a basic skinshop implementation
 
-local cfg = module("cfg/skinshops")
+local cfg = vRP.module("cfg/skinshops")
 local lang = vRP.lang
 local skinshops = cfg.skinshops
 

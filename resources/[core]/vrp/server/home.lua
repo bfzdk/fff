@@ -1,7 +1,7 @@
--- this module describe the home system (experimental, a lot can happen and not being handled)
+-- this vRP.module describe the home system (experimental, a lot can happen and not being handled)
 
 local lang = vRP.lang
-local cfg = module("cfg/homes")
+local cfg = vRP.module("cfg/homes")
 
 -- sql
 

@@ -1,11 +1,10 @@
-local htmlEntities = module("lib/htmlEntities")
-local Tools = module("lib/Tools")
+local htmlEntities = vRP.module("lib/htmlEntities")
+local Tools = vRP.module("lib/Tools")
 local lang = vRP.lang
-local cfg = module("cfg/admin")
-local webhook = module("cfg/webhooks")
+local cfg = vRP.module("cfg/admin")
+local webhook = vRP.module("cfg/webhooks")
 
 local player_lists = {}
-
 local special_perm_table = {
 	[1] = true, --ID 1 kan ikke få ban
 }

@@ -4,7 +4,7 @@ local noclip_fspeed = 2.0
 local frozen = false
 local unfreeze = false
 
-function tvRP.toggleNoclip()
+function vRP.toggleNoclip()
 	local ped = GetPlayerPed(-1)
 	noclip = not noclip
 	if noclip then -- set
@@ -18,15 +18,15 @@ function tvRP.toggleNoclip()
 	return { coords = { coords["x"], coords["y"], coords["z"] }, noclip = noclip }
 end
 
-function tvRP.isNoclip()
+function vRP.isNoclip()
 	return noclip
 end
 
-function tvRP.toggleFreeze()
+function vRP.toggleFreeze()
 	if frozen then
 		frozen = false
 		unfreeze = true
-		tvRP.notify("~g~Du blev unfrosset.")
+		vRP.notify("~g~Du blev unfrosset.")
 	else
 		frozen = true
 		unfreeze = false
@@ -78,20 +78,20 @@ Citizen.CreateThread(function()
 	end
 end)
 
-function tvRP.setVehicleDoors(veh, doors)
+function vRP.setVehicleDoors(veh, doors)
 	SetVehicleDoorsLocked(veh, doors)
 end
 
-function tvRP.vehicleUnlockAdmin()
+function vRP.vehicleUnlockAdmin()
 	local ped = GetPlayerPed(-1)
-	local veh = tvRP.getNearestVehicle(4)
+	local veh = vRP.getNearestVehicle(4)
 	local plate = GetVehicleNumberPlateText(veh)
 
 	SetVehicleDoorsLockedForAllPlayers(veh, false)
 	SetVehicleDoorsLocked(veh, 1)
 	SetVehicleDoorsLockedForPlayer(veh, ped, false)
 
-	tvRP.notify("~g~Du låste op for køretøjet med nummerpladen: ~b~" .. plate)
+	vRP.notify("~g~Du låste op for køretøjet med nummerpladen: ~b~" .. plate)
 end
 
 -- noclip/invisibility
@@ -100,8 +100,8 @@ Citizen.CreateThread(function()
 		Citizen.Wait(0)
 		if noclip then
 			local ped = GetPlayerPed(-1)
-			local x, y, z = tvRP.getPosition()
-			local dx, dy, dz = tvRP.getCamDirection()
+			local x, y, z = vRP.getPosition()
+			local dx, dy, dz = vRP.getCamDirection()
 			local speed = noclip_speed
 			local fspeed = noclip_fspeed
 
@@ -142,7 +142,7 @@ local function teleportToWaypoint()
 	end
 
 	if not IsWaypointActive() then
-		tvRP.notify("~r~Du skal sætte et waypoint først.")
+		vRP.notify("~r~Du skal sætte et waypoint først.")
 		return
 	end
 
@@ -200,7 +200,7 @@ AddEventHandler("vRPAdmin:Spectate", function(plr, tpcoords)
 		Wait(300)
 		targetPed = GetPlayerPed(GetPlayerFromServerId(plr))
 		if targetPed == playerPed then
-			tvRP.notify("~r~I mean you cannot spectate yourself...")
+			vRP.notify("~r~I mean you cannot spectate yourself...")
 			return
 		end
 		NetworkSetInSpectatorMode(true, targetPed)
@@ -209,7 +209,7 @@ AddEventHandler("vRPAdmin:Spectate", function(plr, tpcoords)
 		SetEveryoneIgnorePlayer(playerPed, true)
 		SetEntityInvincible(playerPed, true)
 		Spectating = true
-		tvRP.notify("~g~Spectating Player.")
+		vRP.notify("~g~Spectating Player.")
 	else
 		NetworkSetInSpectatorMode(false, targetPed)
 		SetEntityVisible(playerPed, true, 0)
@@ -218,6 +218,6 @@ AddEventHandler("vRPAdmin:Spectate", function(plr, tpcoords)
 		SetEntityCollision(playerPed, true, true)
 		Spectating = false
 		SetEntityCoords(playerPed, LastCoords)
-		tvRP.notify("~r~Stopped Spectating Player.")
+		vRP.notify("~r~Stopped Spectating Player.")
 	end
 end)

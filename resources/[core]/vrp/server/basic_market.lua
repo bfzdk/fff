@@ -1,7 +1,7 @@
 -- a basic market implementation
 
 local lang = vRP.lang
-local cfg = module("cfg/markets")
+local cfg = vRP.module("cfg/markets")
 local market_types = cfg.market_types
 local markets = cfg.markets
 

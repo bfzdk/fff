@@ -49,7 +49,7 @@ function tvRP.leaveArea(name)
 	end
 end
 
-local cfg = module("cfg/blips_markers")
+local cfg = vRP.module("cfg/blips_markers")
 
 -- add additional static blips/markers
 AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)

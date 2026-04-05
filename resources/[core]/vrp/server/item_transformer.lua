@@ -1,9 +1,9 @@
--- this module define a generic system to transform (generate, process, convert) items and money to other items or money in a specific area
+-- this vRP.module define a generic system to transform (generate, process, convert) items and money to other items or money in a specific area
 -- each transformer can take things to generate other things, using a unit of work
 -- units are generated periodically at a specific rate
 -- reagents => products (reagents can be nothing, as for an harvest transformer)
 
-local cfg = module("cfg/item_transformers")
+local cfg = vRP.module("cfg/item_transformers")
 local lang = vRP.lang
 
 -- api

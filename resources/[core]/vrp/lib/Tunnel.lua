@@ -1,4 +1,4 @@
-local Tools = module("lib/Tools")
+local Tools = vRP.module("lib/Tools")
 
 local Tunnel = {}
 local isServer = IsDuplicityVersion()

@@ -1,9 +1,9 @@
-local htmlEntities = module("lib/htmlEntities")
+local htmlEntities = vRP.module("lib/htmlEntities")
 
-local cfg = module("cfg/identity")
+local cfg = vRP.module("cfg/identity")
 local lang = vRP.lang
 
-local sanitizes = module("cfg/sanitizes")
+local sanitizes = vRP.module("cfg/sanitizes")
 
 -- wallet amount
 function vRP.getWalletAmount(user_id)

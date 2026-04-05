@@ -1,18 +1,3 @@
--- a basic garage implementation
-
--- vehicle db
-
---MySQL.Async.execute("vRP/vehicles_table", [[
---CREATE TABLE IF NOT EXISTS vrp_user_vehicles(
---  user_id INTEGER,
---  vehicle VARCHAR(255),
---  CONSTRAINT pk_user_vehicles PRIMARY KEY(user_id,vehicle),
---  CONSTRAINT fk_user_vehicles_users FOREIGN KEY(user_id) REFERENCES vrp_users(id) ON DELETE CASCADE
---);
---]])
-
--- load config
-
 function vRP.getUserVehiclesByCPR(cpr, cbr)
 	local task = Task(cbr)
 
@@ -40,8 +25,8 @@ function vRP.getUserVehiclesByCPR(cpr, cbr)
 	)
 end
 
-local cfg = module("cfg/garages")
-local cfg_inventory = module("cfg/inventory")
+local cfg = vRP.module("cfg/garages")
+local cfg_inventory = vRP.module("cfg/inventory")
 local vehicle_groups = cfg.garage_types
 local lang = vRP.lang
 
@@ -145,34 +130,10 @@ for group, vehicles in pairs(vehicle_groups) do
 								{ user_id = user_id, vehicle = vname }
 							)
 
-							-- vRPclient.notify(player,{lang.money.paid({vehicle[2]})})
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.money.paid({ vehicle[2] }) },
-									type = "success",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(user_id, lang.money.paid({ vehicle[2] }))
 							vRP.closeMenu(player)
 						else
-							-- vRPclient.notify(player,{lang.money.not_enough()})
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { lang.money.not_enough() },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(user_id, lang.money.not_enough())
 						end
 					end
 				end
@@ -242,32 +203,10 @@ for group, vehicles in pairs(vehicle_groups) do
 											{ user_id = user_id, vehicle = vname }
 										)
 
-										TriggerClientEvent(
-											"pNotify:SendNotification",
-											player,
-											{
-												text = { lang.money.received({ price }) },
-												type = "success",
-												queue = "global",
-												timeout = 2000,
-												layout = "centerRight",
-												animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											}
-										)
+										vRP.notify(user_id, lang.money.received({ price }))
 										vRP.closeMenu(player)
 									else
-										TriggerClientEvent(
-											"pNotify:SendNotification",
-											player,
-											{
-												text = { lang.common.not_found() },
-												type = "error",
-												queue = "global",
-												timeout = 2000,
-												layout = "centerRight",
-												animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-											}
-										)
+										vRP.notify(user_id, lang.garage.sell.not_owned())
 									end
 								end
 							)
@@ -298,18 +237,7 @@ for group, vehicles in pairs(vehicle_groups) do
 
 							vRP.openMenu(player, submenu)
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { "Du har ingen køretøjer!" },
-									type = "error",
-									queue = "global",
-									timeout = 2000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(user_id, lang.garage.sell.no_vehicles())
 						end
 					end
 				)
@@ -349,32 +277,10 @@ for group, vehicles in pairs(vehicle_groups) do
 								-- add vehicle to rent tmp data
 								tmpdata.rent_vehicles[vname] = true
 
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.money.paid({ price }) },
-										type = "success",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, lang.money.paid({ price }))
 								vRP.closeMenu(player)
 							else
-								TriggerClientEvent(
-									"pNotify:SendNotification",
-									player,
-									{
-										text = { lang.money.not_enough() },
-										type = "success",
-										queue = "global",
-										timeout = 4000,
-										layout = "centerRight",
-										animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-									}
-								)
+								vRP.notify(user_id, lang.money.not_enough())
 							end
 						end
 					end
@@ -1031,98 +937,25 @@ local function ch_kursus(player, choice)
 						local mechlvl = math.floor(vRP.expToLevel(vRP.getExp(tonumber(nuser_id), "science", "mechanic")))
 						if mechlvl < 3 then
 							vRP.levelUp(tonumber(nuser_id), "science", "mechanic")
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { "Du har givet et certifikat til <b style='color: #DB4646'>" .. nuser_id .. "</b>" },
-									type = "success",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
-							local user_id = vRP.getUserId(player)
-							local dato = os.date("**%d-%m-%Y** kl. **%X**")
-							local dmessage = "**"
-								.. user_id
-								.. "** har lige givet et certifikat til **"
-								.. nuser_id
-								.. "** (**LVL: "
-								.. (mechlvl + 1)
-								.. "**) ("
-								.. dato
-								.. ")"
-							PerformHttpRequest(
-								"DIT_WEBHOOK",
-								function(err, text, headers) end,
-								"POST",
-								json.encode({ username = "Server " .. GetConvar("servernumber", "0") .. " - Kursus", content = dmessage }),
-								{ ["Content-Type"] = "application/json" }
-							)
+							vRP.notify(player, "Du har givet spilleren et mekaniker certifikat, de er nu på niveau " .. mechlvl + 1 .. ".")
 						else
-							TriggerClientEvent(
-								"pNotify:SendNotification",
-								player,
-								{
-									text = { nuser_id .. " er allerede i det højeste level!" },
-									type = "error",
-									queue = "global",
-									timeout = 4000,
-									layout = "centerRight",
-									animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-								}
-							)
+							vRP.notify(player, "Denne spiller har allerede det højeste certifikat.")
 						end
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							player,
-							{
-								text = { "Dette ID ser ud til ikke at eksistere" },
-								type = "error",
-								queue = "global",
-								timeout = 4000,
-								layout = "centerRight",
-								animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-							}
-						)
+						vRP.notify(player, "Dette ID ser ud til ikke at eksistere.")
 					end
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						player,
-						{
-							text = { "Intet ID valgt" },
-							type = "error",
-							queue = "global",
-							timeout = 4000,
-							layout = "centerRight",
-							animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-						}
-					)
+					vRP.notify(player, "Intet ID valgt.")
 				end
 			end)
 		else
-			TriggerClientEvent(
-				"pNotify:SendNotification",
-				player,
-				{
-					text = { "Ingen spiller i nærheden" },
-					type = "error",
-					queue = "global",
-					timeout = 4000,
-					layout = "centerRight",
-					animation = { open = "gta_effects_fade_in", close = "gta_effects_fade_out" },
-				}
-			)
+			vRP.notify(player, "Ingen spiller i nærheden.")
 		end
 	end)
 end
 
 local choice_impound = {
-	function(player, choice)
+	function(player)
 		vRPclient.forceCommand(player, { "impound" })
 	end,
 	"Beslaglag nærmeste køretøj",

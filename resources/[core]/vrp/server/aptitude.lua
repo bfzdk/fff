@@ -1,6 +1,6 @@
 -- define aptitude system (aka. education, skill system)
 
-local cfg = module("cfg/aptitudes")
+local cfg = vRP.module("cfg/aptitudes")
 local lang = vRP.lang
 
 -- exp notes:

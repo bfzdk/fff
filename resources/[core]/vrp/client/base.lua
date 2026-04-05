@@ -1,38 +1,37 @@
-local Tunnel = module("vrp/lib/Tunnel")
+local Tunnel = vRP.module("vrp/lib/Tunnel")
 
-cfg = module("cfg/client")
+cfg = vRP.module("cfg/client")
 
-tvRP = Tunnel.createInterface("vRP")
 vRPserver = Tunnel.getInterface("vRP", "vRP")
 
 local players = {} -- keep track of connected players (server id)
 
 -- functions
-function tvRP.teleport(x, y, z)
-	tvRP.unjail() -- force unjail before a teleportation
+function vRP.teleport(x, y, z)
+	vRP.unjail() -- force unjail before a teleportation
 	SetEntityCoords(GetPlayerPed(-1), x + 0.0001, y + 0.0001, z + 0.0001, true, false, false, true)
 	vRPserver.updatePos({ x, y, z })
 end
 
 -- return x,y,z
-function tvRP.getPosition()
+function vRP.getPosition()
 	local x, y, z = table.unpack(GetEntityCoords(GetPlayerPed(-1), true))
 	return x, y, z
 end
 
 -- return false if in exterior, true if inside a building
-function tvRP.isInside()
-	local x, y, z = tvRP.getPosition()
+function vRP.isInside()
+	local x, y, z = vRP.getPosition()
 	return not (GetInteriorAtCoords(x, y, z) == 0)
 end
 
 -- return vx,vy,vz
-function tvRP.getSpeed()
+function vRP.getSpeed()
 	local vx, vy, vz = table.unpack(GetEntityVelocity(GetPlayerPed(-1)))
 	return math.sqrt(vx * vx + vy * vy + vz * vz)
 end
 
-function tvRP.getCamDirection()
+function vRP.getCamDirection()
 	local heading = GetGameplayCamRelativeHeading() + GetEntityHeading(GetPlayerPed(-1))
 	local pitch = GetGameplayCamRelativePitch()
 
@@ -51,19 +50,19 @@ function tvRP.getCamDirection()
 	return x, y, z
 end
 
-function tvRP.addPlayer(player)
+function vRP.addPlayer(player)
 	players[player] = true
 end
 
-function tvRP.removePlayer(player)
+function vRP.removePlayer(player)
 	players[player] = nil
 end
 
-function tvRP.getNearestPlayers(radius)
+function vRP.getNearestPlayers(radius)
 	local r = {}
 
 	local pid = PlayerId()
-	local px, py, pz = tvRP.getPosition()
+	local px, py, pz = vRP.getPosition()
 
 	for k, v in pairs(players) do
 		local player = GetPlayerFromServerId(k)
@@ -81,10 +80,10 @@ function tvRP.getNearestPlayers(radius)
 	return r
 end
 
-function tvRP.getNearestPlayer(radius)
+function vRP.getNearestPlayer(radius)
 	local p = nil
 
-	local players = tvRP.getNearestPlayers(radius)
+	local players = vRP.getNearestPlayers(radius)
 	local min = radius + 10.0
 	for k, v in pairs(players) do
 		if v < min then
@@ -96,7 +95,7 @@ function tvRP.getNearestPlayer(radius)
 	return p
 end
 
-function tvRP.notify(msg)
+function vRP.notify(msg)
 	msg = string.gsub(msg, "~r~", "")
 	msg = string.gsub(msg, "~g~", "")
 	msg = string.gsub(msg, "~b~", "")
@@ -118,7 +117,7 @@ end
 -- play a screen effect
 -- name, see https://wiki.fivem.net/wiki/Screen_Effects
 -- duration: in seconds, if -1, will play until stopScreenEffect is called
-function tvRP.playScreenEffect(name, duration)
+function vRP.playScreenEffect(name, duration)
 	if duration < 0 then -- loop
 		StartScreenEffect(name, 0, true)
 	else
@@ -133,7 +132,7 @@ end
 
 -- stop a screen effect
 -- name, see https://wiki.fivem.net/wiki/Screen_Effects
-function tvRP.stopScreenEffect(name)
+function vRP.stopScreenEffect(name)
 	StopScreenEffect(name)
 end
 
@@ -148,19 +147,19 @@ local anim_ids = Tools.newIDGenerator()
 -- upper: true, only upper body, false, full animation
 -- seq: list of animations as {dict,anim_name,loops} (loops is the number of loops, default 1) or a task def (properties: task, play_exit)
 -- looping: if true, will infinitely loop the first element of the sequence until stopAnim is called
-function tvRP.playAnim(upper, seq, looping)
+function vRP.playAnim(upper, seq, looping)
 	if seq.task ~= nil then -- is a task (cf https://github.com/ImagicTheCat/vRP/pull/118)
-		tvRP.stopAnim(true)
+		vRP.stopAnim(true)
 
 		local ped = GetPlayerPed(-1)
 		if seq.task == "PROP_HUMAN_SEAT_CHAIR_MP_PLAYER" then -- special case, sit in a chair
-			local x, y, z = tvRP.getPosition()
+			local x, y, z = vRP.getPosition()
 			TaskStartScenarioAtPosition(ped, seq.task, x, y, z - 1, GetEntityHeading(ped), 0, false, false)
 		else
 			TaskStartScenarioInPlace(ped, seq.task, 0, not seq.play_exit)
 		end
 	else -- a regular animation sequence
-		tvRP.stopAnim(upper)
+		vRP.stopAnim(upper)
 
 		local flags = 0
 		if upper then
@@ -229,7 +228,7 @@ end
 
 -- stop animation (new version)
 -- upper: true, stop the upper animation, false, stop full animations
-function tvRP.stopAnim(upper)
+function vRP.stopAnim(upper)
 	anims = {} -- stop all sequences
 	if upper then
 		ClearPedSecondaryTask(GetPlayerPed(-1))
@@ -244,12 +243,12 @@ end
 -- https://wiki.gtanet.work/index.php?title=FrontEndSoundlist
 
 -- play sound at a specific position
-function tvRP.playSpatializedSound(dict, name, x, y, z, range)
+function vRP.playSpatializedSound(dict, name, x, y, z, range)
 	PlaySoundFromCoord(-1, name, x + 0.0001, y + 0.0001, z + 0.0001, dict, false, range + 0.0001, false)
 end
 
 -- play sound
-function tvRP.playSound(dict, name)
+function vRP.playSound(dict, name)
 	PlaySound(-1, name, dict, false, false, true)
 end
 
@@ -281,7 +280,7 @@ Citizen.CreateThread(function()
 			if IsThisModelACar(hash) or IsThisModelAHeli(hash) or IsThisModelAPlane(hash) then
 				proximity = cfg.voice_proximity_vehicle
 			end
-		elseif tvRP.isInside() then
+		elseif vRP.isInside() then
 			proximity = cfg.voice_proximity_inside
 		end
 

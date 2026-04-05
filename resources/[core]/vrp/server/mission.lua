@@ -1,6 +1,6 @@
--- mission system module
+-- mission system vRP.module
 local lang = vRP.lang
-local cfg = module("cfg/mission")
+local cfg = vRP.module("cfg/mission")
 
 -- start a mission for a player
 --- mission_data:

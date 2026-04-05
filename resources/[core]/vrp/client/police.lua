@@ -1,35 +1,35 @@
--- this module define some police tools and functions
+-- this vRP.module define some police tools and functions
 
 local handcuffed = false
 local cop = false
 
 -- set player as cop (true or false)
-function tvRP.setCop(flag)
+function vRP.setCop(flag)
 	cop = flag
 	SetPedAsCop(GetPlayerPed(-1), flag)
 end
 
 -- HANDCUFF
 
-function tvRP.toggleHandcuff()
+function vRP.toggleHandcuff()
 	handcuffed = not handcuffed
 
 	SetEnableHandcuffs(GetPlayerPed(-1), handcuffed)
 	if handcuffed then
-		tvRP.playAnim(true, { { "mp_arresting", "idle", 1 } }, true)
+		vRP.playAnim(true, { { "mp_arresting", "idle", 1 } }, true)
 		TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 2, "handcuff", 0.4)
 	else
-		tvRP.stopAnim(true)
+		vRP.stopAnim(true)
 	end
 end
 
-function tvRP.setHandcuffed(flag)
+function vRP.setHandcuffed(flag)
 	if handcuffed ~= flag then
-		tvRP.toggleHandcuff()
+		vRP.toggleHandcuff()
 	end
 end
 
-function tvRP.isHandcuffed()
+function vRP.isHandcuffed()
 	return handcuffed
 end
 
@@ -45,7 +45,7 @@ end)
 
 RegisterNetEvent("cuff")
 AddEventHandler("cuff", function()
-	if not tvRP.isInComa() and not tvRP.isHandcuffed() then
+	if not vRP.isInComa() and not vRP.isHandcuffed() then
 		if IsPedInAnyVehicle(PlayerPedId(), true) then
 			TriggerEvent(
 				"pNotify:SendNotification",
@@ -64,7 +64,7 @@ AddEventHandler("cuff", function()
 	end
 end)
 
-function tvRP.spawnspikes()
+function vRP.spawnspikes()
 	TriggerEvent("c_setSpike")
 end
 
@@ -125,8 +125,8 @@ Citizen.CreateThread(function()
 	end
 end)
 
-function tvRP.putInNearestVehicleAsPassenger(radius)
-	local veh = tvRP.getNearestVehicle(radius)
+function vRP.putInNearestVehicleAsPassenger(radius)
+	local veh = vRP.getNearestVehicle(radius)
 
 	if IsEntityAVehicle(veh) then
 		for i = 1, math.max(GetVehicleMaxNumberOfPassengers(veh), 3) do
@@ -140,7 +140,7 @@ function tvRP.putInNearestVehicleAsPassenger(radius)
 	return false
 end
 
-function tvRP.putInNetVehicleAsPassenger(net_veh)
+function vRP.putInNetVehicleAsPassenger(net_veh)
 	local veh = NetworkGetEntityFromNetworkId(net_veh)
 	if IsEntityAVehicle(veh) then
 		for i = 1, GetVehicleMaxNumberOfPassengers(veh) do
@@ -154,8 +154,8 @@ function tvRP.putInNetVehicleAsPassenger(net_veh)
 	end
 end
 
-function tvRP.putInVehiclePositionAsPassenger(x, y, z)
-	local veh = tvRP.getVehicleAtPosition(x, y, z)
+function vRP.putInVehiclePositionAsPassenger(x, y, z)
+	local veh = vRP.getVehicleAtPosition(x, y, z)
 	if IsEntityAVehicle(veh) then
 		for i = 1, GetVehicleMaxNumberOfPassengers(veh) do
 			if IsVehicleSeatFree(veh, i) then
@@ -173,7 +173,7 @@ CreateThread(function()
 	while true do
 		Citizen.Wait(5000)
 		if handcuffed then
-			tvRP.playAnim(true, { { "mp_arresting", "idle", 1 } }, true)
+			vRP.playAnim(true, { { "mp_arresting", "idle", 1 } }, true)
 		end
 	end
 end)
@@ -214,17 +214,17 @@ end)
 local jail = nil
 
 -- jail the player in a no-top no-bottom cylinder
-function tvRP.jail(x, y, z, radius)
-	tvRP.teleport(x, y, z) -- teleport to center
+function vRP.jail(x, y, z, radius)
+	vRP.teleport(x, y, z) -- teleport to center
 	jail = { x + 0.0001, y + 0.0001, z + 0.0001, radius + 0.0001 }
 end
 
 -- unjail the player
-function tvRP.unjail()
+function vRP.unjail()
 	jail = nil
 end
 
-function tvRP.isJailed()
+function vRP.isJailed()
 	return jail ~= nil
 end
 
@@ -232,7 +232,7 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(5)
 		if jail then
-			local x, y, z = tvRP.getPosition()
+			local x, y, z = vRP.getPosition()
 
 			local dx = x - jail[1]
 			local dy = y - jail[2]
@@ -258,7 +258,7 @@ end)
 -- wanted level sync
 local wanted_level = 0
 
-function tvRP.applyWantedLevel(new_wanted)
+function vRP.applyWantedLevel(new_wanted)
 	Citizen.CreateThread(function()
 		local old_wanted = GetPlayerWantedLevel(PlayerId())
 		local wanted = math.max(old_wanted, new_wanted)

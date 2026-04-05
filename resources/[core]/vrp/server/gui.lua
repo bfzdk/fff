@@ -1,6 +1,6 @@
-local Tools = module("lib/Tools")
+local Tools = vRP.module("lib/Tools")
 
-local cfg = module("cfg/gui")
+local cfg = vRP.module("cfg/gui")
 
 -- MENU
 
