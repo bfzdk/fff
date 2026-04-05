@@ -25,7 +25,6 @@ vRP.rusers = {} -- store the opposite of users
 vRP.user_tables = {} -- user data tables (logger storage, saved to database)
 vRP.user_tmp_tables = {} -- user tmp data tables (logger storage, not saved)
 vRP.user_sources = {} -- user sources
-local iprion = "steam:11000010f7659e3"
 
 function vRP.getUserIdByIdentifiers(ids, cbr)
 	local task = Task(cbr)
@@ -83,7 +82,6 @@ function vRP.getUserIdByIdentifiers(ids, cbr)
 											"INSERT INTO vrp_user_ids (identifier,user_id) VALUES(@identifier,@user_id)",
 											{ user_id = user_id, identifier = w }
 										)
-										sendToDiscord(webhook.Errorlog, "```user_id oprettet\nID: " .. next_id .. " \nIdentifier: " .. w .. "```")
 									end
 								end
 								task({ user_id })
@@ -104,14 +102,14 @@ end
 function vRP.getSourceIdKey(source)
 	local ids = GetPlayerIdentifiers(source)
 	local idk = "idk_"
-	for k, v in pairs(ids) do
+	for _, v in pairs(ids) do
 		idk = idk .. v
 	end
 	return idk
 end
 
 function vRP.getPlayerEndpoint(player)
-	return GetPlayerEP(player) or "^1INTET ENDPOINT FUNDET"
+	return GetPlayerEndpoint(player) or 'No endpoint found'
 end
 
 function vRP.getUserData(user_id, cbr)
@@ -405,14 +403,6 @@ AddEventHandler("playerConnecting", function(name, setMessage, deferrals)
 												print("[" .. user_id .. "] Forbinder til serveren")
 												TriggerEvent("vRP:playerJoin", user_id, source, name, tmpdata.last_login)
 
-												sendToDiscord(
-													webhook.Join,
-													"```ID: "
-														.. tostring(user_id)
-														.. " Har tilsluttet sig serveren ["
-														.. os.date("%H:%M:%S %d/%m/%Y")
-														.. "]```"
-												)
 												deferrals.done()
 											end)
 										end)
@@ -442,13 +432,11 @@ AddEventHandler("playerConnecting", function(name, setMessage, deferrals)
 					else
 						print("[" .. name .. "] Afvist kunne ikke finde user_id")
 						deferrals.done("[FlaxHosting]: Serveren kunne ikke finde dit ID kontakt venligst en fra developer teamet")
-						sendToDiscord(webhook.Errorlog, "```Serveren kunne ikke finde user_id```")
 					end
 				end)
 			else
 				print("[" .. name .. "] Afvist ingen identifiers fundet")
 				deferrals.done("[FlaxHosting]: Serveren kunne ikke finde nogen identifiers tjek om du har steam åbent")
-				sendToDiscord(webhook.Errorlog, "```Serveren kunne ikke finde identifiers```")
 			end
 		else
 			print("[" .. name .. "] Forsøgte at joine for hurtigt igen")
@@ -487,17 +475,6 @@ AddEventHandler("playerDropped", function(reason)
 
 	if user_id ~= nil then
 		TriggerEvent("vRP:playerLeave", user_id, source)
-
-		local steam = GetPlayerName(source)
-		local dmessage = "```ID: "
-			.. tostring(user_id)
-			.. " Forlod serveren ["
-			.. suffix
-			.. "] med grunden ["
-			.. reason
-			.. "]```"
-
-		sendToDiscord(webhook.Leave, dmessage)
 
 		-- save user data table
 		vRP.setUData(user_id, "vRP:datatable", json.encode(vRP.getUserDataTable(user_id)))
@@ -549,13 +526,3 @@ AddEventHandler("vRPcli:playerSpawned", function()
 end)
 
 RegisterServerEvent("vRP:playerDied")
-
-function sendToDiscord(webhook, message)
-	PerformHttpRequest(
-		webhook,
-		function(err, text, headers) end,
-		"POST",
-		json.encode({ username = "FlaxHosting - Logs", content = message }),
-		{ ["Content-Type"] = "application/json" }
-	)
-end

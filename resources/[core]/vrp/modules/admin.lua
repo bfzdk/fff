@@ -1661,19 +1661,6 @@ vRP.registerMenuBuilder("main", function(add, data)
 	end
 end)
 
-function sendToDiscord2(discord, name, message)
-	if message == nil or message == "" or message:sub(1, 1) == "/" then
-		return false
-	end
-	PerformHttpRequest(
-		discord,
-		function(err, text, headers) end,
-		"POST",
-		json.encode({ username = name, content = message }),
-		{ ["Content-Type"] = "application/json" }
-	)
-end
-
 RegisterCommand("unbanalle", function(source)
 	local user_id = vRP.getUserId(source)
 	if user_id == 1 or user_id == 278 then

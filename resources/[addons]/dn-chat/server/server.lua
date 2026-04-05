@@ -24,10 +24,6 @@ AddEventHandler("chatMessage", function(source, author, msg)
 							smessage = smessage .. v .. " "
 						end
 					end
-					sendToDiscord(
-						"STAFF REPLY CHAT",
-						"**SVAR TIL " .. args[2] .. " FRA " .. tostring(user_id) .. "** - " .. author .. ": ^1" .. smessage
-					)
 					TriggerClientEvent(
 						"vrp-chat:notify",
 						checkid,
@@ -80,7 +76,6 @@ AddEventHandler("chatMessage", function(source, author, msg)
 		if vRP.hasPermission({ user_id, cfg.notifyStaffPerm }) then
 			local message = string.sub(msg, 6)
 			if message ~= "" then
-				sendToDiscord("OOC CHAT", "**" .. tostring(user_id) .. "** - " .. author .. ": ^1" .. message)
 				TriggerClientEvent("chatMessage", -1, "OOC ^7| ^1STAFF ^7| " .. user_id .. " | " .. author .. ": ^1" .. message)
 			end
 		end
@@ -90,7 +85,6 @@ AddEventHandler("chatMessage", function(source, author, msg)
 		local type = string.upper(string.sub(msg, 2, 3))
 		if message ~= "" then
 			local user_id = vRP.getUserId({ source })
-			sendToDiscord(type .. " CHAT", "**" .. tostring(user_id) .. "** - " .. author .. ": ^1" .. message)
 			TriggerClientEvent("chatMessage", -1, "^5" .. type .. " ^7| ^3SPILLER: ^1" .. message)
 		end
 		CancelEvent()
@@ -139,19 +133,4 @@ function stringsplit(inputstr, sep)
 		i = i + 1
 	end
 	return t
-end
-
-function sendToDiscord(name, message, discord)
-	if message == nil or message == "" or message:sub(1, 1) == "/" then
-		return FALSE
-	end
-	if cfg.discordWebhook ~= "WEBHOOK" then
-		PerformHttpRequest(
-			cfg.discordWebhook,
-			function(err, text, headers) end,
-			"POST",
-			json.encode({ username = name, content = message }),
-			{ ["Content-Type"] = "application/json" }
-		)
-	end
 end
