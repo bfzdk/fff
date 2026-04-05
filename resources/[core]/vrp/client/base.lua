@@ -96,15 +96,7 @@ function vRP.getNearestPlayer(radius)
 end
 
 function vRP.notify(msg)
-	msg = string.gsub(msg, "~r~", "")
-	msg = string.gsub(msg, "~g~", "")
-	msg = string.gsub(msg, "~b~", "")
-	msg = string.gsub(msg, "~s~", "")
-	msg = string.gsub(msg, "~o~", "")
-	msg = string.gsub(msg, "~n~", "")
-	msg = string.gsub(msg, "~b~", "")
-	msg = string.gsub(msg, "~y~", "")
-
+	msg = string.gsub(msg, "~[rgbsoyn]~", "")
 	TriggerEvent("pNotify:SendNotification", {
 		text = msg,
 		type = "info",
@@ -118,12 +110,9 @@ end
 -- name, see https://wiki.fivem.net/wiki/Screen_Effects
 -- duration: in seconds, if -1, will play until stopScreenEffect is called
 function vRP.playScreenEffect(name, duration)
-	if duration < 0 then -- loop
-		StartScreenEffect(name, 0, true)
-	else
-		StartScreenEffect(name, 0, true)
-
-		Citizen.CreateThread(function() -- force stop the screen effect after duration+1 seconds
+	StartScreenEffect(name, 0, true)
+	if duration >= 0 then
+		Citizen.CreateThread(function()
 			Citizen.Wait(math.floor((duration + 1) * 1000))
 			StopScreenEffect(name)
 		end)

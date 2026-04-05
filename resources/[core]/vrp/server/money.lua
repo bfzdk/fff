@@ -1,7 +1,5 @@
 local lang = vRP.lang
 
-local tmp = {}
-
 -- load config
 local cfg = vRP.module("cfg/money")
 local webhook = vRP.module("cfg/webhooks")
@@ -11,59 +9,49 @@ local webhook = vRP.module("cfg/webhooks")
 -- cbreturn nil if error
 function vRP.getMoney(user_id)
 	local tmp = vRP.getUserTmpTable(user_id)
-	if tmp then
-		return tmp.wallet or 0
-	else
-		return 0
-	end
+	return tmp and tmp.wallet or 0
 end
 
 function vRP.getDebt(user_id)
 	local tmp = vRP.getUserTmpTable(user_id)
-	if tmp then
-		return tmp.debt or 0
-	else
-		return 0
-	end
+	return tmp and tmp.debt or 0
 end
 
 -- set money
 function vRP.setMoney(user_id, value)
 	local tmp = vRP.getUserTmpTable(user_id)
-	if tmp then
-		local twallet = tonumber(tmp.wallet)
-		local newwallet = tonumber(value)
-		if twallet < newwallet then
-			if newwallet - twallet > 34000000 then
-				local banned = "Nej"
-				if newwallet - twallet > 34000000 then
-					banned = "Ja"
-					vRP.ban(user_id, "Mistænkte for spawn af penge (" .. tostring(newwallet - twallet) .. ")", true)
-				end
-				local fields = {}
-				table.insert(fields, { name = "ID:", value = user_id })
-				table.insert(fields, { name = "Penge fået:", value = newwallet - twallet })
-				table.insert(fields, { name = "Bannet:", value = banned })
-				PerformHttpRequest(
-					webhook.SetMoney,
-					function(err, text, headers) end,
-					"POST",
-					json.encode({
-						username = "BurgerKingRP - Logs",
-						content = "Mistænkt for spawn af penge " .. (newwallet - twallet > 34000000 and "@everyone" or ""),
-						embeds = {
-							{
-								color = 11871532,
-								fields = fields,
-							},
+	if not tmp then return end
+
+	local twallet = tonumber(tmp.wallet)
+	local newwallet = tonumber(value)
+	local diff = newwallet - twallet
+
+	if diff > 34000000 then
+		vRP.ban(user_id, "Mistænkte for spawn af penge (" .. diff .. ")", true)
+
+		PerformHttpRequest(
+			webhook.SetMoney,
+			function(err, text, headers) end,
+			"POST",
+			json.encode({
+				username = "BurgerKingRP - Logs",
+				content = "Mistænkt for spawn af penge @everyone",
+				embeds = {
+					{
+						color = 11871532,
+						fields = {
+							{ name = "ID:", value = user_id },
+							{ name = "Penge fået:", value = diff },
+							{ name = "Bannet:", value = "Ja" },
 						},
-					}),
-					{ ["Content-Type"] = "application/json" }
-				)
-			end
-		end
-		tmp.wallet = value
+					},
+				},
+			}),
+			{ ["Content-Type"] = "application/json" }
+		)
 	end
+
+	tmp.wallet = value
 end
 
 -- try a payment
@@ -87,45 +75,38 @@ end
 -- get bank money
 function vRP.getBankMoney(user_id)
 	local tmp = vRP.getUserTmpTable(user_id)
-	if tmp then
-		return tmp.bank or 0
-	else
-		return 0
-	end
+	return tmp and tmp.bank or 0
 end
 
 function vRP.payDebt(user_id)
 	local tmp = vRP.getUserTmpTable(user_id)
-	if tmp then
-		if tmp.debt > 0 then
-			local paid = 0
-			if tmp.debt > tmp.bank then
-				local diff = tmp.debt - tmp.bank
-				paid = tmp.bank
-				tmp.bank = 0
-				tmp.debt = diff
-			else
-				local diff = tmp.bank - tmp.debt
-				paid = tmp.debt
-				tmp.debt = 0
-				tmp.bank = diff
-			end
-			local source = vRP.getUserSource(user_id)
-			vRP.getUserIdentity(user_id, function(identity)
-				local name = identity.firstname .. " " .. identity.name
-				TriggerClientEvent("banking:updateBalance", source, tmp.bank, tmp.debt, name)
-			end)
+	if not tmp or tmp.debt <= 0 then return end
 
-			if paid > 0 then
-				if tmp.debt == 0 then
-					vRP.notify(source, "Du har indbetalt " .. format_thousand(math.floor(paid)) .. " DKK til din gæld. Tillykke du har ikke mere gæld!")
-				else
-					vRP.notify(source, "Du har indbetalt " .. format_thousand(math.floor(paid)) .. " DKK til din gæld")
-				end
-			else
-				vRP.notify(source, "Kunne ikke indbetale gæld!")
-			end
-		end
+	local source = vRP.getUserSource(user_id)
+	local paid = 0
+
+	if tmp.debt > tmp.bank then
+		paid = tmp.bank
+		tmp.debt = tmp.debt - tmp.bank
+		tmp.bank = 0
+	else
+		paid = tmp.debt
+		tmp.bank = tmp.bank - tmp.debt
+		tmp.debt = 0
+	end
+
+	vRP.getUserIdentity(user_id, function(identity)
+		local name = identity.firstname .. " " .. identity.name
+		TriggerClientEvent("banking:updateBalance", source, tmp.bank, tmp.debt, name)
+	end)
+
+	if paid > 0 then
+		local msg = tmp.debt == 0
+			and "Du har indbetalt " .. format_thousand(math.floor(paid)) .. " DKK til din gæld. Tillykke du har ikke mere gæld!"
+			or "Du har indbetalt " .. format_thousand(math.floor(paid)) .. " DKK til din gæld"
+		vRP.notify(source, msg)
+	else
+		vRP.notify(source, "Kunne ikke indbetale gæld!")
 	end
 end
 
@@ -223,14 +204,13 @@ function vRP.tryBankPaymentOrDebt(user_id, amount)
 	if amount > 0 and money >= amount then
 		vRP.setBankMoney(user_id, money - amount)
 		return "paid"
-	else
-		local tmp = vRP.getUserTmpTable(user_id)
-		local diff = amount - money
-		tmp.debt = tmp.debt + diff + 500
-		vRP.setBankMoney(user_id, 500)
-		return tmp.debt
 	end
-	return false
+
+	local tmp = vRP.getUserTmpTable(user_id)
+	local diff = amount - money
+	tmp.debt = tmp.debt + diff + 500
+	vRP.setBankMoney(user_id, 500)
+	return tmp.debt
 end
 
 -- events, init user account if doesn't exist at connection
@@ -276,8 +256,8 @@ end)
 
 -- save money (at same time that save datatables)
 AddEventHandler("vRP:save", function()
-	for k, v in pairs(vRP.user_tmp_tables) do
-		if v.wallet ~= nil and v.bank ~= nil then
+	for user_id, tmp in pairs(vRP.user_tmp_tables) do
+		if tmp.wallet ~= nil and tmp.bank ~= nil and tmp.debt ~= nil then
 			MySQL.Async.execute(
 				"UPDATE vrp_user_moneys SET wallet = @wallet, bank = @bank, debt = @debt WHERE user_id = @user_id",
 				{

@@ -2,24 +2,20 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(1)
 		local ped = GetPlayerPed(-1)
-		local vehtypes = { "car", "bike", "citybike", "default" }
 		if IsControlPressed(0, 182) then
-			if vRP.getNearestOwnedVehicle(8) ~= null then
-				if not ok then
-					for _, v in pairs(vehtypes) do
-						vRP.vc_toggleLock(v)
-					end
-					Citizen.Wait(2000)
-				else
-					Citizen.Wait(2000)
-				end
+			local nearest = vRP.getNearestOwnedVehicle(8)
+			if nearest then
+				vRP.vc_toggleLock(nearest.vtype)
+				Citizen.Wait(2000)
 			end
 		end
 		if IsControlPressed(0, 167) then
-			if vRP.getNearestOwnedVehicle(5) ~= null then
-				if IsPedInAnyVehicle(GetPlayerPed(-1), true) then
-					local veh = "car"
-					vRP.vc_NeonToggle(veh)
+			if vRP.getNearestOwnedVehicle(5) then
+				if IsPedInAnyVehicle(ped, true) then
+					local nearest = vRP.getNearestOwnedVehicle(5)
+					if nearest then
+						vRP.vc_NeonToggle(nearest.vtype)
+					end
 					Citizen.Wait(1000)
 				else
 					Citizen.Wait(500)

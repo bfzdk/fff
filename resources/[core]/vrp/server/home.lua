@@ -395,30 +395,27 @@ end
 -- build homes entry points
 local function build_client_homes(source)
 	local user_id = vRP.getUserId(source)
-	if user_id ~= nil then
-		for k, v in pairs(cfg.homes) do
-			local x, y, z = table.unpack(v.entry_point)
+	if user_id == nil then return end
 
-			local function entry_enter(player, area)
-				local user_id = vRP.getUserId(player)
-				if user_id ~= nil and vRP.hasPermissions(user_id, v.permissions or {}) then
-					vRP.openMenu(source, build_entry_menu(user_id, k))
-				end
+	for k, v in pairs(cfg.homes) do
+		local x, y, z = table.unpack(v.entry_point)
+
+		local function entry_enter(player, area)
+			local uid = vRP.getUserId(player)
+			if uid ~= nil and vRP.hasPermissions(uid, v.permissions or {}) then
+				vRP.openMenu(source, build_entry_menu(uid, k))
 			end
-
-			local function entry_leave(player, area)
-				vRP.closeMenu(player)
-			end
-
-			if v.blip_hidden == true then
-				vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
-			else
-				vRPclient.addBlip(source, { x, y, z, v.blipid, v.blipcolor, k })
-				vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
-			end
-
-			vRP.setArea(source, "vRP:home" .. k, x, y, z, 1, 1.5, entry_enter, entry_leave)
 		end
+
+		local function entry_leave(player, area)
+			vRP.closeMenu(player)
+		end
+
+		if v.blip_hidden ~= true then
+			vRPclient.addBlip(source, { x, y, z, v.blipid, v.blipcolor, k })
+		end
+		vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
+		vRP.setArea(source, "vRP:home" .. k, x, y, z, 1, 1.5, entry_enter, entry_leave)
 	end
 end
 

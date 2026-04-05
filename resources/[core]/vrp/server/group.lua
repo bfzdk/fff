@@ -13,15 +13,9 @@ local selectors = cfg.selectors
 -- get groups keys of a connected user
 function vRP.getUserGroups(user_id)
 	local data = vRP.getUserDataTable(user_id)
-	if data then
-		if data.groups == nil then
-			data.groups = {} -- init groups
-		end
-
-		return data.groups
-	else
-		return {}
-	end
+	if data == nil then return {} end
+	if data.groups == nil then data.groups = {} end
+	return data.groups
 end
 
 -- add a group to a connected user
@@ -66,15 +60,12 @@ end
 -- return group name or an empty string
 function vRP.getUserGroupByType(user_id, gtype)
 	local user_groups = vRP.getUserGroups(user_id)
-	for k, v in pairs(user_groups) do
+	for k in pairs(user_groups) do
 		local kgroup = groups[k]
-		if kgroup then
-			if kgroup._config and kgroup._config.gtype and kgroup._config.gtype == gtype then
-				return k
-			end
+		if kgroup and kgroup._config and kgroup._config.gtype == gtype then
+			return k
 		end
 	end
-
 	return ""
 end
 
@@ -139,91 +130,54 @@ end
 -- check if the user has a specific permission
 function vRP.hasPermission(user_id, perm)
 	local user_groups = vRP.getUserGroups(user_id)
-
 	local fchar = string.sub(perm, 1, 1)
 
 	if fchar == "@" then -- special aptitude permission
-		local _perm = string.sub(perm, 2, string.len(perm))
+		local _perm = string.sub(perm, 2)
 		local parts = splitString(_perm, ".")
-		if #parts == 3 then -- decompose group.aptitude.operator
-			local group = parts[1]
-			local aptitude = parts[2]
-			local op = parts[3]
+		if #parts ~= 3 then return false end
 
-			local alvl = math.floor(vRP.expToLevel(vRP.getExp(user_id, group, aptitude)))
+		local group, aptitude, op = parts[1], parts[2], parts[3]
+		local alvl = math.floor(vRP.expToLevel(vRP.getExp(user_id, group, aptitude)))
+		local fop = string.sub(op, 1, 1)
+		local lvl = parseInt(fop == "<" or fop == ">" and string.sub(op, 2) or op)
 
-			local fop = string.sub(op, 1, 1)
-			if fop == "<" then -- less (group.aptitude.<x)
-				local lvl = parseInt(string.sub(op, 2, string.len(op)))
-				if alvl < lvl then
-					return true
-				end
-			elseif fop == ">" then -- greater (group.aptitude.>x)
-				local lvl = parseInt(string.sub(op, 2, string.len(op)))
-				if alvl > lvl then
-					return true
-				end
-			else -- equal (group.aptitude.x)
-				local lvl = parseInt(string.sub(op, 1, string.len(op)))
-				if alvl == lvl then
-					return true
-				end
-			end
-		end
+		if fop == "<" then return alvl < lvl
+		elseif fop == ">" then return alvl > lvl
+		else return alvl == lvl end
+
 	elseif fchar == "#" then -- special item permission
-		local _perm = string.sub(perm, 2, string.len(perm))
+		local _perm = string.sub(perm, 2)
 		local parts = splitString(_perm, ".")
-		if #parts == 2 then -- decompose item.operator
-			local item = parts[1]
-			local op = parts[2]
+		if #parts ~= 2 then return false end
 
-			local amount = vRP.getInventoryItemAmount(user_id, item)
+		local item, op = parts[1], parts[2]
+		local amount = vRP.getInventoryItemAmount(user_id, item)
+		local fop = string.sub(op, 1, 1)
+		local n = parseInt(fop == "<" or fop == ">" and string.sub(op, 2) or op)
 
-			local fop = string.sub(op, 1, 1)
-			if fop == "<" then -- less (item.<x)
-				local n = parseInt(string.sub(op, 2, string.len(op)))
-				if amount < n then
-					return true
-				end
-			elseif fop == ">" then -- greater (item.>x)
-				local n = parseInt(string.sub(op, 2, string.len(op)))
-				if amount > n then
-					return true
-				end
-			else -- equal (item.x)
-				local n = parseInt(string.sub(op, 1, string.len(op)))
-				if amount == n then
-					return true
-				end
+		if fop == "<" then return amount < n
+		elseif fop == ">" then return amount > n
+		else return amount == n end
+	end
+
+	-- regular permission: precheck negative
+	local nperm = "-" .. perm
+	for k in pairs(user_groups) do
+		local group = groups[k]
+		if group then
+			for l, w in pairs(group) do
+				if l ~= "_config" and w == nperm then return false end
 			end
 		end
-	else -- regular plain permission
-		-- precheck negative permission
-		local nperm = "-" .. perm
-		for k, v in pairs(user_groups) do
-			if v then -- prevent issues with deleted entry
-				local group = groups[k]
-				if group then
-					for l, w in pairs(group) do -- for each group permission
-						if l ~= "_config" and w == nperm then
-							return false
-						end
-					end
-				end
-			end
-		end
+	end
 
-		-- check if the permission exists
-		for k, v in pairs(user_groups) do
-			if v then -- prevent issues with deleted entry
-				local group = groups[k]
-				if group then
-					for l, w in pairs(group) do -- for each group permission
-						if l ~= "_config" and w == perm then
-							return true
-						end
-					end
-				end
+	-- check if permission exists
+	for k in pairs(user_groups) do
+		local group = groups[k]
+		if group then
+			for l, w in pairs(group) do
+				if l ~= "_config" and w == perm then return true end
 			end
 		end
 	end
@@ -267,33 +221,29 @@ end
 
 local function build_client_selectors(source)
 	local user_id = vRP.getUserId(source)
-	if user_id ~= nil then
-		for k, v in pairs(selectors) do
-			local gcfg = v._config
-			local menu = selector_menus[k]
+	if user_id == nil then return end
 
-			if gcfg and menu then
-				local x = gcfg.x
-				local y = gcfg.y
-				local z = gcfg.z
+	for k, v in pairs(selectors) do
+		local gcfg = v._config
+		local menu = selector_menus[k]
+		if gcfg == nil or menu == nil then return end
 
-				local function selector_enter()
-					local user_id = vRP.getUserId(source)
-					if user_id ~= nil and vRP.hasPermissions(user_id, gcfg.permissions or {}) then
-						vRP.openMenu(source, menu)
-					end
-				end
+		local x, y, z = gcfg.x, gcfg.y, gcfg.z
 
-				local function selector_leave()
-					vRP.closeMenu(source)
-				end
-
-				vRPclient.addBlip(source, { x, y, z, gcfg.blipid, gcfg.blipcolor, k })
-				vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 255, 154, 24, 125, 150 })
-
-				vRP.setArea(source, "vRP:gselector:" .. k, x, y, z, 1, 1.5, selector_enter, selector_leave)
+		local function selector_enter()
+			local uid = vRP.getUserId(source)
+			if uid ~= nil and vRP.hasPermissions(uid, gcfg.permissions or {}) then
+				vRP.openMenu(source, menu)
 			end
 		end
+
+		local function selector_leave()
+			vRP.closeMenu(source)
+		end
+
+		vRPclient.addBlip(source, { x, y, z, gcfg.blipid, gcfg.blipcolor, k })
+		vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 255, 154, 24, 125, 150 })
+		vRP.setArea(source, "vRP:gselector:" .. k, x, y, z, 1, 1.5, selector_enter, selector_leave)
 	end
 end
 

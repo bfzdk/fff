@@ -36,85 +36,72 @@ local function tr_add_player(tr, player, recipe) -- add player to transforming
 	end
 end
 
-local function tr_tick(tr) -- do transformer tick
-	for k, v in pairs(tr.players) do
+local function tr_tick(tr)
+	for k, recipe in pairs(tr.players) do
 		local user_id = vRP.getUserId(tonumber(k))
-		if v and user_id ~= nil then -- for each player transforming
-			local recipe = tr.itemtr.recipes[v]
-			if tr.units > 0 and recipe then -- check units
-				-- check reagents
-				local reagents_ok = true
-				for l, w in pairs(recipe.reagents) do
-					reagents_ok = reagents_ok and (vRP.getInventoryItemAmount(user_id, l) >= w)
-				end
+		if user_id == nil or not recipe then goto continue end
 
-				-- check money
-				local money_ok = (vRP.getMoney(user_id) >= recipe.in_money)
+		local r = tr.itemtr.recipes[recipe]
+		if not r or tr.units <= 0 then goto continue end
 
-				-- weight check
-				local out_witems = {}
-				for k, v in pairs(recipe.products) do
-					out_witems[k] = { amount = v }
-				end
-				local in_witems = {}
-				for k, v in pairs(recipe.reagents) do
-					in_witems[k] = { amount = v }
-				end
-				local new_weight = vRP.getInventoryWeight(user_id)
-					+ vRP.computeItemsWeight(out_witems)
-					- vRP.computeItemsWeight(in_witems)
-
-				local inventory_ok = true
-				if new_weight > vRP.getInventoryMaxWeight(user_id) then
-					inventory_ok = false
-					vRPclient.notify(tonumber(k), { lang.inventory.full() })
-				end
-
-				if money_ok and reagents_ok and inventory_ok then -- do transformation
-					tr.units = tr.units - 1 -- sub work unit
-
-					-- consume reagents
-					if recipe.in_money > 0 then
-						vRP.tryPayment(user_id, recipe.in_money)
-					end
-					for l, w in pairs(recipe.reagents) do
-						vRP.tryGetInventoryItem(user_id, l, w, true)
-					end
-
-					-- produce products
-					if recipe.out_money > 0 then
-						vRP.giveMoney(user_id, recipe.out_money)
-					end
-					for l, w in pairs(recipe.products) do
-						vRP.giveInventoryItem(user_id, l, w, true)
-					end
-
-					-- give exp
-					for l, w in pairs(recipe.aptitudes or {}) do
-						local parts = splitString(l, ".")
-						if #parts == 2 then
-							vRP.varyExp(user_id, parts[1], parts[2], w)
-						end
-					end
-
-					-- onstep
-					if tr.itemtr.onstep then
-						tr.itemtr.onstep(tonumber(k), v)
-					end
-				end
+		-- check reagents
+		local reagents_ok = true
+		for item, amount in pairs(r.reagents) do
+			if vRP.getInventoryItemAmount(user_id, item) < amount then
+				reagents_ok = false
+				break
 			end
 		end
+
+		if not reagents_ok or vRP.getMoney(user_id) < r.in_money then
+			goto continue
+		end
+
+		-- weight check
+		local out_witems = {}
+		for item, amount in pairs(r.products) do
+			out_witems[item] = { amount = amount }
+		end
+		local in_witems = {}
+		for item, amount in pairs(r.reagents) do
+			in_witems[item] = { amount = amount }
+		end
+		local new_weight = vRP.getInventoryWeight(user_id)
+			+ vRP.computeItemsWeight(out_witems)
+			- vRP.computeItemsWeight(in_witems)
+
+		if new_weight > vRP.getInventoryMaxWeight(user_id) then
+			vRPclient.notify(tonumber(k), { lang.inventory.full() })
+			goto continue
+		end
+
+		-- do transformation
+		tr.units = tr.units - 1
+		if r.in_money > 0 then vRP.tryPayment(user_id, r.in_money) end
+		for item, amount in pairs(r.reagents) do
+			vRP.tryGetInventoryItem(user_id, item, amount, true)
+		end
+		if r.out_money > 0 then vRP.giveMoney(user_id, r.out_money) end
+		for item, amount in pairs(r.products) do
+			vRP.giveInventoryItem(user_id, item, amount, true)
+		end
+		for aptitude, exp in pairs(r.aptitudes or {}) do
+			local parts = splitString(aptitude, ".")
+			if #parts == 2 then
+				vRP.varyExp(user_id, parts[1], parts[2], exp)
+			end
+		end
+		if tr.itemtr.onstep then
+			tr.itemtr.onstep(tonumber(k), recipe)
+		end
+
+		::continue::
 	end
 
-	-- display transformation state to all transforming players
+	-- display transformation state
 	for k, v in pairs(tr.players) do
 		vRPclient.setProgressBarValue(k, { "vRP:tr:" .. tr.name, math.floor(tr.units / tr.itemtr.max_units * 100.0) })
-
-		if tr.units > 0 then -- display units left
-			vRPclient.setProgressBarText(k, { "vRP:tr:" .. tr.name, v .. "... " .. tr.units .. "/" .. tr.itemtr.max_units })
-		else
-			vRPclient.setProgressBarText(k, { "vRP:tr:" .. tr.name, "empty" })
-		end
+		vRPclient.setProgressBarText(k, { "vRP:tr:" .. tr.name, tr.units > 0 and (v .. "... " .. tr.units .. "/" .. tr.itemtr.max_units) or "empty" })
 	end
 end
 
@@ -357,15 +344,14 @@ local function ch_informer_buy(player, choice)
 	local user_id = vRP.getUserId(player)
 	local tr = transformers["cfg:" .. choice]
 	local price = cfg.informer.infos[choice]
+	if user_id == nil or tr == nil then return end
 
-	if user_id ~= nil and tr ~= nil then
-		if vRP.tryPayment(user_id, price) then
-			vRPclient.setGPS(player, { tr.itemtr.x, tr.itemtr.y }) -- set gps marker
-			vRPclient.notify(player, { lang.money.paid({ price }) })
-			vRPclient.notify(player, { lang.itemtr.informer.bought() })
-		else
-			vRPclient.notify(player, { lang.money.not_enough() })
-		end
+	if vRP.tryPayment(user_id, price) then
+		vRPclient.setGPS(player, { tr.itemtr.x, tr.itemtr.y })
+		vRP.notify(user_id, lang.money.paid({ price }))
+		vRP.notify(user_id, lang.itemtr.informer.bought())
+	else
+		vRP.notify(user_id, lang.money.not_enough())
 	end
 end
 

@@ -230,45 +230,41 @@ end
 
 -- build static menus
 local static_menus = {}
-SetTimeout(10000, function() -- wait for vRP.addStaticMenuChoices calls
+SetTimeout(10000, function()
 	for k, v in pairs(cfg.static_menu_types) do
 		local menu = { name = v.title, css = { top = "75px", header_color = "rgb(31,	95,	223)" } }
 		local choices = static_menu_choices[k] or {}
-
 		for l, w in pairs(choices) do
 			menu[l] = w
 		end
-
 		static_menus[k] = menu
 	end
 end)
 
 local function build_client_static_menus(source)
 	local user_id = vRP.getUserId(source)
-	if user_id ~= nil then
-		for k, v in pairs(cfg.static_menus) do
-			local mtype, x, y, z = table.unpack(v)
-			local menu = static_menus[mtype]
-			local smenu = cfg.static_menu_types[mtype]
+	if user_id == nil then return end
 
-			if menu and smenu then
-				local function smenu_enter()
-					local user_id = vRP.getUserId(source)
-					if user_id ~= nil and vRP.hasPermissions(user_id, smenu.permissions or {}) then
-						vRP.openMenu(source, menu)
-					end
-				end
+	for k, v in pairs(cfg.static_menus) do
+		local mtype, x, y, z = table.unpack(v)
+		local menu = static_menus[mtype]
+		local smenu = cfg.static_menu_types[mtype]
+		if menu == nil or smenu == nil then return end
 
-				local function smenu_leave()
-					vRP.closeMenu(source)
-				end
-
-				vRPclient.addBlip(source, { x, y, z, smenu.blipid, smenu.blipcolor, smenu.title })
-				vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 255, 226, 0, 125, 150 })
-
-				vRP.setArea(source, "vRP:static_menu:" .. k, x, y, z, 1, 1.5, smenu_enter, smenu_leave)
+		local function smenu_enter()
+			local uid = vRP.getUserId(source)
+			if uid ~= nil and vRP.hasPermissions(uid, smenu.permissions or {}) then
+				vRP.openMenu(source, menu)
 			end
 		end
+
+		local function smenu_leave()
+			vRP.closeMenu(source)
+		end
+
+		vRPclient.addBlip(source, { x, y, z, smenu.blipid, smenu.blipcolor, smenu.title })
+		vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 255, 226, 0, 125, 150 })
+		vRP.setArea(source, "vRP:static_menu:" .. k, x, y, z, 1, 1.5, smenu_enter, smenu_leave)
 	end
 end
 

@@ -29,80 +29,77 @@ function vRP.getAptitudeDefinition(group, aptitude)
 	local vgroup = gaptitudes[group]
 	if vgroup ~= nil and aptitude ~= "_title" then
 		return vgroup[aptitude]
-	else
-		return nil
 	end
+	return nil
 end
 
 function vRP.getAptitudeGroupTitle(group)
-	if gaptitudes[group] ~= nil then
-		return gaptitudes[group]._title
-	else
-		return ""
-	end
+	return gaptitudes[group] and gaptitudes[group]._title or ""
 end
 
 -- return user aptitudes table
 function vRP.getUserAptitudes(user_id)
 	local data = vRP.getUserDataTable(user_id)
-	if data ~= nil then
-		if data.gaptitudes == nil then
-			data.gaptitudes = {}
-		end
-		-- init missing aptitudes
-		for k, v in pairs(gaptitudes) do
-			if data.gaptitudes[k] == nil then -- init group
-				data.gaptitudes[k] = {}
-			end
-			local group = data.gaptitudes[k]
-			for l, w in pairs(v) do
-				if l ~= "_title" and group[l] == nil then -- init aptitude exp
-					group[l] = w[2] -- init exp
-				end
-			end
-		end
-		return data.gaptitudes
-	else
-		return nil
+	if data == nil then return nil end
+
+	if data.gaptitudes == nil then
+		data.gaptitudes = {}
 	end
+
+	-- init missing aptitudes
+	for k, v in pairs(gaptitudes) do
+		if data.gaptitudes[k] == nil then
+			data.gaptitudes[k] = {}
+		end
+		local group = data.gaptitudes[k]
+		for l, w in pairs(v) do
+			if l ~= "_title" and group[l] == nil then
+				group[l] = w[2]
+			end
+		end
+	end
+
+	return data.gaptitudes
 end
 
 function vRP.varyExp(user_id, group, aptitude, amount)
 	local def = vRP.getAptitudeDefinition(group, aptitude)
 	local uaptitudes = vRP.getUserAptitudes(user_id)
-	if def ~= nil and uaptitudes ~= nil then
-		-- apply variation
-		local exp = uaptitudes[group][aptitude]
-		local level = math.floor(vRP.expToLevel(exp)) -- save level before variation
+	if def == nil or uaptitudes == nil then return end
 
-		--- vary
-		exp = exp + amount
-		--- clamp
-		if exp < 0 then
-			exp = 0
-		elseif def[3] >= 0 and exp > def[3] then
-			exp = def[3]
+	-- apply variation
+	local exp = uaptitudes[group][aptitude]
+	local level = math.floor(vRP.expToLevel(exp))
+
+	--- vary
+	exp = exp + amount
+	--- clamp
+	if exp < 0 then
+		exp = 0
+	elseif def[3] >= 0 and exp > def[3] then
+		exp = def[3]
+	end
+
+	uaptitudes[group][aptitude] = exp
+
+	-- info notify
+	local source = vRP.getUserSource(user_id)
+	if source ~= nil then
+		local group_title = vRP.getAptitudeGroupTitle(group)
+		local aptitude_title = def[1]
+
+		if amount < 0 then
+			vRP.notify(user_id, lang.aptitude.lose_exp({ group_title, aptitude_title, -1 * amount }))
+		elseif amount > 0 then
+			vRP.notify(user_id, lang.aptitude.earn_exp({ group_title, aptitude_title, amount }))
 		end
 
-		uaptitudes[group][aptitude] = exp
-
-		-- info notify
-		if player ~= nil then
-			local group_title = vRP.getAptitudeGroupTitle(group)
-			local aptitude_title = def[1]
-
-			if amount < 0 then
-				vRP.notify(player, lang.aptitude.lose_exp({ group_title, aptitude_title, -1 * amount }))
-			elseif amount > 0 then
-				vRP.notify(player, lang.aptitude.earn_exp({ group_title, aptitude_title, amount }))
-			end
-			local new_level = math.floor(vRP.expToLevel(exp))
-			local diff = new_level - level
-			if diff < 0 then
-				vRP.notify(player, lang.aptitude.level_down({ group_title, aptitude_title, new_level }))
-			elseif diff > 0 then
-				vRP.notify(player, lang.aptitude.level_up({ group_title, aptitude_title, new_level }))
-			end
+		local new_level = math.floor(vRP.expToLevel(exp))
+		local diff = new_level - level
+		if diff < 0 then
+			vRP.notify(user_id, lang.aptitude.level_down({ group_title, aptitude_title, new_level }))
+		elseif diff > 0 then
+			vRP.notify(user_id, lang.aptitude.level_up({ group_title, aptitude_title, new_level }))
 		end
 	end
 end

@@ -16,24 +16,23 @@ local function play_atm_exit(player)
 end
 
 local function atm_choice_deposit(player, choice)
-	play_atm_enter(player) --anim
+	play_atm_enter(player)
 
-	vRP.prompt(source, lang.atm.deposit.prompt(), "", function(player, v)
+	vRP.prompt(player, lang.atm.deposit.prompt(), "", function(player, v)
 		play_atm_exit(player)
-
 		v = parseInt(v)
+		if v <= 0 then
+			vRP.notify(vRP.getUserId(player), lang.common.invalid_value())
+			return
+		end
 
-		if v > 0 then
-			local user_id = vRP.getUserId(source)
-			if user_id ~= nil then
-				if vRP.tryDeposit(user_id, v) then
-					vRPclient.notify(source, { lang.atm.deposit.deposited({ v }) })
-				else
-					vRPclient.notify(source, { lang.money.not_enough() })
-				end
-			end
+		local user_id = vRP.getUserId(player)
+		if user_id == nil then return end
+
+		if vRP.tryDeposit(user_id, v) then
+			vRP.notify(user_id, lang.atm.deposit.deposited({ v }))
 		else
-			vRPclient.notify(source, { lang.common.invalid_value() })
+			vRP.notify(user_id, lang.money.not_enough())
 		end
 	end)
 end
@@ -41,22 +40,21 @@ end
 local function atm_choice_withdraw(player, choice)
 	play_atm_enter(player)
 
-	vRP.prompt(source, lang.atm.withdraw.prompt(), "", function(player, v)
-		play_atm_exit(player) --anim
-
+	vRP.prompt(player, lang.atm.withdraw.prompt(), "", function(player, v)
+		play_atm_exit(player)
 		v = parseInt(v)
+		if v <= 0 then
+			vRP.notify(vRP.getUserId(player), lang.common.invalid_value())
+			return
+		end
 
-		if v > 0 then
-			local user_id = vRP.getUserId(source)
-			if user_id ~= nil then
-				if vRP.tryWithdraw(user_id, v) then
-					vRPclient.notify(source, { lang.atm.withdraw.withdrawn({ v }) })
-				else
-					vRPclient.notify(source, { lang.atm.withdraw.not_enough() })
-				end
-			end
+		local user_id = vRP.getUserId(player)
+		if user_id == nil then return end
+
+		if vRP.tryWithdraw(user_id, v) then
+			vRP.notify(user_id, lang.atm.withdraw.withdrawn({ v }))
 		else
-			vRPclient.notify(source, { lang.common.invalid_value() })
+			vRP.notify(user_id, lang.atm.withdraw.not_enough())
 		end
 	end)
 end
@@ -71,10 +69,9 @@ atm_menu[lang.atm.withdraw.title()] = { atm_choice_withdraw, lang.atm.withdraw.d
 
 local function atm_enter()
 	local user_id = vRP.getUserId(source)
-	if user_id ~= nil then
-		atm_menu[lang.atm.info.title()] = { function() end, lang.atm.info.bank({ vRP.getBankMoney(user_id) }) }
-		vRP.openMenu(source, atm_menu)
-	end
+	if user_id == nil then return end
+	atm_menu[lang.atm.info.title()] = { function() end, lang.atm.info.bank({ vRP.getBankMoney(user_id) }) }
+	vRP.openMenu(source, atm_menu)
 end
 
 local function atm_leave()
@@ -83,15 +80,13 @@ end
 
 local function build_client_atms(source)
 	local user_id = vRP.getUserId(source)
-	if user_id ~= nil then
-		for k, v in pairs(atms) do
-			local x, y, z = table.unpack(v)
+	if user_id == nil then return end
 
-			vRPclient.addBlip(source, { x, y, z, 108, 4, lang.atm.title() })
-			vRPclient.addMarker(source, { x, y, z - 1, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
-
-			vRP.setArea(source, "vRP:atm" .. k, x, y, z, 1, 1.5, atm_enter, atm_leave)
-		end
+	for k, v in pairs(atms) do
+		local x, y, z = table.unpack(v)
+		vRPclient.addBlip(source, { x, y, z, 108, 4, lang.atm.title() })
+		vRPclient.addMarker(source, { x, y, z - 1, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
+		vRP.setArea(source, "vRP:atm" .. k, x, y, z, 1, 1.5, atm_enter, atm_leave)
 	end
 end
 

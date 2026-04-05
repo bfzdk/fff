@@ -307,12 +307,9 @@ local function ch_tptome(player, choice)
 			local tplayer = vRP.getUserSource(tonumber(user_id))
 			if tplayer ~= nil then
 				vRPclient.teleport(tplayer, { x, y, z })
-				local user_id2 = vRP.getUserId(player)
-				local user_id3 = vRP.getUserId({ tplayer })
-				local player = vRP.getUserSource({ user_id })
-				local adminuser_id = vRP.getUserId({ player })
+				local admin_user_id = vRP.getUserId(player)
 
-				local dmessage = "**TP Person til mig** \n```\nAdmin ID: " .. tostring(user_id2) .. "\n```"
+				local dmessage = "**TP Person til mig** \n```\nAdmin ID: " .. tostring(admin_user_id) .. "\n```"
 				PerformHttpRequest(
 					webhook.TpToMe,
 					function(err, text, headers) end,
@@ -331,11 +328,9 @@ local function ch_tpto(player, choice)
 		if tplayer ~= nil then
 			vRPclient.getPosition(tplayer, {}, function(x, y, z)
 				vRPclient.teleport(player, { x, y, z })
-				local user_id2 = vRP.getUserId(player)
-				local user_id = vRP.getUserId({ tplayer })
-				local player = vRP.getUserSource({ user_id })
+				local admin_user_id = vRP.getUserId(player)
 
-				local dmessage = "**TP til person** \n```\nAdmin ID: " .. tostring(user_id2) .. "\n```"
+				local dmessage = "**TP til person** \n```\nAdmin ID: " .. tostring(admin_user_id) .. "\n```"
 				PerformHttpRequest(
 					webhook.TpTo,
 					function(err, text, headers) end,
@@ -355,19 +350,12 @@ local function ch_tptocoords(player, choice)
 			table.insert(coords, tonumber(coord))
 		end
 
-		local x, y, z = 0, 0, 0
-		if coords[1] ~= nil then
-			x = coords[1]
-		end
-		if coords[2] ~= nil then
-			y = coords[2]
-		end
-		if coords[3] ~= nil then
-			z = coords[3]
-		end
+		local x = coords[1] or 0
+		local y = coords[2] or 0
+		local z = coords[3] or 0
 
 		if x == 0 and y == 0 and z == 0 then
-			vRP.notify(user_id, "Ugyldige koordinater.")
+			vRP.notify(vRP.getUserId(player), "Ugyldige koordinater.")
 		else
 			vRPclient.teleport(player, { x, y, z })
 		end
@@ -677,46 +665,30 @@ local function ch_warn(player, choice)
 		vRP.prompt(player, "Bruger ID: ", "", function(player, tar_id)
 			tar_id = parseInt(tar_id)
 			if tar_id ~= nil then
-				local source2 = tar_id
 				local source = vRP.getUserSource(tar_id)
 				if source ~= nil then
 					vRP.prompt(player, "Antal Advarsler: ", "", function(player, warnings)
-						warnings = parseInt(warnings)
-						if warnings == nil then
-							warnings = 0
-						end
+						warnings = parseInt(warnings) or 0
 						vRP.prompt(player, "Hvad er grunden til advarsel:", "", function(player, grund)
-							if grund ~= nil then
-								if warnings > 0 then
-									vRP.getWarnings(tar_id, function(curwarnings)
-										if curwarnings == nil then
-											curwarnings = 0
-										end
-										local newwarn = math.floor(warnings + curwarnings)
-										MySQL.Async.execute(
-											"UPDATE vrp_users SET warnings = @warnings WHERE id = @user_id",
-											{ user_id = tar_id, warnings = newwarn },
-											function(rows, affected)
-												if warnings > 1 then
+							if grund ~= nil and warnings > 0 then
+								vRP.getWarnings(tar_id, function(curwarnings)
+									cuwarnings = curwarnings or 0
+									local newwarn = math.floor(warnings + curwarnings)
+									MySQL.Async.execute(
+										"UPDATE vrp_users SET warnings = @warnings WHERE id = @user_id",
+										{ user_id = tar_id, warnings = newwarn },
+										function(rows, affected)
+											local warn_text = warnings > 1 and "advarsler" or "advarsel"
+											vRP.notify(tar_id, "Du har fået " .. warnings .. " " .. warn_text .. "! med grund: " .. grund .. " Du har I alt " .. newwarn .. " advarsler! Sendt af id: " .. user_id)
+											vRP.notify(user_id, "Du har givet " .. warnings .. " " .. warn_text .. " til ID: " .. tar_id)
 
-													vRP.notify(nuser_id, "Du har fået " .. warnings .. " advarsler! med grund: " .. grund .. " Du har I alt " .. newwarn .. " advarsler! Sendt af id: " .. user_id)
-													vRP.notify(user_id, "Du har givet " .. warnings .. " advarsler til ID: " .. tar_id)
-												else
-													vRP.notify(nuser_id, "Du har fået " .. warnings .. " advarsler! med grund: " .. grund .. " Du har I alt " .. newwarn .. " advarsler! Sendt af id: " .. user_id)
-													vRP.notify(user_id, "Du har givet " .. warnings .. " advarsl til ID: " .. tar_id)
-												end
-
-												if newwarn >= 3 then
-													local reason = "Du har fået 3 advarsler!"
-													if source ~= nil then
-														vRP.ban(source2, reason, source)
-														vRP.kick(source, reason)
-													end
-												end
+											if newwarn >= 3 and source ~= nil then
+												vRP.ban(tar_id, "Du har fået 3 advarsler!", source)
+												vRP.kick(source, "Du har fået 3 advarsler!")
 											end
-										)
-									end)
-								end
+										end
+									)
+								end)
 							end
 						end)
 					end)
@@ -778,7 +750,7 @@ local function ch_clearwarn(player, choice)
 					if grund ~= nil then
 						MySQL.Async.execute(
 							"UPDATE vrp_users SET warnings = @warnings WHERE id = @user_id",
-							{ user_id = tar_id, warnings = newwarn },
+							{ user_id = tar_id, warnings = 0 },
 							function(rows, affected)
 								vRP.notify(user_id, "Du fjernede Id: " .. tar_id .. "'s advarelser")
 							end
@@ -842,124 +814,61 @@ end
 
 vRP.registerMenuBuilder("main", function(add, data)
 	local user_id = vRP.getUserId(data.player)
-	if user_id ~= nil then
-		local choices = {}
+	if user_id == nil then return end
 
-		-- build admin menu
-		choices["> Admin"] = {
-			function(player, choice)
-				local menu = { name = "FlaxHosting", css = { top = "75px", header_color = "rgb(153, 136, 59)" } }
-				menu.onclose = function(player)
-					vRP.openMainMenu(player)
-				end -- nest menu
+	local menu_items = {
+		{ perm = "player.list", label = ">Brugerliste", fn = ch_list, desc = "Vis/Gem" },
+		{ perm = "player.group.add.staff", label = "Tilføj Rank", fn = ch_addgroup_staff },
+		{ perm = "player.group.remove.staff", label = "Fjern Rank", fn = ch_removegroup_staff },
+		{ perm = "player.kick", label = "Kick", fn = ch_kick },
+		{ perm = "player.kick", label = ">Giv Advarseler", fn = ch_warn },
+		{ perm = "player.kick", label = "Antal Advarsler", fn = ch_getwarn },
+		{ perm = "player.calladmin", label = "Tjek mine advarsler", fn = ch_checkwarn },
+		{ perm = "player.unban", label = "Fjern Advarsler", fn = ch_clearwarn },
+		{ perm = "player.kick", label = "Blips", fn = ch_blips },
+		{ perm = "player.ban", label = "Ban", fn = ch_ban },
+		{ perm = "player.unban", label = "Unban", fn = ch_unban },
+		{ perm = "player.freeze", label = "Frys/optø spiller", fn = ch_freezeplayer },
+		{ perm = "admin.revive", label = "Genopliv spiller", fn = ch_revivePlayer },
+		{ perm = "player.repairvehicle", label = "Reparer køretøj", fn = ch_repairVehicle },
+		{ perm = "developer.permission", label = ">Udskift nummerplade", fn = ch_changeplate },
+		{ perm = "player.noclip", label = ">Noclip", fn = ch_noclip },
+		{ perm = "player.spawnvehicle", label = "Spawn køretøj", fn = ch_spawnvehicle },
+		{ perm = "player.deletevehicle", label = "Fjern køretøj", fn = ch_deletevehicle },
+		{ perm = "player.unlockvehicle", label = "Lås køretøj op", fn = ch_unlockvehicle },
+		{ perm = "player.coords", label = "Koordinater", fn = ch_coords },
+		{ perm = "player.tptome", label = "TP person til mig", fn = ch_tptome },
+		{ perm = "player.tpto", label = "TP til person", fn = ch_tpto },
+		{ perm = "developer.permission", label = "TP til koordinater", fn = ch_tptocoords },
+		{ perm = "player.tptowaypoint", label = "TP til waypoint", fn = ch_tptowaypoint },
+		{ perm = "player.givemoney", label = "Spawn penge", fn = ch_givemoney },
+		{ perm = "player.giveitem", label = "Spawn ting", fn = ch_giveitem },
+		{ perm = "player.calladmin", label = "Tilkald staff", fn = ch_calladmin },
+		{ perm = "admin.bilforhandler", label = "Sælg bil", fn = choice_bilforhandler },
+		{ perm = "player.whitelist", label = "Whitelist", fn = ch_whitelist },
+		{ perm = "player.unwhitelist", label = "Unwhitelist", fn = ch_unwhitelist },
+		{ perm = "player.spectate", label = "Spectate", fn = ch_spectate },
+	}
 
-				if vRP.hasPermission(user_id, "player.list") then
-					menu[">Brugerliste"] = { ch_list, "Vis/Gem" }
-				end
-				-- åbenbart blevet slettet?
-				--if vRP.hasPermission(user_id, "player.group.add") then
-				--	menu["Tilføj job"] = { ch_addgroup }
-				--end
-				--if vRP.hasPermission(user_id, "player.group.remove") then
-				--	menu["Fjern job"] = { ch_removegroup }
-				--end
-				if vRP.hasPermission(user_id, "player.group.add.staff") then
-					menu["Tilføj Rank"] = { ch_addgroup_staff }
-				end
-				if vRP.hasPermission(user_id, "player.group.remove.staff") then
-					menu["Fjern Rank"] = { ch_removegroup_staff }
-				end
-				if vRP.hasPermission(user_id, "player.kick") then
-					menu["Kick"] = { ch_kick }
-				end
-				if vRP.hasPermission(user_id, "player.kick") then
-					menu[">Giv Advarseler"] = { ch_warn }
-				end
-				if vRP.hasPermission(user_id, "player.kick") then
-					menu["Antal Advarsler"] = { ch_getwarn }
-				end
-				if vRP.hasPermission(user_id, "player.calladmin") then
-					menu["Tjek mine advarsler"] = { ch_checkwarn }
-				end
-				if vRP.hasPermission(user_id, "player.unban") then
-					menu["Fjern Advarsler"] = { ch_clearwarn }
-				end
-				if vRP.hasPermission(user_id, "player.kick") then
-					menu["Blips"] = { ch_blips }
-				end
-				if vRP.hasPermission(user_id, "player.ban") then
-					menu["Ban"] = { ch_ban }
-				end
-				if vRP.hasPermission(user_id, "player.unban") then
-					menu["Unban"] = { ch_unban }
-				end
-				if vRP.hasPermission(user_id, "player.freeze") then
-					menu["Frys/optø spiller"] = { ch_freezeplayer }
-				end
-				if vRP.hasPermission(user_id, "admin.revive") then
-					menu["Genopliv spiller"] = { ch_revivePlayer }
-				end
-				if vRP.hasPermission(user_id, "player.repairvehicle") then
-					menu["Reparer køretøj"] = { ch_repairVehicle }
-				end
-				if vRP.hasPermission(user_id, "developer.permission") then
-					menu[">Udskift nummerplade"] = { ch_changeplate }
-				end
-				if vRP.hasPermission(user_id, "player.noclip") then
-					menu[">Noclip"] = { ch_noclip }
-				end
-				if vRP.hasPermission(user_id, "player.spawnvehicle") then
-					menu["Spawn køretøj"] = { ch_spawnvehicle }
-				end
-				if vRP.hasPermission(user_id, "player.deletevehicle") then
-					menu["Fjern køretøj"] = { ch_deletevehicle }
-				end
-				if vRP.hasPermission(user_id, "player.unlockvehicle") then
-					menu["Lås køretøj op"] = { ch_unlockvehicle }
-				end
-				if vRP.hasPermission(user_id, "player.coords") then
-					menu["Koordinater"] = { ch_coords }
-				end
-				if vRP.hasPermission(user_id, "player.tptome") then
-					menu["TP person til mig"] = { ch_tptome }
-				end
-				if vRP.hasPermission(user_id, "player.tpto") then
-					menu["TP til person"] = { ch_tpto }
-				end
-				if vRP.hasPermission(user_id, "developer.permission") then
-					menu["TP til koordinater"] = { ch_tptocoords }
-				end
-				if vRP.hasPermission(user_id, "player.tptowaypoint") then
-					menu["TP til waypoint"] = { ch_tptowaypoint } -- teleport user to map blip
-				end
-				if vRP.hasPermission(user_id, "player.givemoney") then
-					menu["Spawn penge"] = { ch_givemoney }
-				end
-				if vRP.hasPermission(user_id, "player.giveitem") then
-					menu["Spawn ting"] = { ch_giveitem }
-				end
-				if vRP.hasPermission(user_id, "player.calladmin") then
-					menu["Tilkald staff"] = { ch_calladmin }
-				end
-				if vRP.hasPermission(user_id, "admin.bilforhandler") then
-					menu["Sælg bil"] = { choice_bilforhandler }
-				end
-				if vRP.hasPermission(user_id, "player.whitelist") then
-					menu["Whitelist"] = { ch_whitelist }
-				end
-				if vRP.hasPermission(user_id, "player.unwhitelist") then
-					menu["Unwhitelist"] = { ch_unwhitelist }
-				end
-				if vRP.hasPermission(user_id, "player.spectate") then
-					menu["Spectate"] = { ch_spectate }
-				end
+	local choices = {}
+	choices["> Admin"] = {
+		function(player, choice)
+			local menu = { name = "FlaxHosting", css = { top = "75px", header_color = "rgb(153, 136, 59)" } }
+			menu.onclose = function(player)
+				vRP.openMainMenu(player)
+			end
 
-				vRP.openMenu(player, menu)
-			end,
-		}
+			for _, item in ipairs(menu_items) do
+				if vRP.hasPermission(user_id, item.perm) then
+					menu[item.label] = item.desc and { item.fn, item.desc } or { item.fn }
+				end
+			end
 
-		add(choices)
-	end
+			vRP.openMenu(player, menu)
+		end,
+	}
+
+	add(choices)
 end)
 
 RegisterNetEvent("vRPAdmin:SpectatePlr")

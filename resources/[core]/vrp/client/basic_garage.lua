@@ -4,152 +4,143 @@ AddEventHandler("vrp_garages:setVehicle", function(vtype, vehicle)
 	vehicles[vtype] = vehicle
 end)
 
+-- Helper: release vehicle entity from game
+local function releaseVehicle(entity)
+	if entity == nil or entity == 0 then return end
+	SetVehicleHasBeenOwnedByPlayer(entity, false)
+	Citizen.InvokeNative(0xAD738C3085FE7E11, entity, false, true)
+	SetVehicleAsNoLongerNeeded(Citizen.PointerValueIntInitialized(entity))
+	Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(entity))
+end
+
+-- Helper: find closest vehicle (tries all vehicle types)
+local function findClosestVehicle(x, y, z, radius)
+	local veh = GetClosestVehicle(x, y, z, radius, 0, 8192 + 4096 + 4 + 2 + 1)
+	if not IsEntityAVehicle(veh) then
+		veh = GetClosestVehicle(x, y, z, radius, 0, 4 + 2 + 1)
+	end
+	return veh
+end
+
+-- Helper: load model with timeout
+local function loadModel(mhash, timeout)
+	timeout = timeout or 10000
+	local i = 0
+	while not HasModelLoaded(mhash) and i < timeout do
+		RequestModel(mhash)
+		Citizen.Wait(10)
+		i = i + 1
+	end
+	return HasModelLoaded(mhash)
+end
+
+-- Helper: get vehicle type display name
+local function getVtypeLabel(vtype)
+	local labels = { car = "bil", bike = "motorcykel", citybike = "cykel" }
+	return labels[vtype] or vtype
+end
+
+-- Vehicle lock toggle cooldown
+local lock_cooldown = false
+
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(1)
 		if IsControlJustReleased(0, 182) then
-			local bool, vtype, vehicle = vRP.getNearestOwnedVehicle(20)
-			if bool then
+			local ok, vtype = vRP.getNearestOwnedVehicle(20)
+			if ok then
 				vRP.vc_toggleLock(vtype)
 			end
 		end
 	end
 end)
-function vRP.spawnGarageVehicle(vtype, name, pos) -- vtype is the vehicle type (one vehicle per type allowed at the same time)
+
+function vRP.spawnGarageVehicle(vtype, name, pos)
 	local vehicle = vehicles[vtype]
-	if vehicle and not IsVehicleDriveable(vehicle[3], false) then -- precheck if vehicle is undriveable
-		-- despawn vehicle
-		SetVehicleHasBeenOwnedByPlayer(vehicle[3], false)
-		Citizen.InvokeNative(0xAD738C3085FE7E11, vehicle[3], false, true) -- set not as mission entity
-		SetVehicleAsNoLongerNeeded(Citizen.PointerValueIntInitialized(vehicle[3]))
-		Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(vehicle[3]))
+
+	-- Precheck: clean up undriveable vehicle
+	if vehicle and not IsVehicleDriveable(vehicle[3], false) then
+		releaseVehicle(vehicle[3])
 		vehicles[vtype] = nil
+		vehicle = nil
 	end
 
-	vehicle = vehicles[vtype]
-	if vehicle == nil then
-		-- load vehicle model
-		local mhash = GetHashKey(name)
-
-		local i = 0
-		while not HasModelLoaded(mhash) and i < 10000 do
-			RequestModel(mhash)
-			Citizen.Wait(10)
-			i = i + 1
-		end
-
-		-- spawn car
-		if HasModelLoaded(mhash) then
-			local x, y, z = vRP.getPosition()
-			if pos then
-				x, y, z = table.unpack(pos)
-			end
-
-			local nveh = CreateVehicle(mhash, x, y, z + 0.5, 0.0, true, false)
-			SetVehicleOnGroundProperly(nveh)
-			SetEntityInvincible(nveh, false)
-			SetPedIntoVehicle(GetPlayerPed(-1), nveh, -1) -- put player inside
-			SetVehicleNumberPlateText(nveh, "P " .. vRP.getRegistrationNumber())
-			if GetVehicleClass(nveh) == 18 then
-				SetVehicleDirtLevel(nveh, 0.0)
-				TriggerEvent(
-					"advancedFuel:setEssence",
-					100,
-					GetVehicleNumberPlateText(nveh),
-					GetDisplayNameFromVehicleModel(GetEntityModel(nveh))
-				)
-			end
-			-- Citizen.InvokeNative(0xAD738C3085FE7E11, nveh, true, true) -- set as mission entity
-			SetVehicleHasBeenOwnedByPlayer(nveh, true)
-
-			local nid = NetworkGetNetworkIdFromEntity(nveh)
-			SetNetworkIdCanMigrate(nid, true)
-
-			vehicles[vtype] = { vtype, name, nveh } -- set current vehicule
-
-			SetModelAsNoLongerNeeded(mhash)
-		end
-	else
-		local cartype = ""
-		if vtype == "car" then
-			cartype = "bil"
-		elseif vtype == "bike" then
-			cartype = "motorcykel"
-		elseif vtype == "citybike" then
-			cartype = "cykel"
-		end
-		vRP.notify("Du kan kun have én " .. cartype .. " ude")
+	if vehicle ~= nil then
+		vRP.notify("Du kan kun have én " .. getVtypeLabel(vtype) .. " ude")
+		return
 	end
+
+	-- Load vehicle model
+	local mhash = GetHashKey(name)
+	if not loadModel(mhash) then return end
+
+	-- Spawn vehicle
+	local x, y, z = vRP.getPosition()
+	if pos then
+		x, y, z = table.unpack(pos)
+	end
+
+	local nveh = CreateVehicle(mhash, x, y, z + 0.5, 0.0, true, false)
+	SetVehicleOnGroundProperly(nveh)
+	SetEntityInvincible(nveh, false)
+	SetPedIntoVehicle(GetPlayerPed(-1), nveh, -1)
+	SetVehicleNumberPlateText(nveh, "P " .. vRP.getRegistrationNumber())
+
+	if GetVehicleClass(nveh) == 18 then
+		SetVehicleDirtLevel(nveh, 0.0)
+		TriggerEvent("advancedFuel:setEssence", 100, GetVehicleNumberPlateText(nveh), GetDisplayNameFromVehicleModel(GetEntityModel(nveh)))
+	end
+
+	SetVehicleHasBeenOwnedByPlayer(nveh, true)
+	local nid = NetworkGetNetworkIdFromEntity(nveh)
+	SetNetworkIdCanMigrate(nid, true)
+
+	vehicles[vtype] = { vtype, name, nveh }
+	SetModelAsNoLongerNeeded(mhash)
 end
 
 function vRP.despawnGarageVehicle(vtype, max_range)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		local x, y, z = table.unpack(GetEntityCoords(vehicle[3], true))
-		local px, py, pz = vRP.getPosition()
+	if vehicle == nil then return end
 
-		if GetDistanceBetweenCoords(x, y, z, px, py, pz, true) < max_range then -- check distance with the vehicule
-			-- remove vehicle
-			SetVehicleHasBeenOwnedByPlayer(vehicle[3], false)
-			Citizen.InvokeNative(0xAD738C3085FE7E11, vehicle[3], false, true) -- set not as mission entity
-			SetVehicleAsNoLongerNeeded(Citizen.PointerValueIntInitialized(vehicle[3]))
-			Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(vehicle[3]))
-			vehicles[vtype] = nil
-			vRP.notify("Køretøj parkeret.")
-		else
-			vRP.notify("Du er for langt fra køretøjet.")
-		end
+	local x, y, z = table.unpack(GetEntityCoords(vehicle[3], true))
+	local px, py, pz = vRP.getPosition()
+
+	if GetDistanceBetweenCoords(x, y, z, px, py, pz, true) >= max_range then
+		vRP.notify("Du er for langt fra køretøjet.")
+		return
 	end
+
+	releaseVehicle(vehicle[3])
+	vehicles[vtype] = nil
+	vRP.notify("Køretøj parkeret.")
 end
 
 function vRP.despawnNetVehicle(veh)
-	if veh then
-		veh = NetToVeh(veh)
-		SetVehicleHasBeenOwnedByPlayer(veh, false)
-		Citizen.InvokeNative(0xAD738C3085FE7E11, veh, false, true) -- set not as mission entity
-		SetVehicleAsNoLongerNeeded(Citizen.PointerValueIntInitialized(veh))
-		Citizen.InvokeNative(0xEA386986E786A54F, Citizen.PointerValueIntInitialized(veh))
-	end
+	if veh == nil then return end
+	veh = NetToVeh(veh)
+	releaseVehicle(veh)
 end
 
--- (experimental) this function return the nearest vehicle
--- (don't work with all vehicles, but aim to)
 function vRP.getNearestVehicle(radius)
 	local x, y, z = vRP.getPosition()
 	local ped = GetPlayerPed(-1)
 	if IsPedSittingInAnyVehicle(ped) then
 		return GetVehiclePedIsIn(ped, true)
-	else
-		-- flags used:
-		--- 8192: boat
-		--- 4096: helicos
-		--- 4,2,1: cars (with police)
-
-		local veh = GetClosestVehicle(x + 0.0001, y + 0.0001, z + 0.0001, radius + 0.0001, 0, 8192 + 4096 + 4 + 2 + 1) -- boats, helicos
-		if not IsEntityAVehicle(veh) then
-			veh = GetClosestVehicle(x + 0.0001, y + 0.0001, z + 0.0001, radius + 0.0001, 0, 4 + 2 + 1)
-		end -- cars
-		return veh
 	end
+	return findClosestVehicle(x, y, z, radius)
 end
 
 function vRP.getNearestVehicleHealth(radius)
 	local x, y, z = vRP.getPosition()
 	local ped = GetPlayerPed(-1)
 	if IsPedSittingInAnyVehicle(ped) then
-		return { veh = GetVehiclePedIsIn(ped, true), health = GetVehicleEngineHealth(GetVehiclePedIsIn(ped, true)) }
-	else
-		-- flags used:
-		--- 8192: boat
-		--- 4096: helicos
-		--- 4,2,1: cars (with police)
-
-		local veh = GetClosestVehicle(x + 0.0001, y + 0.0001, z + 0.0001, radius + 0.0001, 0, 8192 + 4096 + 4 + 2 + 1) -- boats, helicos
-		if not IsEntityAVehicle(veh) then
-			veh = GetClosestVehicle(x + 0.0001, y + 0.0001, z + 0.0001, radius + 0.0001, 0, 4 + 2 + 1)
-		end -- cars
+		local veh = GetVehiclePedIsIn(ped, true)
 		return { veh = veh, health = GetVehicleEngineHealth(veh) }
 	end
+	local veh = findClosestVehicle(x, y, z, radius)
+	if not IsEntityAVehicle(veh) then return nil end
+	return { veh = veh, health = GetVehicleEngineHealth(veh) }
 end
 
 function vRP.fixeNearestVehicle(radius)
@@ -167,75 +158,64 @@ end
 
 function vRP.fixeNearestVehicleAdmin(radius)
 	local veh = vRP.getNearestVehicle(radius)
-	local ped = GetPlayerPed(-1)
-	if IsEntityAVehicle(veh) then
-		if not IsPedSittingInAnyVehicle(ped) then
-			SetVehicleFixed(veh)
-			vRP.notify("Nærmeste køretøj repareret.")
-		else
-			vRP.notify("Du må ikke sidde i køretøjet, mens du reparerer det.")
-		end
-	else
+	if not IsEntityAVehicle(veh) then
 		vRP.notify("Køretøj blev ikke fundet.")
+		return
 	end
+	if IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
+		vRP.notify("Du må ikke sidde i køretøjet, mens du reparerer det.")
+		return
+	end
+	SetVehicleFixed(veh)
+	vRP.notify("Nærmeste køretøj repareret.")
 end
 
 function vRP.changeNummerPlate(radius)
 	local veh = vRP.getNearestVehicle(radius)
-	if IsEntityAVehicle(veh) then
-		local abyte = string.byte("A")
-		local zbyte = string.byte("0")
-
-		local format = "DLDLDL"
-		local number = ""
-		for i = 1, #format do
-			local char = string.sub(format, i, i)
-			if char == "D" then
-				number = number .. string.char(zbyte + math.random(0, 9))
-			elseif char == "L" then
-				number = number .. string.char(abyte + math.random(0, 25))
-			else
-				number = number .. char
-			end
-		end
-
-		SetVehicleNumberPlateText(veh, "P " .. number)
-	else
+	if not IsEntityAVehicle(veh) then
 		vRP.notify("Køretøj blev ikke fundet.")
+		return
 	end
+
+	local number = vRP.generateStringNumber("DLDLDL")
+	SetVehicleNumberPlateText(veh, "P " .. number)
 end
 
 function vRP.fixeNearestVehicleMidlertidigt(radius)
 	local veh = vRP.getNearestVehicle(radius)
-	local ped = GetPlayerPed(-1)
-	if IsEntityAVehicle(veh) then
-		if not IsPedSittingInAnyVehicle(ped) then
-			SetVehicleEngineHealth(veh, 300.0)
-			vRP.notify("Nærmeste køretøj er midlertidigt repareret.")
-		else
-			vRP.notify("Du må ikke sidde i køretøjet, mens du reparerer det.")
-		end
-	else
+	if not IsEntityAVehicle(veh) then
 		vRP.notify("Køretøj blev ikke fundet.")
+		return
 	end
+	if IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
+		vRP.notify("Du må ikke sidde i køretøjet, mens du reparerer det.")
+		return
+	end
+	SetVehicleEngineHealth(veh, 300.0)
+	vRP.notify("Nærmeste køretøj er midlertidigt repareret.")
 end
 
 function vRP.vehicleUnlockMekaniker()
-	local ped = GetPlayerPed(-1)
 	local veh = vRP.getNearestVehicle(4)
-	local plate = GetVehicleNumberPlateText(veh)
+	if not IsEntityAVehicle(veh) then
+		vRP.notify("Intet køretøj fundet.")
+		return
+	end
 
+	local ped = GetPlayerPed(-1)
 	SetVehicleDoorsLockedForAllPlayers(veh, false)
 	SetVehicleDoorsLocked(veh, 1)
 	SetVehicleDoorsLockedForPlayer(veh, ped, false)
 	vRP.notify("Vent seks sekunder før køretøjet er låst op!")
-	Citizen.Wait(6000)
-	vRP.notify("Nærmeste køretøj låst op.")
+
+	Citizen.CreateThread(function()
+		Citizen.Wait(6000)
+		vRP.notify("Nærmeste køretøj låst op.")
+	end)
 end
 
 function vRP.fixCurrentVehicle()
-	local ped = GetPlayerPed(-1)
-	local veh = GetVehiclePedIsIn(ped, false)
+	local veh = GetVehiclePedIsIn(GetPlayerPed(-1), false)
 	if IsEntityAVehicle(veh) then
 		SetVehicleFixed(veh)
 	else
@@ -245,44 +225,37 @@ end
 
 function vRP.replaceNearestVehicle(radius)
 	local veh = vRP.getNearestVehicle(radius)
-	local ped = GetPlayerPed(-1)
+	if not IsEntityAVehicle(veh) then return end
+	if IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then return end
+
 	local roll = GetEntityRoll(veh)
-	if not IsPedSittingInAnyVehicle(ped) then
-		if IsEntityAVehicle(veh) and (roll > 75.0 or roll < -75.0) and GetEntitySpeed(veh) < 2 then
-			local heading = GetEntityHeading(veh)
-			SetEntityRotation(veh, 0, 0, 0, 0, 0)
-			SetVehicleOnGroundProperly(veh)
-			SetEntityHeading(veh, heading)
-			vRP.notify("Køretøjet blev vendt om.")
-		end
-	end
+	if roll <= 75.0 and roll >= -75.0 then return end
+	if GetEntitySpeed(veh) >= 2 then return end
+
+	local heading = GetEntityHeading(veh)
+	SetEntityRotation(veh, 0, 0, 0, 0, 0)
+	SetVehicleOnGroundProperly(veh)
+	SetEntityHeading(veh, heading)
+	vRP.notify("Køretøjet blev vendt om.")
 end
 
--- try to get a vehicle at a specific position (using raycast)
 function vRP.getVehicleAtPosition(x, y, z)
-	x = x + 0.0001
-	y = y + 0.0001
-	z = z + 0.0001
-
 	local ray = CastRayPointToPoint(x, y, z, x, y, z + 4, 10, GetPlayerPed(-1), 0)
 	local a, b, c, d, ent = GetRaycastResult(ray)
 	return ent
 end
 
--- return ok,vtype,name
 function vRP.getNearestOwnedVehicle(radius)
 	local px, py, pz = vRP.getPosition()
 	for k, v in pairs(vehicles) do
 		local x, y, z = table.unpack(GetEntityCoords(v[3], true))
-		local dist = GetDistanceBetweenCoords(x, y, z, px, py, pz, true)
-		if dist <= radius + 0.0001 then
+		if GetDistanceBetweenCoords(x, y, z, px, py, pz, true) <= radius then
 			return true, v[1], v[2]
 		end
 	end
 	return false, "", ""
 end
 
--- return ok,x,y,z
 function vRP.getAnyOwnedVehiclePosition()
 	for k, v in pairs(vehicles) do
 		if IsEntityAVehicle(v[3]) then
@@ -290,170 +263,149 @@ function vRP.getAnyOwnedVehiclePosition()
 			return true, x, y, z
 		end
 	end
-
 	return false, 0, 0, 0
 end
 
--- return x,y,z
 function vRP.getOwnedVehiclePosition(vtype)
 	local vehicle = vehicles[vtype]
-	local x, y, z = 0, 0, 0
-
 	if vehicle then
-		x, y, z = table.unpack(GetEntityCoords(vehicle[3], true))
+		return table.unpack(GetEntityCoords(vehicle[3], true))
 	end
-
-	return x, y, z
+	return 0, 0, 0
 end
 
--- return ok, vehicule network id
 function vRP.getOwnedVehicleId(vtype)
 	local vehicle = vehicles[vtype]
 	if vehicle then
 		return true, NetworkGetNetworkIdFromEntity(vehicle[3])
-	else
-		return false, 0
 	end
+	return false, 0
 end
 
--- eject the ped from the vehicle
 function vRP.ejectVehicle()
 	local ped = GetPlayerPed(-1)
 	if IsPedSittingInAnyVehicle(ped) then
-		local veh = GetVehiclePedIsIn(ped, false)
-		TaskLeaveVehicle(ped, veh, 4160)
+		TaskLeaveVehicle(ped, GetVehiclePedIsIn(ped, false), 4160)
 	end
 end
 
--- vehicle commands
-local door
+-- Door state tracking (single shared state)
+local door_state = false
+
 function vRP.vc_toggleDoor(vtype, door_index)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		if door then
-			SetVehicleDoorOpen(vehicle[3], door_index, 0, false)
-		else
-			SetVehicleDoorShut(vehicle[3], door_index, 0, false)
-		end
-		door = not door
+	if vehicle == nil then return end
+	if door_state then
+		SetVehicleDoorOpen(vehicle[3], door_index, 0, false)
+	else
+		SetVehicleDoorShut(vehicle[3], door_index, 0, false)
 	end
+	door_state = not door_state
 end
 
-local door
 function vRP.vc_openDoor(vtype, door_index)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		if door then
-			SetVehicleDoorShut(vehicle[3], door_index, 0, false)
-		else
-			SetVehicleDoorOpen(vehicle[3], door_index)
-		end
-		door = not door
+	if vehicle == nil then return end
+	if door_state then
+		SetVehicleDoorShut(vehicle[3], door_index, 0, false)
+	else
+		SetVehicleDoorOpen(vehicle[3], door_index)
 	end
+	door_state = not door_state
 end
 
 function vRP.vc_closeDoor(vtype, door_index)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		SetVehicleDoorShut(vehicle[3], door_index)
-	end
+	if vehicle == nil then return end
+	SetVehicleDoorShut(vehicle[3], door_index)
 end
 
-local neon
+-- Neon state tracking
+local neon_state = false
+
 function vRP.vc_NeonToggle(vtype)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		if neon then
-			SetVehicleNeonLightEnabled(vehicle[3], 0, false)
-			SetVehicleNeonLightEnabled(vehicle[3], 1, false)
-			SetVehicleNeonLightEnabled(vehicle[3], 2, false)
-			SetVehicleNeonLightEnabled(vehicle[3], 3, false)
-		else
-			SetVehicleNeonLightEnabled(vehicle[3], 0, true)
-			SetVehicleNeonLightEnabled(vehicle[3], 1, true)
-			SetVehicleNeonLightEnabled(vehicle[3], 2, true)
-			SetVehicleNeonLightEnabled(vehicle[3], 3, true)
-		end
-		neon = not neon
+	if vehicle == nil then return end
+
+	neon_state = not neon_state
+	for i = 0, 3 do
+		SetVehicleNeonLightEnabled(vehicle[3], i, neon_state)
 	end
 end
 
 function vRP.vc_detachTrailer(vtype)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		DetachVehicleFromTrailer(vehicle[3])
-	end
+	if vehicle then DetachVehicleFromTrailer(vehicle[3]) end
 end
 
 function vRP.vc_detachTowTruck(vtype)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		local ent = GetEntityAttachedToTowTruck(vehicle[3])
-		if IsEntityAVehicle(ent) then
-			DetachVehicleFromTowTruck(vehicle[3], ent)
-		end
+	if vehicle == nil then return end
+	local ent = GetEntityAttachedToTowTruck(vehicle[3])
+	if IsEntityAVehicle(ent) then
+		DetachVehicleFromTowTruck(vehicle[3], ent)
 	end
 end
 
 function vRP.vc_detachCargobob(vtype)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		local ent = GetVehicleAttachedToCargobob(vehicle[3])
-		if IsEntityAVehicle(ent) then
-			DetachVehicleFromCargobob(vehicle[3], ent)
-		end
+	if vehicle == nil then return end
+	local ent = GetVehicleAttachedToCargobob(vehicle[3])
+	if IsEntityAVehicle(ent) then
+		DetachVehicleFromCargobob(vehicle[3], ent)
 	end
 end
 
 function vRP.vc_toggleEngine(vtype)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		local running = Citizen.InvokeNative(0xAE31E7DF9B5B132E, vehicle[3]) -- GetIsVehicleEngineRunning
-		SetVehicleEngineOn(vehicle[3], not running, true, true)
-		if running then
-			SetVehicleUndriveable(vehicle[3], true)
-		else
-			SetVehicleUndriveable(vehicle[3], false)
-		end
-	end
+	if vehicle == nil then return end
+
+	local running = Citizen.InvokeNative(0xAE31E7DF9B5B132E, vehicle[3])
+	SetVehicleEngineOn(vehicle[3], not running, true, true)
+	SetVehicleUndriveable(vehicle[3], running)
 end
 
 function vRP.vc_toggleLock(vtype)
 	local vehicle = vehicles[vtype]
-	if vehicle then
-		local ped = GetPlayerPed(-1)
-		local veh = vehicle[3]
-		local lveh = GetVehiclePedIsUsing(ped)
-		TriggerEvent("ftn:carkeys")
-		local locked = GetVehicleDoorLockStatus(veh) >= 2
-		if locked then -- unlock
-			SetVehicleDoorsLockedForAllPlayers(veh, false)
-			SetVehicleDoorsLocked(veh, 1)
-			SetVehicleDoorsLockedForPlayer(veh, ped, false)
-			vRP.notify("Køretøj laast op")
-		else -- lock
-			SetVehicleDoorsLocked(veh, 2)
-			SetVehicleDoorsLockedForAllPlayers(veh, true)
-			vRP.notify("Køretøj laast")
-		end
-		if not DoesEntityExist(lveh) or lveh ~= veh then
-			TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 0.5, "lock", 0.3)
-			SetVehicleEngineOn(vehicle[3], true, true, false)
-			SetVehicleIndicatorLights(veh, 0, true)
-			SetVehicleIndicatorLights(veh, 1, true)
+	if vehicle == nil then return end
+	if lock_cooldown then return end
+
+	local ped = GetPlayerPed(-1)
+	local veh = vehicle[3]
+	local lveh = GetVehiclePedIsUsing(ped)
+
+	TriggerEvent("ftn:carkeys")
+	local locked = GetVehicleDoorLockStatus(veh) >= 2
+
+	if locked then
+		SetVehicleDoorsLockedForAllPlayers(veh, false)
+		SetVehicleDoorsLocked(veh, 1)
+		SetVehicleDoorsLockedForPlayer(veh, ped, false)
+		vRP.notify("Køretøj laast op")
+	else
+		SetVehicleDoorsLocked(veh, 2)
+		SetVehicleDoorsLockedForAllPlayers(veh, true)
+		vRP.notify("Køretøj laast")
+	end
+
+	if not DoesEntityExist(lveh) or lveh ~= veh then
+		TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 0.5, "lock", 0.3)
+		SetVehicleEngineOn(veh, true, true, false)
+		SetVehicleIndicatorLights(veh, 0, true)
+		SetVehicleIndicatorLights(veh, 1, true)
+
+		lock_cooldown = true
+		Citizen.CreateThread(function()
 			Wait(3000)
-			lveh = GetVehiclePedIsUsing(ped)
 			SetVehicleIndicatorLights(veh, 0, false)
 			SetVehicleIndicatorLights(veh, 1, false)
-			if not DoesEntityExist(lveh) or lveh ~= veh then
-				SetVehicleEngineOn(vehicle[3], false, true, false)
+			if not DoesEntityExist(GetVehiclePedIsUsing(ped)) or GetVehiclePedIsUsing(ped) ~= veh then
+				SetVehicleEngineOn(veh, false, true, false)
 			end
-		else
-			if locked then
-				TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 2, "pressunlock", 0.4)
-			else
-				TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 2, "presslock", 0.4)
-			end
-		end
+			lock_cooldown = false
+		end)
+	else
+		local sound = locked and "pressunlock" or "presslock"
+		TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 2, sound, 0.4)
 	end
 end

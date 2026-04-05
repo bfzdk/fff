@@ -36,6 +36,31 @@ local garages = cfg.garages
 
 local garage_menus = {}
 
+-- Helper: get player owned vehicles as a set
+local function getOwnedVehicleSet(user_id, callback)
+	MySQL.Async.fetchAll(
+		"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id",
+		{ user_id = user_id },
+		function(_pvehicles)
+			local owned = {}
+			for _, v in ipairs(_pvehicles) do
+				owned[string.lower(v.vehicle)] = true
+			end
+			callback(owned)
+		end
+	)
+end
+
+-- Helper: build vehicle submenu
+local function build_vehicle_submenu(menu, vehicles, kitems, choose, filter_fn)
+	for k, v in pairs(vehicles) do
+		if k ~= "_config" and filter_fn(k, v) then
+			menu[v[1]] = { choose, v[3] and v[3] or "" }
+			kitems[v[1]] = k
+		end
+	end
+end
+
 for group, vehicles in pairs(vehicle_groups) do
 	local veh_type = vehicles._config.vtype or "default"
 
@@ -45,292 +70,204 @@ for group, vehicles in pairs(vehicle_groups) do
 	}
 	garage_menus[group] = menu
 
+	-- Owned vehicles
 	menu[lang.garage.owned.title()] = {
 		function(player, choice)
 			local user_id = vRP.getUserId(player)
-			if user_id ~= nil then
-				-- init tmpdata for rents
-				local tmpdata = vRP.getUserTmpTable(user_id)
-				if tmpdata.rent_vehicles == nil then
-					tmpdata.rent_vehicles = {}
-				end
+			if user_id == nil then return end
 
-				-- build nested menu
-				local kitems = {}
-				local submenu = {
-					name = lang.garage.title({ lang.garage.owned.title() }),
-					css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
-				}
-				submenu.onclose = function()
-					vRP.openMenu(player, menu)
-				end
-
-				local choose = function(player, choice)
-					local vname = kitems[choice]
-					if vname then
-						-- spawn vehicle
-						local vehicle = vehicles[vname]
-						if vehicle then
-							vRP.closeMenu(player)
-							vRPclient.spawnGarageVehicle(player, { veh_type, vname })
-							-- TriggerEvent('ply_garages:CheckForSpawnBasicVeh', user_id, vname)
-						end
-					end
-				end
-
-				-- get player owned vehicles
-				MySQL.Async.fetchAll(
-					"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id",
-					{ user_id = user_id },
-					function(pvehicles, affected)
-						-- add rents to whitelist
-						for k, v in pairs(tmpdata.rent_vehicles) do
-							if v then -- check true, prevent future neolua issues
-								table.insert(pvehicles, { vehicle = k })
-							end
-						end
-
-						for k, v in pairs(pvehicles) do
-							local vehicle = vehicles[v.vehicle]
-							if vehicle then
-								submenu[vehicle[1]] = { choose, vehicle[3] }
-								kitems[vehicle[1]] = v.vehicle
-							end
-						end
-						vRP.openMenu(player, submenu)
-					end
-				)
+			local tmpdata = vRP.getUserTmpTable(user_id)
+			if tmpdata.rent_vehicles == nil then
+				tmpdata.rent_vehicles = {}
 			end
+
+			local kitems = {}
+			local submenu = {
+				name = lang.garage.title({ lang.garage.owned.title() }),
+				css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
+				onclose = function() vRP.openMenu(player, menu) end,
+			}
+
+			local choose = function(player, choice)
+				local vname = kitems[choice]
+				if vname and vehicles[vname] then
+					vRP.closeMenu(player)
+					vRPclient.spawnGarageVehicle(player, { veh_type, vname })
+				end
+			end
+
+			MySQL.Async.fetchAll(
+				"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id",
+				{ user_id = user_id },
+				function(pvehicles)
+					for _, v in pairs(tmpdata.rent_vehicles) do
+						if v then table.insert(pvehicles, { vehicle = k }) end
+					end
+
+					for _, v in pairs(pvehicles) do
+						local vehicle = vehicles[v.vehicle]
+						if vehicle then
+							submenu[vehicle[1]] = { choose, vehicle[3] }
+							kitems[vehicle[1]] = v.vehicle
+						end
+					end
+					vRP.openMenu(player, submenu)
+				end
+			)
 		end,
 		lang.garage.owned.description(),
 	}
 
+	-- Buy vehicles
 	menu[lang.garage.buy.title()] = {
 		function(player, choice)
 			local user_id = vRP.getUserId(player)
-			if user_id ~= nil then
-				-- build nested menu
-				local kitems = {}
-				local submenu = {
-					name = lang.garage.title({ lang.garage.buy.title() }),
-					css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
-				}
-				submenu.onclose = function()
-					vRP.openMenu(player, menu)
+			if user_id == nil then return end
+
+			local kitems = {}
+			local submenu = {
+				name = lang.garage.title({ lang.garage.buy.title() }),
+				css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
+				onclose = function() vRP.openMenu(player, menu) end,
+			}
+
+			local choose = function(player, choice)
+				local vname = kitems[choice]
+				local vehicle = vehicles[vname]
+				if vehicle and vRP.tryFullPayment(user_id, vehicle[2]) then
+					MySQL.Async.execute(
+						"INSERT IGNORE INTO vrp_user_vehicles(user_id,vehicle) VALUES(@user_id,@vehicle)",
+						{ user_id = user_id, vehicle = vname }
+					)
+					vRP.notify(user_id, lang.money.paid({ vehicle[2] }))
+					vRP.closeMenu(player)
+				else
+					vRP.notify(user_id, lang.money.not_enough())
 				end
-
-				local choose = function(player, choice)
-					local vname = kitems[choice]
-					if vname then
-						-- buy vehicle
-						local vehicle = vehicles[vname]
-						if vehicle and vRP.tryFullPayment(user_id, vehicle[2]) then
-							MySQL.Async.execute(
-								"INSERT IGNORE INTO vrp_user_vehicles(user_id,vehicle) VALUES(@user_id,@vehicle)",
-								{ user_id = user_id, vehicle = vname }
-							)
-
-							vRP.notify(user_id, lang.money.paid({ vehicle[2] }))
-							vRP.closeMenu(player)
-						else
-							vRP.notify(user_id, lang.money.not_enough())
-						end
-					end
-				end
-
-				-- get player owned vehicles (indexed by vehicle type name in lower case)
-				MySQL.Async.fetchAll(
-					"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id",
-					{ user_id = user_id },
-					function(_pvehicles, affected)
-						if #_pvehicles > 0 then
-							local pvehicles = {}
-							for k, v in pairs(_pvehicles) do
-								pvehicles[string.lower(v.vehicle)] = true
-							end
-							for k, v in pairs(vehicles) do
-								if k ~= "_config" and pvehicles[string.lower(k)] == nil then -- not already owned
-									submenu[v[1]] = { choose, lang.garage.buy.info({ v[2], v[3] }) }
-									kitems[v[1]] = k
-								end
-							end
-						else
-							for k, v in pairs(vehicles) do
-								if k ~= "_config" then
-									submenu[v[1]] = { choose, lang.garage.buy.info({ v[2], v[3] }) }
-									kitems[v[1]] = k
-								end
-							end
-						end
-						vRP.openMenu(player, submenu)
-					end
-				)
 			end
+
+			getOwnedVehicleSet(user_id, function(owned)
+				for k, v in pairs(vehicles) do
+					if k ~= "_config" and not owned[string.lower(k)] then
+						submenu[v[1]] = { choose, lang.garage.buy.info({ v[2], v[3] }) }
+						kitems[v[1]] = k
+					end
+				end
+				vRP.openMenu(player, submenu)
+			end)
 		end,
 		lang.garage.buy.description(),
 	}
 
+	-- Sell vehicles
 	menu[lang.garage.sell.title()] = {
 		function(player, choice)
 			local user_id = vRP.getUserId(player)
-			if user_id ~= nil then
-				-- build nested menu
-				local kitems = {}
-				local submenu = {
-					name = lang.garage.title({ lang.garage.sell.title() }),
-					css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
-				}
-				submenu.onclose = function()
-					vRP.openMenu(player, menu)
-				end
+			if user_id == nil then return end
 
-				local choose = function(player, choice)
-					local vname = kitems[choice]
-					if vname then
-						-- sell vehicle
-						local vehicle = vehicles[vname]
-						if vehicle then
-							local price = math.ceil(vehicle[2] * cfg.sell_factor)
+			local kitems = {}
+			local submenu = {
+				name = lang.garage.title({ lang.garage.sell.title() }),
+				css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
+				onclose = function() vRP.openMenu(player, menu) end,
+			}
 
-							MySQL.Async.fetchAll(
-								"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id AND vehicle = @vehicle",
-								{ user_id = user_id, vehicle = vname },
-								function(rows, affected)
-									if #rows > 0 then -- has vehicle
-										vRP.giveBankMoney(user_id, price)
-										MySQL.Async.execute(
-											"DELETE FROM vrp_user_vehicles WHERE user_id = @user_id AND vehicle = @vehicle",
-											{ user_id = user_id, vehicle = vname }
-										)
+			local choose = function(player, choice)
+				local vname = kitems[choice]
+				local vehicle = vehicles[vname]
+				if vehicle == nil then return end
 
-										vRP.notify(user_id, lang.money.received({ price }))
-										vRP.closeMenu(player)
-									else
-										vRP.notify(user_id, lang.garage.sell.not_owned())
-									end
-								end
-							)
-						end
-					end
-				end
-
-				-- get player owned vehicles (indexed by vehicle type name in lower case)
+				local price = math.ceil(vehicle[2] * cfg.sell_factor)
 				MySQL.Async.fetchAll(
-					"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id",
-					{ user_id = user_id },
-					function(_pvehicles, affected)
-						if #_pvehicles > 0 then
-							local pvehicles = {}
-							for k, v in pairs(_pvehicles) do
-								pvehicles[string.lower(v.vehicle)] = true
-							end
-
-							-- for each existing vehicle in the garage group
-							for k, v in pairs(pvehicles) do
-								local vehicle = vehicles[k]
-								if vehicle then -- not already owned
-									local price = math.ceil(vehicle[2] * cfg.sell_factor)
-									submenu[vehicle[1]] = { choose, lang.garage.buy.info({ price, vehicle[3] }) }
-									kitems[vehicle[1]] = k
-								end
-							end
-
-							vRP.openMenu(player, submenu)
-						else
-							vRP.notify(user_id, lang.garage.sell.no_vehicles())
+					"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id AND vehicle = @vehicle",
+					{ user_id = user_id, vehicle = vname },
+					function(rows)
+						if #rows == 0 then
+							vRP.notify(user_id, lang.garage.sell.not_owned())
+							return
 						end
+						vRP.giveBankMoney(user_id, price)
+						MySQL.Async.execute(
+							"DELETE FROM vrp_user_vehicles WHERE user_id = @user_id AND vehicle = @vehicle",
+							{ user_id = user_id, vehicle = vname }
+						)
+						vRP.notify(user_id, lang.money.received({ price }))
+						vRP.closeMenu(player)
 					end
 				)
 			end
+
+			getOwnedVehicleSet(user_id, function(owned)
+				local has_vehicles = false
+				for k, v in pairs(vehicles) do
+					if owned[string.lower(k)] then
+						local price = math.ceil(v[2] * cfg.sell_factor)
+						submenu[v[1]] = { choose, lang.garage.buy.info({ price, v[3] }) }
+						kitems[v[1]] = k
+						has_vehicles = true
+					end
+				end
+				if has_vehicles then
+					vRP.openMenu(player, submenu)
+				else
+					vRP.notify(user_id, lang.garage.sell.no_vehicles())
+				end
+			end)
 		end,
 		lang.garage.sell.description(),
 	}
 
+	-- Rent vehicles
 	menu[lang.garage.rent.title()] = {
 		function(player, choice)
 			local user_id = vRP.getUserId(player)
-			if user_id ~= nil then
-				-- init tmpdata for rents
-				local tmpdata = vRP.getUserTmpTable(user_id)
-				if tmpdata.rent_vehicles == nil then
-					tmpdata.rent_vehicles = {}
-				end
+			if user_id == nil then return end
 
-				-- build nested menu
-				local kitems = {}
-				local submenu = {
-					name = lang.garage.title({ lang.garage.rent.title() }),
-					css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
-				}
-				submenu.onclose = function()
-					vRP.openMenu(player, menu)
-				end
-
-				local choose = function(player, choice)
-					local vname = kitems[choice]
-					if vname then
-						-- rent vehicle
-						local vehicle = vehicles[vname]
-						if vehicle then
-							local price = math.ceil(vehicle[2] * cfg.rent_factor)
-							if vRP.tryFullPayment(user_id, price) then
-								-- add vehicle to rent tmp data
-								tmpdata.rent_vehicles[vname] = true
-
-								vRP.notify(user_id, lang.money.paid({ price }))
-								vRP.closeMenu(player)
-							else
-								vRP.notify(user_id, lang.money.not_enough())
-							end
-						end
-					end
-				end
-
-				-- get player owned vehicles (indexed by vehicle type name in lower case)
-				MySQL.Async.fetchAll(
-					"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id",
-					{ user_id = user_id },
-					function(_pvehicles, affected)
-						if #_pvehicles > 0 then
-							local pvehicles = {}
-							for k, v in pairs(_pvehicles) do
-								pvehicles[string.lower(v.vehicle)] = true
-							end
-
-							-- add rents to blacklist
-							for k, v in pairs(tmpdata.rent_vehicles) do
-								pvehicles[string.lower(k)] = true
-							end
-
-							-- for each existing vehicle in the garage group
-							for k, v in pairs(vehicles) do
-								if k ~= "_config" and pvehicles[string.lower(k)] == nil then -- not already owned
-									local price = math.ceil(v[2] * cfg.rent_factor)
-									submenu[v[1]] = { choose, lang.garage.buy.info({ price, v[3] }) }
-									kitems[v[1]] = k
-								end
-							end
-						else
-							local pvehicles = {}
-							for k, v in pairs(tmpdata.rent_vehicles) do
-								pvehicles[string.lower(k)] = true
-							end
-							for k, v in pairs(vehicles) do
-								if k ~= "_config" and pvehicles[string.lower(k)] == nil then -- not already owned
-									local price = math.ceil(v[2] * cfg.rent_factor)
-									submenu[v[1]] = { choose, lang.garage.buy.info({ price, v[3] }) }
-									kitems[v[1]] = k
-								end
-							end
-						end
-						vRP.openMenu(player, submenu)
-					end
-				)
+			local tmpdata = vRP.getUserTmpTable(user_id)
+			if tmpdata.rent_vehicles == nil then
+				tmpdata.rent_vehicles = {}
 			end
+
+			local kitems = {}
+			local submenu = {
+				name = lang.garage.title({ lang.garage.rent.title() }),
+				css = { top = "75px", header_color = "rgba(255,125,0,0.75)" },
+				onclose = function() vRP.openMenu(player, menu) end,
+			}
+
+			local choose = function(player, choice)
+				local vname = kitems[choice]
+				local vehicle = vehicles[vname]
+				if vehicle == nil then return end
+
+				local price = math.ceil(vehicle[2] * cfg.rent_factor)
+				if vRP.tryFullPayment(user_id, price) then
+					tmpdata.rent_vehicles[vname] = true
+					vRP.notify(user_id, lang.money.paid({ price }))
+					vRP.closeMenu(player)
+				else
+					vRP.notify(user_id, lang.money.not_enough())
+				end
+			end
+
+			getOwnedVehicleSet(user_id, function(owned)
+				for k in pairs(tmpdata.rent_vehicles) do
+					owned[string.lower(k)] = true
+				end
+				for k, v in pairs(vehicles) do
+					if k ~= "_config" and not owned[string.lower(k)] then
+						local price = math.ceil(v[2] * cfg.rent_factor)
+						submenu[v[1]] = { choose, lang.garage.buy.info({ price, v[3] }) }
+						kitems[v[1]] = k
+					end
+				end
+				vRP.openMenu(player, submenu)
+			end)
 		end,
 		lang.garage.rent.description(),
 	}
 
+	-- Store vehicle
 	menu[lang.garage.store.title()] = {
 		function(player, choice)
 			vRPclient.despawnGarageVehicle(player, { veh_type, 15 })
@@ -341,48 +278,33 @@ end
 
 local function build_client_garages(source)
 	local user_id = vRP.getUserId(source)
-	if user_id ~= nil then
-		for k, v in pairs(garages) do
-			local gtype, x, y, z, hidden, larger = table.unpack(v)
+	if user_id == nil then return end
 
-			local group = vehicle_groups[gtype]
-			if group then
-				local gcfg = group._config
+	for k, v in pairs(garages) do
+		local gtype, x, y, z, hidden, larger = table.unpack(v)
+		local group = vehicle_groups[gtype]
+		if group == nil then return end
 
-				-- enter
-				local garage_enter = function(player, area)
-					local user_id = vRP.getUserId(source)
-					if user_id ~= nil and vRP.hasPermissions(user_id, gcfg.permissions or {}) then
-						local menu = garage_menus[gtype]
-						if menu then
-							vRP.openMenu(player, menu)
-						end
-					end
-				end
+		local gcfg = group._config
 
-				-- leave
-				local garage_leave = function(player, area)
-					vRP.closeMenu(player)
-				end
-
-				if hidden then
-					if larger then
-						vRPclient.addMarker(source, { x, y, z - 0.87, 5.0001, 5.0001, 1.5001, 0, 255, 125, 125, 150 })
-					else
-						vRPclient.addMarker(source, { x, y, z - 0.87, 3.0001, 3.0001, 1.5001, 0, 255, 125, 125, 150 })
-					end
-				else
-					vRPclient.addBlip(source, { x, y, z, gcfg.blipid, gcfg.blipcolor, lang.garage.title({ gtype }) })
-					if larger then
-						vRPclient.addMarker(source, { x, y, z - 0.87, 5.0001, 5.0001, 1.5001, 0, 255, 125, 125, 150 })
-					else
-						vRPclient.addMarker(source, { x, y, z - 0.87, 3.0001, 3.0001, 1.5001, 0, 255, 125, 125, 150 })
-					end
-				end
-
-				vRP.setArea(source, "vRP:garage" .. k, x, y, z, 2, 10, garage_enter, garage_leave)
+		local garage_enter = function(player, area)
+			local uid = vRP.getUserId(source)
+			if uid ~= nil and vRP.hasPermissions(uid, gcfg.permissions or {}) then
+				local m = garage_menus[gtype]
+				if m then vRP.openMenu(player, m) end
 			end
 		end
+
+		local garage_leave = function(player, area)
+			vRP.closeMenu(player)
+		end
+
+		local marker_size = larger and 5.0001 or 3.0001
+		if not hidden then
+			vRPclient.addBlip(source, { x, y, z, gcfg.blipid, gcfg.blipcolor, lang.garage.title({ gtype }) })
+		end
+		vRPclient.addMarker(source, { x, y, z - 0.87, marker_size, marker_size, 1.5001, 0, 255, 125, 125, 150 })
+		vRP.setArea(source, "vRP:garage" .. k, x, y, z, 2, 10, garage_enter, garage_leave)
 	end
 end
 
@@ -457,135 +379,116 @@ veh_actions[lang.vehicle.detach_cargobob.title()] = {
 -- sell vehicle
 veh_actions[lang.vehicle.sellTP.title()] = {
 	function(playerID, player, vtype, name)
-		local playerID = tonumber(playerID)
-		if playerID ~= nil then
-			vRPclient.getNearestPlayers(player, { 15 }, function(nplayers)
-				usrList = ""
-				for k, v in pairs(nplayers) do
-					usrList = usrList .. "[" .. vRP.getUserId(k) .. "] " .. GetPlayerName(k) .. " | "
+		playerID = tonumber(playerID)
+		if playerID == nil then return end
+
+		vRPclient.getNearestPlayers(player, { 15 }, function(nplayers)
+			local usrList = ""
+			for k, v in pairs(nplayers) do
+				usrList = usrList .. "[" .. vRP.getUserId(k) .. "] " .. GetPlayerName(k) .. " | "
+			end
+			if usrList == "" then
+				vRP.notify(player, "Ingen spiller i nærheden.")
+				return
+			end
+
+			vRP.prompt(player, "Nærmeste spiller(e): " .. usrList .. "", "", function(player, user_id)
+				if user_id == nil or user_id == "" then
+					vRP.notify(player, "Intet ID valgt.")
+					return
 				end
-				if usrList ~= "" then
-					vRP.prompt(player, "Nærmeste spiller(e): " .. usrList .. "", "", function(player, user_id)
-						user_id = user_id
-						if user_id ~= nil and user_id ~= "" then
-							local target = vRP.getUserSource(tonumber(user_id))
-							if target ~= nil then
-								vRP.prompt(player, "Pris i DKK: ", "", function(player, amount)
-									local amount = tonumber(amount)
-									local p_id = vRP.getUserId(player)
-									local t_id = vRP.getUserId(target)
-									if amount then
-										if amount >= 0 then
-											MySQL.Async.fetchAll(
-												"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id AND vehicle = @vehicle",
-												{ user_id = user_id, vehicle = name },
-												function(pvehicle, affected)
-													vRP.getUserIdentity(p_id, function(identityP)
-														vRP.getUserIdentity(t_id, function(identityT)
-															local fornavnP = identityP.firstname
-															local efternavnP = identityP.name
-															local fornavnT = identityT.firstname
-															local efternavnT = identityT.name
-															if #pvehicle > 0 then
-																vRP.notify(player, "Har allerede dette køretøj.")
-															else
-																vRP.request(
-																	target,
-																	"<b>"
-																		.. fornavnP
-																		.. " "
-																		.. efternavnP
-																		.. "</b> ønsker at sælge sin <b>"
-																		.. name
-																		.. "</b> til en pris på <b style='color: #96D3FF'>"
-																		.. amount
-																		.. " DKK</b>",
-																	10,
-																	function(target, ok)
-																		if ok then
-																			local pID = vRP.getUserId(target)
-																			local money = tonumber(vRP.getBankMoney(pID))
 
-																			if vRP.tryFullPayment(pID, amount) then
-																				-- if money >= amount then
-																				vRPclient.despawnGarageVehicle(player, { vtype, 15 })
-																				vRP.getUserIdentity(pID, function(identity)
-																					MySQL.Async.execute(
-																						"UPDATE vrp_user_vehicles SET user_id = @user_id, vehicle_plate = @registration WHERE user_id = @oldUser AND vehicle = @vehicle",
-																						{
-																							user_id = user_id,
-																							registration = "P " .. identity.registration,
-																							oldUser = playerID,
-																							vehicle = name,
-																						}
-																					)
-																				end)
+				local target = vRP.getUserSource(tonumber(user_id))
+				if target == nil then
+					vRP.notify(player, "Dette ID ser ud til ikke at eksistere.")
+					return
+				end
 
-																		vRP.giveBankMoney(playerID, amount)
-																		vRP.notify(player, "Du solgte dit køretøj til " .. fornavnT .. " " .. efternavnT .. " for " .. amount .. " DKK.")
-																		vRP.notify(target, fornavnP .. " " .. efternavnP .. " har solgt dig sit køretøj for " .. amount .. " DKK.")
+				vRP.prompt(player, "Pris i DKK: ", "", function(player, amount)
+					amount = tonumber(amount)
+					if amount == nil then
+						vRP.notify(player, "Prisen skal være et tal.")
+						return
+					end
+					if amount < 0 then
+						vRP.notify(player, "Prisen skal være højere eller lig med 0 DKK.")
+						return
+					end
 
-																				PerformHttpRequest(
-																					"DIT_WEBHOOK",
-																					function(err, text, headers) end,
-																					"POST",
-																					json.encode({
-																						username = "Salg af køretøj - Server " .. GetConvar("servernumber", "0"),
-																						content = "**"
-																							.. fornavnP
-																							.. " "
-																							.. efternavnP
-																							.. " ("
-																							.. p_id
-																							.. ")** solgte sit køretøj **"
-																							.. name
-																							.. "** til **"
-																							.. fornavnT
-																							.. " "
-																							.. efternavnT
-																							.. " ("
-																							.. t_id
-																							.. ")** for **"
-																							.. amount
-																							.. " DKK**.",
-																					}),
-																					{ ["Content-Type"] = "application/json" }
-																				)
-																			else
-																				vRP.notify(player, fornavnT .. " " .. efternavnT .. " har ikke råd.")
-																				vRP.notify(target, "Du har ikke nok penge på dig.")
-																			end
-																		else
-																			vRP.notify(player, fornavnT .. " " .. efternavnT .. " afviste at købe dit køretøj.")
-																				vRP.notify(target, "Du afviste at købe køretøjet af " .. fornavnP .. " " .. efternavnP .. ".")
-																		end
-																	end
-																)
-																vRP.closeMenu(player)
-															end
-														end)
-													end)
-												end
-											)
-										else
-											vRP.notify(player, "Prisen skal være højere eller lig med 0 DKK.")
-										end
-									else
-										vRP.notify(player, "Prisen skal være et tal.")
-									end
-								end)
-							else
-								vRP.notify(player, "Dette ID ser ud til ikke at eksistere.")
+					local p_id = vRP.getUserId(player)
+					local t_id = vRP.getUserId(target)
+
+					MySQL.Async.fetchAll(
+						"SELECT vehicle FROM vrp_user_vehicles WHERE user_id = @user_id AND vehicle = @vehicle",
+						{ user_id = user_id, vehicle = name },
+						function(pvehicle)
+							if #pvehicle > 0 then
+								vRP.notify(player, "Har allerede dette køretøj.")
+								return
 							end
-						else
-							vRP.notify(player, "Intet ID valgt.")
+
+							vRP.getUserIdentity(p_id, function(identityP)
+								vRP.getUserIdentity(t_id, function(identityT)
+									local fornavnP = identityP.firstname
+									local efternavnP = identityP.name
+									local fornavnT = identityT.firstname
+									local efternavnT = identityT.name
+
+									vRP.request(
+										target,
+										"<b>" .. fornavnP .. " " .. efternavnP .. "</b> ønsker at sælge sin <b>" .. name .. "</b> til en pris på <b style='color: #96D3FF'>" .. amount .. " DKK</b>",
+										10,
+										function(target, ok)
+											if not ok then
+												vRP.notify(player, fornavnT .. " " .. efternavnT .. " afviste at købe dit køretøj.")
+												vRP.notify(target, "Du afviste at købe køretøjet af " .. fornavnP .. " " .. efternavnP .. ".")
+												return
+											end
+
+											local pID = vRP.getUserId(target)
+											if not vRP.tryFullPayment(pID, amount) then
+												vRP.notify(player, fornavnT .. " " .. efternavnT .. " har ikke råd.")
+												vRP.notify(target, "Du har ikke nok penge på dig.")
+												return
+											end
+
+											vRPclient.despawnGarageVehicle(player, { vtype, 15 })
+											vRP.getUserIdentity(pID, function(identity)
+												MySQL.Async.execute(
+													"UPDATE vrp_user_vehicles SET user_id = @user_id, vehicle_plate = @registration WHERE user_id = @oldUser AND vehicle = @vehicle",
+													{
+														user_id = user_id,
+														registration = "P " .. identity.registration,
+														oldUser = playerID,
+														vehicle = name,
+													}
+												)
+											end)
+
+											vRP.giveBankMoney(playerID, amount)
+											vRP.notify(player, "Du solgte dit køretøj til " .. fornavnT .. " " .. efternavnT .. " for " .. amount .. " DKK.")
+											vRP.notify(target, fornavnP .. " " .. efternavnP .. " har solgt dig sit køretøj for " .. amount .. " DKK.")
+
+											PerformHttpRequest(
+												"DIT_WEBHOOK",
+												function(err, text, headers) end,
+												"POST",
+												json.encode({
+													username = "Salg af køretøj - Server " .. GetConvar("servernumber", "0"),
+													content = "**" .. fornavnP .. " " .. efternavnP .. " (" .. p_id .. ")** solgte sit køretøj **" .. name .. "** til **" .. fornavnT .. " " .. efternavnT .. " (" .. t_id .. ")** for **" .. amount .. " DKK**.",
+												}),
+												{ ["Content-Type"] = "application/json" }
+											)
+											vRP.closeMenu(player)
+										end
+									)
+								end)
+							end)
 						end
-					end)
-				else
-					vRP.notify(player, "Ingen spiller i nærheden.")
-				end
+					)
+				end)
 			end)
-		end
+		end)
 	end,
 	lang.vehicle.sellTP.description(),
 }
@@ -622,43 +525,50 @@ end
 -- ask trunk (open other user car chest)
 local function ch_asktrunk(player, choice)
 	vRPclient.getNearestPlayer(player, { 10 }, function(nplayer)
+		if nplayer == nil then
+			vRP.notify(player, lang.common.no_player_near())
+			return
+		end
+
 		local user_id = vRP.getUserId(player)
 		local nuser_id = vRP.getUserId(nplayer)
-			if nuser_id ~= nil then
-			vRP.notify(player, lang.vehicle.asktrunk.asked())
-			vRP.request(nplayer, lang.vehicle.asktrunk.request(), 15, function(nplayer, ok)
-				if ok then -- request accepted, open trunk
-					vRPclient.getNearestOwnedVehicle(nplayer, { 7 }, function(ok, vtype, name)
-						if ok then
-							local chestname = "u" .. nuser_id .. "veh_" .. string.lower(name)
-							local max_weight = cfg_inventory.vehicle_chest_weights[string.lower(name)]
-								or cfg_inventory.default_vehicle_chest_weight
-
-							-- open chest
-							local cb_out = function(idname, amount)
-								vRP.notify(nplayer, lang.inventory.give.given({ vRP.getItemName(idname), amount }))
-							end
-
-							local cb_in = function(idname, amount)
-								vRP.notify(nplayer, lang.inventory.give.received({ vRP.getItemName(idname), amount }))
-							end
-
-							vRPclient.vc_openDoor(nplayer, { vtype, 5 })
-							vRP.openChest(player, chestname, max_weight, function()
-								vRPclient.vc_closeDoor(nplayer, { vtype, 5 })
-							end, cb_in, cb_out)
-						else
-							vRP.notify(player, lang.vehicle.no_owned_near())
-							vRP.notify(nplayer, lang.vehicle.no_owned_near())
-						end
-					end)
-				else
-					vRP.notify(player, lang.common.request_refused())
-				end
-			end)
-		else
+		if nuser_id == nil then
 			vRP.notify(player, lang.common.no_player_near())
+			return
 		end
+
+		vRP.notify(player, lang.vehicle.asktrunk.asked())
+		vRP.request(nplayer, lang.vehicle.asktrunk.request(), 15, function(nplayer, ok)
+			if not ok then
+				vRP.notify(player, lang.common.request_refused())
+				return
+			end
+
+			vRPclient.getNearestOwnedVehicle(nplayer, { 7 }, function(ok, vtype, name)
+				if not ok then
+					vRP.notify(player, lang.vehicle.no_owned_near())
+					vRP.notify(nplayer, lang.vehicle.no_owned_near())
+					return
+				end
+
+				local chestname = "u" .. nuser_id .. "veh_" .. string.lower(name)
+				local max_weight = cfg_inventory.vehicle_chest_weights[string.lower(name)]
+					or cfg_inventory.default_vehicle_chest_weight
+
+				local cb_out = function(idname, amount)
+					vRP.notify(nplayer, lang.inventory.give.given({ vRP.getItemName(idname), amount }))
+				end
+
+				local cb_in = function(idname, amount)
+					vRP.notify(nplayer, lang.inventory.give.received({ vRP.getItemName(idname), amount }))
+				end
+
+				vRPclient.vc_openDoor(nplayer, { vtype, 5 })
+				vRP.openChest(player, chestname, max_weight, function()
+					vRPclient.vc_closeDoor(nplayer, { vtype, 5 })
+				end, cb_in, cb_out)
+			end)
+		end)
 	end)
 end
 
@@ -727,42 +637,36 @@ local choice_impound = {
 
 vRP.registerMenuBuilder("main", function(add, data)
 	local user_id = vRP.getUserId(data.player)
-	if user_id ~= nil then
-		-- add vehicle entry
-		local choices = {}
-		choices[lang.vehicle.title()] = { ch_vehicle }
+	if user_id == nil then return end
 
-		-- add ask trunk
-		choices[lang.vehicle.asktrunk.title()] = { ch_asktrunk }
+	local choices = {}
+	choices[lang.vehicle.title()] = { ch_vehicle }
+	choices[lang.vehicle.asktrunk.title()] = { ch_asktrunk }
 
-		if vRP.hasPermission(user_id, "repair.menu") then
-			choices["Mekaniker"] = {
-				function(player, choice)
-					vRP.buildMenu("mech", { player = player }, function(menu)
-						menu.name = "Mekaniker"
-						menu.css = { top = "75px", header_color = "rgba(150,59,17,0.75)" }
+	if vRP.hasPermission(user_id, "repair.menu") then
+		local mech_items = {
+			{ perm = "mekaniker.kursus", label = "Giv certifikat", fn = ch_kursus, desc = "Giv et certifikat til dem der har gået igennem et mekaniker kursus!" },
+			{ perm = "vehicle.repair", label = lang.vehicle.repair.title(), fn = ch_repair, desc = lang.vehicle.repair.description() },
+			{ perm = "vehicle.repair", label = "Beslaglæg køretøj", fn = choice_impound },
+			{ perm = "vehicle.replace", label = lang.vehicle.replace.title(), fn = ch_replace, desc = lang.vehicle.replace.description() },
+			{ perm = "vehicle.repair", label = lang.vehicle.unlock.title(), fn = ch_unlockvehicleMek, desc = lang.vehicle.unlock.description() },
+		}
 
-						if vRP.hasPermission(user_id, "mekaniker.kursus") then
-							menu["Giv certifikat"] = { ch_kursus, "Giv et certifikat til dem der har gået igennem et mekaniker kursus!" }
+		choices["Mekaniker"] = {
+			function(player, choice)
+				vRP.buildMenu("mech", { player = player }, function(menu)
+					menu.name = "Mekaniker"
+					menu.css = { top = "75px", header_color = "rgba(150,59,17,0.75)" }
+					for _, item in ipairs(mech_items) do
+						if vRP.hasPermission(user_id, item.perm) then
+							menu[item.label] = item.desc and { item.fn, item.desc } or { item.fn }
 						end
-
-						if vRP.hasPermission(user_id, "vehicle.repair") then
-							menu[lang.vehicle.repair.title()] = { ch_repair, lang.vehicle.repair.description() }
-							menu["Beslaglæg køretøj"] = choice_impound
-						end
-
-						if vRP.hasPermission(user_id, "vehicle.replace") then
-							menu[lang.vehicle.replace.title()] = { ch_replace, lang.vehicle.replace.description() }
-						end
-
-						if vRP.hasPermission(user_id, "vehicle.repair") then
-							menu[lang.vehicle.unlock.title()] = { ch_unlockvehicleMek, lang.vehicle.unlock.description() }
-						end
-						vRP.openMenu(player, menu)
-					end)
-				end,
-			}
-		end
-		add(choices)
+					end
+					vRP.openMenu(player, menu)
+				end)
+			end,
+		}
 	end
+
+	add(choices)
 end)

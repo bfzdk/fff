@@ -123,15 +123,15 @@ Citizen.CreateThread(function() -- coma thread
 				255,
 				255
 			)
-			DisableControlAction(0, 24, true) -- attack
-			DisableControlAction(0, 25, true) -- aim
-			DisableControlAction(0, 37, true) -- weapon wheel
-			DisableControlAction(0, 44, true) -- cover
-			DisableControlAction(0, 45, true) -- reload
-			DisableControlAction(0, 140, true) -- light attack
-			DisableControlAction(0, 141, active) -- heavy attack
-			DisableControlAction(0, 142, active) -- alternative attack
-			DisablePlayerFiring(GetPlayerPed(-1), true) -- Disable weapon firing
+		DisableControlAction(0, 24, true) -- attack
+		DisableControlAction(0, 25, true) -- aim
+		DisableControlAction(0, 37, true) -- weapon wheel
+		DisableControlAction(0, 44, true) -- cover
+		DisableControlAction(0, 45, true) -- reload
+		DisableControlAction(0, 140, true) -- light attack
+		DisableControlAction(0, 141, true) -- heavy attack
+		DisableControlAction(0, 142, true) -- alternative attack
+		DisablePlayerFiring(GetPlayerPed(-1), true) -- Disable weapon firing
 		else
 			if in_coma then -- get out of coma state
 				in_coma = false

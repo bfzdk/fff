@@ -2,7 +2,8 @@ local noclip = false
 local noclip_speed = 1.0
 local noclip_fspeed = 2.0
 local frozen = false
-local unfreeze = false
+local spectating = false
+local last_coords = nil
 
 function vRP.toggleNoclip()
 	local ped = GetPlayerPed(-1)
@@ -23,14 +24,13 @@ function vRP.isNoclip()
 end
 
 function vRP.toggleFreeze()
+	local ped = GetPlayerPed(-1)
+	frozen = not frozen
+	FreezeEntityPosition(ped, frozen)
 	if frozen then
-		frozen = false
-		unfreeze = true
-		vRP.notify("~g~Du blev unfrosset.")
-	else
-		frozen = true
-		unfreeze = false
 		vRP.notify("Du blev frosset af en admin.")
+	else
+		vRP.notify("~g~Du blev unfrosset.")
 	end
 end
 
@@ -38,30 +38,24 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
 		local ped = GetPlayerPed(-1)
-		local currentvehicle = GetVehiclePedIsIn(ped, false)
 		if frozen then
-			DisableControlAction(0, 23, true) -- enter veh
-			DisableControlAction(0, 24, true) -- attack
-			DisableControlAction(0, 25, true) -- aim
-			DisableControlAction(0, 37, true) -- weapon wheel
-			DisableControlAction(0, 44, true) -- cover
-			DisableControlAction(0, 45, true) -- reload
-			DisableControlAction(0, 75, true) -- exit veh
-			DisableControlAction(0, 140, true) -- light attack
-			DisableControlAction(0, 141, true) -- heavy attack
-			DisableControlAction(0, 142, true) -- alternative attack
-			DisablePlayerFiring(ped, true) -- Disable weapon firing
+			DisableControlAction(0, 23, true)
+			DisableControlAction(0, 24, true)
+			DisableControlAction(0, 25, true)
+			DisableControlAction(0, 37, true)
+			DisableControlAction(0, 44, true)
+			DisableControlAction(0, 45, true)
+			DisableControlAction(0, 75, true)
+			DisableControlAction(0, 140, true)
+			DisableControlAction(0, 141, true)
+			DisableControlAction(0, 142, true)
+			DisablePlayerFiring(ped, true)
 			FreezeEntityPosition(ped, true)
-			if IsPedSittingInAnyVehicle(ped) then
+			local currentvehicle = GetVehiclePedIsIn(ped, false)
+			if currentvehicle ~= 0 then
 				FreezeEntityPosition(currentvehicle, true)
 				SetVehicleUndriveable(currentvehicle, true)
 				SetVehicleEngineOn(currentvehicle, false, false, false)
-			end
-		elseif unfreeze then
-			FreezeEntityPosition(ped, false)
-			if IsPedSittingInAnyVehicle(ped) then
-				FreezeEntityPosition(currentvehicle, false)
-				SetVehicleUndriveable(currentvehicle, false)
 			end
 		end
 	end
@@ -83,10 +77,8 @@ function vRP.vehicleUnlockAdmin()
 	vRP.notify("~g~Du låste op for køretøjet med nummerpladen: ~b~" .. plate)
 end
 
--- noclip/invisibility
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(0)
 		if noclip then
 			local ped = GetPlayerPed(-1)
 			local x, y, z = vRP.getPosition()
@@ -94,31 +86,30 @@ Citizen.CreateThread(function()
 			local speed = noclip_speed
 			local fspeed = noclip_fspeed
 
-			-- reset velocity
 			SetEntityVelocity(ped, 0.0001, 0.0001, 0.0001)
 
-			-- forward
-			if IsControlPressed(0, 32) then -- MOVE UP
+			if IsControlPressed(0, 32) then
 				x = x + speed * dx
 				y = y + speed * dy
 				z = z + speed * dz
 			end
 
-			-- fastforward
-			if IsControlPressed(0, 21) and IsControlPressed(0, 32) then -- LEFT-SHIFT + MOVE UP
+			if IsControlPressed(0, 21) and IsControlPressed(0, 32) then
 				x = x + fspeed * dx
 				y = y + fspeed * dy
 				z = z + fspeed * dz
 			end
 
-			-- backward
-			if IsControlPressed(0, 269) then -- MOVE DOWN
+			if IsControlPressed(0, 269) then
 				x = x - speed * dx
 				y = y - speed * dy
 				z = z - speed * dz
 			end
 
 			SetEntityCoordsNoOffset(ped, x, y, z, true, true, true)
+			Citizen.Wait(0)
+		else
+			Citizen.Wait(500)
 		end
 	end
 end)
@@ -171,15 +162,16 @@ RegisterNetEvent("vRPAdmin:Spectate")
 AddEventHandler("vRPAdmin:Spectate", function(plr, tpcoords)
 	local playerPed = PlayerPedId()
 	local targetPed = GetPlayerPed(GetPlayerFromServerId(plr))
-	if not Spectating then
-		LastCoords = GetEntityCoords(playerPed)
+
+	if not spectating then
+		last_coords = GetEntityCoords(playerPed)
 		if tpcoords then
-			SetEntityCoords(playerPed, tpcoords - 10.0)
+			SetEntityCoords(playerPed, tpcoords.x - 10.0, tpcoords.y, tpcoords.z)
 		end
 		Wait(300)
 		targetPed = GetPlayerPed(GetPlayerFromServerId(plr))
 		if targetPed == playerPed then
-			vRP.notify("~r~I mean you cannot spectate yourself...")
+			vRP.notify("~r~Du kan ikke spectate dig selv.")
 			return
 		end
 		NetworkSetInSpectatorMode(true, targetPed)
@@ -187,7 +179,7 @@ AddEventHandler("vRPAdmin:Spectate", function(plr, tpcoords)
 		SetEntityVisible(playerPed, false, 0)
 		SetEveryoneIgnorePlayer(playerPed, true)
 		SetEntityInvincible(playerPed, true)
-		Spectating = true
+		spectating = true
 		vRP.notify("~g~Spectating Player.")
 	else
 		NetworkSetInSpectatorMode(false, targetPed)
@@ -195,8 +187,8 @@ AddEventHandler("vRPAdmin:Spectate", function(plr, tpcoords)
 		SetEveryoneIgnorePlayer(playerPed, false)
 		SetEntityInvincible(playerPed, false)
 		SetEntityCollision(playerPed, true, true)
-		Spectating = false
-		SetEntityCoords(playerPed, LastCoords)
+		spectating = false
+		SetEntityCoords(playerPed, last_coords)
 		vRP.notify("~r~Stopped Spectating Player.")
 	end
 end)

@@ -40,7 +40,6 @@ end)
 RegisterNUICallback("prompt", function(data, cb)
 	if data.act == "close" then
 		SetNuiFocus(false)
-		SetNuiFocus(false)
 		vRPserver.promptResult({ data.result })
 	end
 end)

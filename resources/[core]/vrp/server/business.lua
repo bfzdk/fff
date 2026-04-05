@@ -3,31 +3,8 @@
 local cfg = vRP.module("cfg/business")
 local htmlEntities = vRP.module("lib/htmlEntities")
 local lang = vRP.lang
-
 local sanitizes = vRP.module("cfg/sanitizes")
-
--- sql
-
---MySQL.Async.execute("vRP/business_tables",[[
---CREATE TABLE IF NOT EXISTS vrp_user_business(
---  user_id INTEGER,
---  name VARCHAR(30),
---  description TEXT,
---  capital INTEGER,
---  laundered INTEGER,
---  reset_timestamp INTEGER,
---  CONSTRAINT pk_user_business PRIMARY KEY(user_id),
---  CONSTRAINT fk_user_business_users FOREIGN KEY(user_id) REFERENCES vrp_users(id) ON DELETE CASCADE
---);
---]])
-
--- vRP.module describing business system (company, money laundering)
-
-local cfg = vRP.module("cfg/business")
-local htmlEntities = vRP.module("lib/htmlEntities")
-local lang = vRP.lang
-
-local sanitizes = vRP.module("cfg/sanitizes")
+local webhook = vRP.module("cfg/webhooks")
 
 -- api
 
@@ -35,28 +12,28 @@ local sanitizes = vRP.module("cfg/sanitizes")
 function vRP.getUserBusiness(user_id, cbr)
 	local task = Task(cbr)
 
-	if user_id ~= nil then
-		MySQL.Async.fetchAll(
-			"SELECT name,description,capital,laundered,reset_timestamp FROM vrp_user_business WHERE user_id = @user_id",
-			{ user_id = user_id },
-			function(rows, affected)
-				local business = rows[1]
-
-				-- when a business is fetched from the database, check for update of the laundered capital transfer capacity
-				if business and os.time() >= business.reset_timestamp + cfg.transfer_reset_interval * 60 then
-					MySQL.Async.execute(
-						"UPDATE vrp_user_business SET laundered = 0, reset_timestamp = @time WHERE user_id = @user_id",
-						{ user_id = user_id, time = os.time() }
-					)
-					business.laundered = 0
-				end
-
-				task({ business })
-			end
-		)
-	else
+	if user_id == nil then
 		task()
+		return
 	end
+
+	MySQL.Async.fetchAll(
+		"SELECT name,description,capital,laundered,reset_timestamp FROM vrp_user_business WHERE user_id = @user_id",
+		{ user_id = user_id },
+		function(rows, affected)
+			local business = rows[1]
+
+			if business and os.time() >= business.reset_timestamp + cfg.transfer_reset_interval * 60 then
+				MySQL.Async.execute(
+					"UPDATE vrp_user_business SET laundered = 0, reset_timestamp = @time WHERE user_id = @user_id",
+					{ user_id = user_id, time = os.time() }
+				)
+				business.laundered = 0
+			end
+
+			task({ business })
+		end
+	)
 end
 
 -- close the business of an user

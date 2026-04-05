@@ -3,6 +3,14 @@
 local handcuffed = false
 local cop = false
 
+-- Helper: load animation dict
+local function loadAnimDict(dict)
+	RequestAnimDict(dict)
+	while not HasAnimDictLoaded(dict) do
+		Citizen.Wait(10)
+	end
+end
+
 -- set player as cop (true or false)
 function vRP.setCop(flag)
 	cop = flag
@@ -13,7 +21,6 @@ end
 
 function vRP.toggleHandcuff()
 	handcuffed = not handcuffed
-
 	SetEnableHandcuffs(GetPlayerPed(-1), handcuffed)
 	if handcuffed then
 		vRP.playAnim(true, { { "mp_arresting", "idle", 1 } }, true)
@@ -29,13 +36,17 @@ function vRP.setHandcuffed(flag)
 	end
 end
 
+function vRP.isInComa()
+	return vRP.isInComa()
+end
+
 function vRP.isHandcuffed()
 	return handcuffed
 end
 
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(0)
+		Citizen.Wait(1)
 		if IsControlJustReleased(1, 170) then
 			TriggerServerEvent("handcuff:checkjob")
 			Citizen.Wait(1500)
@@ -58,104 +69,97 @@ function vRP.spawnspikes()
 	TriggerEvent("c_setSpike")
 end
 
-other = nil
-drag = false
-playerStillDragged = false
-drag1 = false
-drag2 = false
-dragversion = 1
+-- DRAG SYSTEM
+
+local drag_state = {
+	other = nil,
+	active = false,
+	playerAttached = false,
+	version = 1,
+}
 
 RegisterNetEvent("dr:drag")
 AddEventHandler("dr:drag", function(pl)
-	other = pl
-	drag = not drag
-	dragversion = 1
+	drag_state.other = pl
+	drag_state.active = not drag_state.active
+	drag_state.version = 1
 end)
 
 RegisterNetEvent("dr:drag2")
 AddEventHandler("dr:drag2", function(pl)
-	other = pl
-	drag = not drag
-	dragversion = 2
+	drag_state.other = pl
+	drag_state.active = not drag_state.active
+	drag_state.version = 2
 end)
+
+local function clearDragState()
+	drag_state.active = false
+	drag_state.other = nil
+	if drag_state.playerAttached then
+		DetachEntity(GetPlayerPed(-1), true, false)
+		drag_state.playerAttached = false
+	end
+end
 
 RegisterNetEvent("dr:undrag")
-AddEventHandler("dr:undrag", function(pl)
-	drag2 = false
-	drag1 = false
-	drag = false
-end)
+AddEventHandler("dr:undrag", clearDragState)
 
 RegisterNetEvent("dr:undrag2")
-AddEventHandler("dr:undrag2", function(pl)
-	drag2 = false
-	drag1 = false
-	drag = false
+AddEventHandler("dr:undrag2", function()
+	clearDragState()
 	ClearPedTasksImmediately(GetPlayerPed(-1))
 end)
 
 Citizen.CreateThread(function()
 	while true do
-		if drag and other ~= nil then
-			local ped = GetPlayerPed(GetPlayerFromServerId(other))
+		if drag_state.active and drag_state.other ~= nil then
+			local ped = GetPlayerPed(GetPlayerFromServerId(drag_state.other))
 			local myped = GetPlayerPed(-1)
-			if dragversion == 1 then
+			if drag_state.version == 1 then
 				AttachEntityToEntity(myped, ped, 9816, 0.015, 0.38, 0.11, 0.9, 0.30, 90.0, false, false, false, false, 2, false)
 			else
 				AttachEntityToEntity(myped, ped, 0, 0.27, 0.15, 0.63, 0.5, 0.5, 0.0, false, false, false, false, 2, false)
 			end
-			playerStillDragged = true
-		else
-			if playerStillDragged then
-				DetachEntity(GetPlayerPed(-1), true, false)
-				playerStillDragged = false
-			end
+			drag_state.playerAttached = true
+		elseif drag_state.playerAttached then
+			DetachEntity(GetPlayerPed(-1), true, false)
+			drag_state.playerAttached = false
 		end
 		Citizen.Wait(0)
 	end
 end)
 
-function vRP.putInNearestVehicleAsPassenger(radius)
-	local veh = vRP.getNearestVehicle(radius)
+-- VEHICLE HELPERS
 
-	if IsEntityAVehicle(veh) then
-		for i = 1, math.max(GetVehicleMaxNumberOfPassengers(veh), 3) do
-			if IsVehicleSeatFree(veh, i) then
-				SetPedIntoVehicle(GetPlayerPed(-1), veh, i)
-				beltOn = true
-				return true
-			end
+-- Helper: find first free passenger seat
+local function findPassengerSeat(veh)
+	local ped = GetPlayerPed(-1)
+	for i = 1, GetVehicleMaxNumberOfPassengers(veh) do
+		if IsVehicleSeatFree(veh, i) then
+			DetachEntity(ped, true, false)
+			SetPedIntoVehicle(ped, veh, i)
+			return true
 		end
 	end
 	return false
 end
 
+function vRP.putInNearestVehicleAsPassenger(radius)
+	local veh = vRP.getNearestVehicle(radius)
+	if not IsEntityAVehicle(veh) then return false end
+	return findPassengerSeat(veh)
+end
+
 function vRP.putInNetVehicleAsPassenger(net_veh)
 	local veh = NetworkGetEntityFromNetworkId(net_veh)
-	if IsEntityAVehicle(veh) then
-		for i = 1, GetVehicleMaxNumberOfPassengers(veh) do
-			if IsVehicleSeatFree(veh, i) then
-				DetachEntity(GetPlayerPed(-1), true, false)
-				SetPedIntoVehicle(GetPlayerPed(-1), veh, i)
-				beltOn = true
-				return true
-			end
-		end
-	end
+	if not IsEntityAVehicle(veh) then return false end
+	return findPassengerSeat(veh)
 end
 
 function vRP.putInVehiclePositionAsPassenger(x, y, z)
 	local veh = vRP.getVehicleAtPosition(x, y, z)
-	if IsEntityAVehicle(veh) then
-		for i = 1, GetVehicleMaxNumberOfPassengers(veh) do
-			if IsVehicleSeatFree(veh, i) then
-				DetachEntity(GetPlayerPed(-1), true, false)
-				SetPedIntoVehicle(GetPlayerPed(-1), veh, i)
-				beltOn = true
-				return true
-			end
-		end
-	end
+	if not IsEntityAVehicle(veh) then return false end
+	return findPassengerSeat(veh)
 end
 
 -- keep handcuffed animation
@@ -168,33 +172,22 @@ CreateThread(function()
 	end
 end)
 
--- force stealth movement while handcuffed (prevent use of fist and slow the player)
+-- force stealth movement while handcuffed
+local handcuff_disabled_controls = {
+	{0, 21}, {0, 22}, {0, 23}, {0, 24}, {0, 25}, {0, 29},
+	{0, 47}, {0, 58}, {0, 73}, {0, 75}, {27, 75},
+	{0, 140}, {0, 141}, {0, 142}, {0, 143}, {0, 257}, {0, 263}, {0, 264},
+	{0, 311}, {0, 323}, {0, 244},
+}
+
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
 		if handcuffed then
 			SetPedStealthMovement(GetPlayerPed(-1), true, "")
-			DisableControlAction(0, 21, true) -- disable sprint (SHIFT)
-			DisableControlAction(0, 22, true) -- disable jump (SPACE)
-			DisableControlAction(0, 23, true) -- disable enter vehicle (F)
-			DisableControlAction(0, 24, true) -- disable attack (LEFTCLICK)
-			DisableControlAction(0, 25, true) -- disable aim (RIGHTCLICK)
-			DisableControlAction(0, 29, true) -- disable point (B)
-			DisableControlAction(0, 47, true) -- disable weapon
-			DisableControlAction(0, 58, true) -- disable weapon
-			DisableControlAction(0, 73, true) -- disable handsup (X)
-			DisableControlAction(0, 75, true) -- disable exit vehicle (F)
-			DisableControlAction(27, 75, true) -- disable exit vehicle (F)
-			DisableControlAction(0, 140, true) -- disable melee
-			DisableControlAction(0, 141, true) -- disable melee
-			DisableControlAction(0, 142, true) -- disable melee
-			DisableControlAction(0, 143, true) -- disable melee
-			DisableControlAction(0, 257, true) -- disable melee
-			DisableControlAction(0, 263, true) -- disable melee
-			DisableControlAction(0, 264, true) -- disable melee
-			DisableControlAction(0, 311, true) -- disable seatbelt (K)
-			DisableControlAction(0, 323, true) -- disable handsup2 (X)
-			DisableControlAction(0, 244, true) -- disable flipoff (M)
+			for _, ctrl in ipairs(handcuff_disabled_controls) do
+				DisableControlAction(ctrl[1], ctrl[2], true)
+			end
 		end
 	end
 end)
@@ -203,13 +196,11 @@ end)
 
 local jail = nil
 
--- jail the player in a no-top no-bottom cylinder
 function vRP.jail(x, y, z, radius)
-	vRP.teleport(x, y, z) -- teleport to center
+	vRP.teleport(x, y, z)
 	jail = { x + 0.0001, y + 0.0001, z + 0.0001, radius + 0.0001 }
 end
 
--- unjail the player
 function vRP.unjail()
 	jail = nil
 end
@@ -221,32 +212,26 @@ end
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(5)
-		if jail then
-			local x, y, z = vRP.getPosition()
+		if jail == nil then goto continue end
 
-			local dx = x - jail[1]
-			local dy = y - jail[2]
-			local dist = math.sqrt(dx * dx + dy * dy)
+		local x, y, z = vRP.getPosition()
+		local dx = x - jail[1]
+		local dy = y - jail[2]
+		local dist = math.sqrt(dx * dx + dy * dy)
 
-			if dist >= jail[4] then
-				local ped = GetPlayerPed(-1)
-				SetEntityVelocity(ped, 0.0001, 0.0001, 0.0001) -- stop player
-
-				-- normalize + push to the edge + add origin
-				dx = dx / dist * jail[4] + jail[1]
-				dy = dy / dist * jail[4] + jail[2]
-
-				-- teleport player at the edge
-				SetEntityCoordsNoOffset(ped, dx, dy, z, true, true, true)
-			end
+		if dist >= jail[4] then
+			local ped = GetPlayerPed(-1)
+			SetEntityVelocity(ped, 0.0001, 0.0001, 0.0001)
+			dx = dx / dist * jail[4] + jail[1]
+			dy = dy / dist * jail[4] + jail[2]
+			SetEntityCoordsNoOffset(ped, dx, dy, z, true, true, true)
 		end
+
+		::continue::
 	end
 end)
 
 -- WANTED
-
--- wanted level sync
-local wanted_level = 0
 
 function vRP.applyWantedLevel(new_wanted)
 	Citizen.CreateThread(function()
@@ -262,61 +247,38 @@ end
 
 -- update wanted level
 Citizen.CreateThread(function()
+	local last_wanted = 0
 	while true do
 		Citizen.Wait(2000)
-
-		-- if cop, reset wanted level
 		if cop then
 			ClearPlayerWantedLevel(PlayerId())
 			SetPlayerWantedLevelNow(PlayerId(), false)
 		end
-
-		-- update level
-		local nwanted_level = GetPlayerWantedLevel(PlayerId())
-		if nwanted_level ~= wanted_level then
-			wanted_level = nwanted_level
-			vRPserver.updateWantedLevel({ wanted_level })
+		local cur_wanted = GetPlayerWantedLevel(PlayerId())
+		if cur_wanted ~= last_wanted then
+			last_wanted = cur_wanted
+			vRPserver.updateWantedLevel({ cur_wanted })
 		end
 	end
 end)
+
+-- HANDCUFF ANIM EVENTS
 
 RegisterNetEvent("vRPpolice-handcuff:Target")
 AddEventHandler("vRPpolice-handcuff:Target", function(source)
 	local playerPed = GetPlayerPed(-1)
 	local targetPed = GetPlayerPed(GetPlayerFromServerId(source))
-	RequestAnimDict("mp_arrest_paired")
-	while not HasAnimDictLoaded("mp_arrest_paired") do
-		Citizen.Wait(10)
-	end
-	AttachEntityToEntity(
-		GetPlayerPed(-1),
-		targetPed,
-		11816,
-		-0.1,
-		0.45,
-		0.0,
-		0.0,
-		0.0,
-		20.0,
-		false,
-		false,
-		false,
-		false,
-		20,
-		false
-	)
+	loadAnimDict("mp_arrest_paired")
+	AttachEntityToEntity(playerPed, targetPed, 11816, -0.1, 0.45, 0.0, 0.0, 0.0, 20.0, false, false, false, false, 20, false)
 	TaskPlayAnim(playerPed, "mp_arrest_paired", "crook_p2_back_left", 8.0, -8.0, 5500, 33, 0, false, false, false)
 	Citizen.Wait(950)
-	DetachEntity(GetPlayerPed(-1), true, false)
+	DetachEntity(playerPed, true, false)
 end)
 
 RegisterNetEvent("vRPpolice-handcuff:Player")
 AddEventHandler("vRPpolice-handcuff:Player", function()
 	local playerPed = GetPlayerPed(-1)
-	RequestAnimDict("mp_arrest_paired")
-	while not HasAnimDictLoaded("mp_arrest_paired") do
-		Citizen.Wait(10)
-	end
+	loadAnimDict("mp_arrest_paired")
 	TaskPlayAnim(playerPed, "mp_arrest_paired", "cop_p2_back_left", 8.0, -8.0, 5500, 33, 0, false, false, false)
 end)
 
@@ -324,39 +286,17 @@ RegisterNetEvent("vRPpolice-unhandcuff:Target")
 AddEventHandler("vRPpolice-unhandcuff:Target", function(source)
 	local playerPed = GetPlayerPed(-1)
 	local targetPed = GetPlayerPed(GetPlayerFromServerId(source))
-	RequestAnimDict("mp_arresting")
-	while not HasAnimDictLoaded("mp_arresting") do
-		Citizen.Wait(10)
-	end
-	AttachEntityToEntity(
-		GetPlayerPed(-1),
-		targetPed,
-		11816,
-		-0.1,
-		0.45,
-		0.0,
-		0.0,
-		0.0,
-		20.0,
-		false,
-		false,
-		false,
-		false,
-		20,
-		false
-	)
+	loadAnimDict("mp_arresting")
+	AttachEntityToEntity(playerPed, targetPed, 11816, -0.1, 0.45, 0.0, 0.0, 0.0, 20.0, false, false, false, false, 20, false)
 	TaskPlayAnim(playerPed, "mp_arresting", "b_uncuff", 8.0, -8.0, 5500, 33, 0, false, false, false)
 	Citizen.Wait(5500)
-	DetachEntity(GetPlayerPed(-1), true, false)
-	ClearPedTasks(GetPlayerPed(-1))
+	DetachEntity(playerPed, true, false)
+	ClearPedTasks(playerPed)
 end)
 
 RegisterNetEvent("vRPpolice-unhandcuff:Player")
 AddEventHandler("vRPpolice-unhandcuff:Player", function()
 	local playerPed = GetPlayerPed(-1)
-	RequestAnimDict("mp_arresting")
-	while not HasAnimDictLoaded("mp_arresting") do
-		Citizen.Wait(10)
-	end
+	loadAnimDict("mp_arresting")
 	TaskPlayAnim(playerPed, "mp_arresting", "a_uncuff", 8.0, -8.0, 5500, 33, 0, false, false, false)
 end)

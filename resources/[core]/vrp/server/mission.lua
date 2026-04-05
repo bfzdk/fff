@@ -37,20 +37,11 @@ function vRP.nextMissionStep(player)
 			if tmpdata.mission_step > #tmpdata.mission_data.steps then -- check mission end
 				vRP.stopMission(player)
 			else -- mission step
-				local step = tmpdata.mission_data.steps[tmpdata.mission_step]
-				local x, y, z = table.unpack(step.position)
-				local blipid = 1
-				local blipcolor = 5
-				local onleave = function(player, area) end
-				if step.blipid then
-					blipid = step.blipid
-				end
-				if step.blipcolor then
-					blipcolor = step.blipcolor
-				end
-				if step.onleave then
-					onleave = step.onleave
-				end
+		local step = tmpdata.mission_data.steps[tmpdata.mission_step]
+		local x, y, z = table.unpack(step.position)
+		local blipid = step.blipid or 1
+		local blipcolor = step.blipcolor or 5
+		local onleave = step.onleave or function() end
 
 				-- display
 				vRPclient.setDivContent(

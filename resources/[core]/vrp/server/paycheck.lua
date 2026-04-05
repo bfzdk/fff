@@ -58,25 +58,16 @@ local salary = {
 
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(1800000) -- Every X ms you'll get paid (300000 = 5 min)
+		Citizen.Wait(1800000)
 		for user_id, source in pairs(vRP.getUsers()) do
 			for k, v in pairs(salary) do
-				Citizen.Wait(50)
 				if vRP.hasPermission(user_id, v.perm) then
-					vRP.giveBankMoney(user_id, tonumber(v.salary))
-					vRP.notify(user_id, "Lønudbetaling: " .. format_thousands(math.floor(tonumber(v.salary))) .. " DKK. Erhverv: " .. k .. ".")
+					local amount = tonumber(v.salary)
+					vRP.giveBankMoney(user_id, amount)
+					vRP.notify(user_id, "Lønudbetaling: " .. format_thousands(math.floor(amount)) .. " DKK. Erhverv: " .. k .. ".")
 					break
 				end
 			end
 		end
 	end
 end)
-
-function format_thousands(v)
-	local s = string.format("%d", math.floor(v))
-	local pos = string.len(s) % 3
-	if pos == 0 then
-		pos = 3
-	end
-	return string.sub(s, 1, pos) .. string.gsub(string.sub(s, pos + 1), "(...)", ".%1")
-end

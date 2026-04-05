@@ -23,31 +23,31 @@ local function build_market_menus()
 			local idname = kitems[choice][1]
 			local item = vRP.items[idname]
 			local price = kitems[choice][2]
+			if item == nil then return end
 
-			if item then
-				-- prompt amount
-				local user_id = vRP.getUserId(player)
-				if user_id ~= nil then
-					vRP.prompt(player, lang.market.prompt({ item.name }), "", function(player, amount)
-						local amount = parseInt(amount)
-						if amount > 0 then
-							-- weight check
-							if new_weight <= vRP.getInventoryMaxWeight(user_id) then
-								if vRP.tryFullPayment(user_id, amount * price) then
-									vRP.giveInventoryItem(user_id, idname, amount, true)
-									vRP.notify(player, lang.money.paid({ amount * price }))
-								else
-									vRP.notify(player, lang.money.not_enough())
-								end
-							else
-								vRP.notify(player, lang.inventory.full())
-							end
-						else
-							vRP.notify(player, lang.common.invalid_value())
-						end
-					end)
+			local user_id = vRP.getUserId(player)
+			if user_id == nil then return end
+
+			vRP.prompt(player, lang.market.prompt({ item.name }), "", function(player, amount)
+				amount = parseInt(amount)
+				if amount <= 0 then
+					vRP.notify(player, lang.common.invalid_value())
+					return
 				end
-			end
+
+				local new_weight = vRP.getInventoryWeight(user_id) + vRP.getItemWeight(idname) * amount
+				if new_weight > vRP.getInventoryMaxWeight(user_id) then
+					vRP.notify(player, lang.inventory.full())
+					return
+				end
+
+				if vRP.tryFullPayment(user_id, amount * price) then
+					vRP.giveInventoryItem(user_id, idname, amount, true)
+					vRP.notify(player, lang.money.paid({ amount * price }))
+				else
+					vRP.notify(player, lang.money.not_enough())
+				end
+			end)
 		end
 
 		-- add item options
@@ -64,45 +64,39 @@ local function build_market_menus()
 	end
 end
 
-local first_build = true
-
 local function build_client_markets(source)
-	-- prebuild the market menu once (all items should be defined now)
 	if first_build then
 		build_market_menus()
 		first_build = false
 	end
 
 	local user_id = vRP.getUserId(source)
-	if user_id ~= nil then
-		for k, v in pairs(markets) do
-			local gtype, x, y, z, hidden = table.unpack(v)
-			local group = market_types[gtype]
-			local menu = market_menus[gtype]
+	if user_id == nil then return end
 
-			if group and menu then -- check market type
-				local gcfg = group._config
-				local function market_enter()
-					local user_id = vRP.getUserId(source)
-					if user_id ~= nil and vRP.hasPermissions(user_id, gcfg.permissions or {}) then
-						vRP.openMenu(source, menu)
-					end
-				end
+	for k, v in pairs(markets) do
+		local gtype, x, y, z, hidden = table.unpack(v)
+		local group = market_types[gtype]
+		local menu = market_menus[gtype]
+		if group == nil or menu == nil then return end
 
-				local function market_leave()
-					vRP.closeMenu(source)
-				end
+		local gcfg = group._config
 
-				if hidden == true then
-					vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
-					vRP.setArea(source, "vRP:market" .. k, x, y, z, 1, 1.5, market_enter, market_leave)
-				else
-					vRPclient.addBlip(source, { x, y, z, gcfg.blipid, gcfg.blipcolor, lang.market.title({ gtype }) })
-					vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
-					vRP.setArea(source, "vRP:market" .. k, x, y, z, 1, 1.5, market_enter, market_leave)
-				end
+		local function market_enter()
+			local uid = vRP.getUserId(source)
+			if uid ~= nil and vRP.hasPermissions(uid, gcfg.permissions or {}) then
+				vRP.openMenu(source, menu)
 			end
 		end
+
+		local function market_leave()
+			vRP.closeMenu(source)
+		end
+
+		if hidden ~= true then
+			vRPclient.addBlip(source, { x, y, z, gcfg.blipid, gcfg.blipcolor, lang.market.title({ gtype }) })
+		end
+		vRPclient.addMarker(source, { x, y, z - 0.87, 0.7, 0.7, 0.5, 0, 255, 125, 125, 150 })
+		vRP.setArea(source, "vRP:market" .. k, x, y, z, 1, 1.5, market_enter, market_leave)
 	end
 end
 
